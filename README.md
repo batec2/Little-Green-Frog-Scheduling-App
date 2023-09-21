@@ -1,4 +1,5 @@
 # f23hopper
 
 ## Team Members
-Dylan Fender - `postfen`
+Dylan Fender - `postfen
+Crush Bate - batec2`
