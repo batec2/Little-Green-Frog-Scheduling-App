@@ -13,12 +13,11 @@ data class Employee(
     val phoneNumber: String,
     var canOpen: Boolean,
     var canClose: Boolean,
-    var sunday: Int,
-    var monday: Int,
-    var tuesday: Int,
-    var wednesday: Int,
-    var thursday: Int,
-    var friday: Int,
-    var saturday: Int,
-    var active: Boolean
+    var sunday: ShiftType,
+    var monday: ShiftType,
+    var tuesday: ShiftType,
+    var wednesday: ShiftType,
+    var thursday: ShiftType,
+    var friday: ShiftType,
+    var saturday: ShiftType
 )
