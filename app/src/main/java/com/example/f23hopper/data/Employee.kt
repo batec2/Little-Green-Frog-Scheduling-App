@@ -19,5 +19,6 @@ data class Employee(
     var wednesday: Int,
     var thursday: Int,
     var friday: Int,
-    var saturday: Int
+    var saturday: Int,
+    var active: Boolean
 )
