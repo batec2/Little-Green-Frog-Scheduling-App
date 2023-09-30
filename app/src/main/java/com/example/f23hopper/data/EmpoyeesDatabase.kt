@@ -4,8 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 
 @Database(entities = [Employee::class], version = 1, exportSchema = false/*disable schema ver history*/)
+@TypeConverters(WeekDayConverter::class, ShiftTypeConverter::class)
 abstract class EmployeesDatabase : RoomDatabase()/*Extends RoomDatabase class*/ {
 
     abstract fun employeeDao(): EmployeeDao//tells database about dao
