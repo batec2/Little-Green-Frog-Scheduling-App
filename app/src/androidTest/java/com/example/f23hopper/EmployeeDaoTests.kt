@@ -60,7 +60,7 @@ class EmployeeDaoTest {
         )
 
         dao.insert(employee)
-        val generatedId = dao.insert(employee)  // Capture the generated ID
+        val generatedId = dao.insert(employee)
 
         val retrievedEmployee = dao.getItem(generatedId.toInt()).first()
         assertTrue(retrievedEmployee == employee.copy(employeeId = generatedId.toInt()))
