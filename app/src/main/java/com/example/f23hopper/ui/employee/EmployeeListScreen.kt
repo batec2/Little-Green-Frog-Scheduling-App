@@ -1,5 +1,7 @@
 package com.example.f23hopper.ui.employee
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -19,13 +21,22 @@ fun EmployeeListScreen(
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {navigateToEmployeeAdd()}
+                onClick = {navigateToEmployeeAdd()}//Navigates to employee
             ) {
+                Row (
+
+                ){
+                    /*PLACE FILTERS AND BUTTONS HERE*/
+                }
+                Column(
+
+                ){
+                    /*PLACE LAZY LIST HERE FOR EMPLOYEES*/
+                }
                 Icon(Icons.Default.Add, contentDescription = "add")
             }
         }
     ){innerPadding->
-        Text(text = "Hello World")
     }
 }
 
