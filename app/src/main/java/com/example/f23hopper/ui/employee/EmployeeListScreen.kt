@@ -14,11 +14,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun EmployeeListScreen(
-
+    navigateToEmployeeAdd: () -> Unit
 ){
     Scaffold(
         floatingActionButton = {
-            FloatingActionButton(onClick = {/*Navigate to Add page*/}) {
+            FloatingActionButton(
+                onClick = {navigateToEmployeeAdd()}
+            ) {
                 Icon(Icons.Default.Add, contentDescription = "add")
             }
         }
@@ -31,5 +33,5 @@ fun EmployeeListScreen(
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeListScreenPreview() {
-    EmployeeListScreen()
+
 }
