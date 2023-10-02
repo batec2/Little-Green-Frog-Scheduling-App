@@ -41,8 +41,16 @@ import com.example.f23hopper.data.EmployeeDao
 import com.example.f23hopper.data.EmployeesDatabase
 import com.example.f23hopper.ui.AppViewModelProvider
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.ShiftType
 import kotlinx.coroutines.launch
@@ -102,27 +110,71 @@ fun EmployeeEntryBody(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeInfo(
     onEmployeeInfoChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
 ){
+
+    val focusManager = LocalFocusManager.current
+
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent {
+            when {
+                KeyEventType.KeyUp == it.type && Key.Tab == it.key -> {
+                    focusManager.moveFocus(FocusDirection.Next)
+                    true
+                }
+
+                else -> false
+            }
+        },
         value = employeeDetails.firstName,
         onValueChange = {onEmployeeInfoChange(employeeDetails.copy(firstName=it))},
         label = { Text("First Name") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent {
+            when {
+                KeyEventType.KeyUp == it.type && Key.Tab == it.key -> {
+                    focusManager.moveFocus(FocusDirection.Next)
+                    true
+                }
+
+                else -> false
+            }
+        },
         value = employeeDetails.lastName,
         onValueChange = {onEmployeeInfoChange(employeeDetails.copy(lastName=it))},
         label = { Text("Last Name") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent {
+            when {
+                KeyEventType.KeyUp == it.type && Key.Tab == it.key -> {
+                    focusManager.moveFocus(FocusDirection.Next)
+                    true
+                }
+
+                else -> false
+            }
+        },
         value = employeeDetails.email,
         onValueChange = {onEmployeeInfoChange(employeeDetails.copy(email=it))},
         label = { Text("Email") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent {
+            when {
+                KeyEventType.KeyDown == it.type && Key.Tab == it.key -> {
+                    focusManager.moveFocus(FocusDirection.Next)
+                    true
+                }
+
+                else -> false
+            }
+        },
         value = employeeDetails.phoneNumber,
         onValueChange = {onEmployeeInfoChange(employeeDetails.copy(phoneNumber=it))},
         label = { Text("Phone Number") }
