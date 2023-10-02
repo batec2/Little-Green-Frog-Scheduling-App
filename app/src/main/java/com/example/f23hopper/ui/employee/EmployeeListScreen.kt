@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,27 +18,34 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun EmployeeListScreen(
     navigateToEmployeeAdd: () -> Unit
-){
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {navigateToEmployeeAdd()}//Navigates to employee
-            ) {
-                Row (
+                containerColor = colorScheme.tertiaryContainer,
+                contentColor = colorScheme.onTertiaryContainer,
+                onClick = { navigateToEmployeeAdd() }  // Navigates to employee
 
-                ){
+            ) {
+                Row {
                     /*PLACE FILTERS AND BUTTONS HERE*/
                 }
-                Column(
-
-                ){
+                Column {
                     /*PLACE LAZY LIST HERE FOR EMPLOYEES*/
                 }
-                Icon(Icons.Default.Add, contentDescription = "add")
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "add",
+                    tint = colorScheme.onPrimary
+                )  // Explicitly set icon tint from theme
             }
+        },
+        content = { innerPadding ->
+            // Your content here
         }
-    ){innerPadding->
-    }
+    )
 }
 
 
