@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.f23hopper.ui.screens.NavScreen
+import com.example.f23hopper.ui.Navigation.NavScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

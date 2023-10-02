@@ -7,7 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
-import com.example.f23hopper.ui.screens.NavScreen
 
 @Composable
 fun AppNavHost(

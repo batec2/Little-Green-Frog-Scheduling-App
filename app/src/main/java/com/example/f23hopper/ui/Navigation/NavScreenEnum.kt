@@ -1,4 +1,4 @@
-package com.example.f23hopper.ui.screens
+package com.example.f23hopper.ui.Navigation
 enum class NavScreen(val route: String) {
     EmployeeList("EmployeeList"),
     EmployeeEntry("EmployeeEntry"),
@@ -6,7 +6,7 @@ enum class NavScreen(val route: String) {
 
     override fun toString(): String {
         return when (this) {
-            EmployeeList -> "Employee List"
+            EmployeeList -> "Employees"
             EmployeeEntry -> "Employee Entry"
             Calendar -> "Calendar"
         }
