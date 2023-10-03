@@ -1,7 +1,8 @@
-package com.example.f23hopper.data
+package com.example.f23hopper.data.employee
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.f23hopper.data.shifttype.ShiftType
 
 @Entity(tableName = "employees")
 data class Employee(

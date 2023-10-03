@@ -20,8 +20,10 @@ import com.example.f23hopper.ui.Navigation.AppNavHost
 import com.example.f23hopper.ui.components.BottomNavigationBar
 import com.example.f23hopper.ui.components.TopAppBar
 import com.example.f23hopper.ui.theme.F23hopperTheme
+import dagger.hilt.android.AndroidEntryPoint
 
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

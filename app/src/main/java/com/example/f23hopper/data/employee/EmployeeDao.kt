@@ -1,4 +1,4 @@
-package com.example.f23hopper.data
+package com.example.f23hopper.data.employee
 
 import androidx.room.Dao
 import androidx.room.Delete
@@ -25,7 +25,7 @@ interface EmployeeDao {
     @Query("SELECT * FROM employees WHERE employeeId = :id")
     fun getItem(id: Int): Flow<Employee>
 
-    @Query("SELECT * FROM employees ORDER BY firstName ASC")
+    @Query("SELECT * FROM employees")
     fun getAllItems(): Flow<List<Employee>>
 
     @RawQuery(observedEntities = [Employee::class])

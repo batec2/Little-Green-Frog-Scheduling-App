@@ -1,15 +1,20 @@
 package com.example.f23hopper.ui.employee
 
-import EmployeeRepository
+import com.example.f23hopper.data.employee.EmployeeRepository
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.f23hopper.data.Employee
-import com.example.f23hopper.data.ShiftType
+import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.shifttype.ShiftType
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class EmployeeEntryViewModel(private val employeeRepository: EmployeeRepository) : ViewModel() {
+@HiltViewModel
+class EmployeeEntryViewModel @Inject constructor(
+    private val employeeRepository: EmployeeRepository,
+) : ViewModel() {
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
@@ -31,13 +36,6 @@ class EmployeeEntryViewModel(private val employeeRepository: EmployeeRepository)
         }
     }
 }
-
-class EmployeeEntryViewModelFactory(private val repository: EmployeeRepository) :ViewModelProvider.Factory{
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return EmployeeEntryViewModel(repository) as T
-    }
-}
-
 
 data class EmployeeUiState(
     val employeeDetails: EmployeeDetails = EmployeeDetails(),
