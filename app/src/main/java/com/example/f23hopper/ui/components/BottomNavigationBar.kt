@@ -11,7 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
-import com.example.f23hopper.ui.navigation.NavScreen
+import com.example.f23hopper.ui.nav.NavScreen
 
 @Composable
 fun BottomNavigationBar(
@@ -33,15 +33,16 @@ fun BottomNavigationBar(
             NavigationBarItem(
                 icon = {
                     when (item) {
+                        NavScreen.Calendar -> Icon(
+                            Icons.Default.DateRange,
+                            contentDescription = item.toString()
+                        )
+
                         NavScreen.EmployeeList -> Icon(
                             Icons.Default.AccountBox,
                             contentDescription = item.toString()
                         )
 
-                        NavScreen.Calendar -> Icon(
-                            Icons.Default.DateRange,
-                            contentDescription = item.toString()
-                        )
 
                         else -> {}
                     }

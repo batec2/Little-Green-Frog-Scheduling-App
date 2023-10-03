@@ -1,4 +1,4 @@
-package com.example.f23hopper.ui.navigation
+package com.example.f23hopper.ui.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,7 +16,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavScreen.EmployeeList.route,
+        startDestination = NavScreen.Calendar.route,
         modifier = modifier
     ) {
         composable(route = NavScreen.EmployeeList.route) {
