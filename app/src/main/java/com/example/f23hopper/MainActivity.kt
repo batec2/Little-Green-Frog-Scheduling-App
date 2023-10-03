@@ -16,7 +16,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
-import com.example.f23hopper.ui.navigation.AppNavHost
+import com.example.f23hopper.ui.nav.AppNavHost
 import com.example.f23hopper.ui.components.BottomNavigationBar
 import com.example.f23hopper.ui.components.TopAppBar
 import com.example.f23hopper.ui.theme.F23hopperTheme

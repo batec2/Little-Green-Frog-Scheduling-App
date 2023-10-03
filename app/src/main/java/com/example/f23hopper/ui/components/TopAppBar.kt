@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.f23hopper.ui.navigation.NavScreen
+import com.example.f23hopper.ui.nav.NavScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,11 +32,19 @@ fun TopAppBar(navController: NavHostController) {
         titleContentColor = colorScheme.onPrimaryContainer,
         actionIconContentColor = colorScheme.onPrimaryContainer
     )
+    val title = when {
+        currentRoute?.startsWith(NavScreen.CalendarDayView.route) == true -> {
+            val date = currentBackStackEntry?.arguments?.getString("date").toString()
+            "Schedule: $date"
+        }
+
+        else -> NavScreen.values().find { it.route == currentRoute }?.toString() ?: "Unknown"
+    }
 
     TopAppBar(
         title = {
             ProvideTextStyle(value = typography.headlineSmall.copy(fontSize = 18.sp)) {
-                Text(currentDestination.toString())
+                Text(title)
             }
         },
         navigationIcon = {
