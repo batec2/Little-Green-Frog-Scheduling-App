@@ -1,4 +1,4 @@
-package com.example.f23hopper.ui.Navigation
+package com.example.f23hopper.ui.navigation
 enum class NavScreen(val route: String) {
     EmployeeList("EmployeeList"),
     EmployeeEntry("EmployeeEntry"),

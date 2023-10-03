@@ -23,7 +23,7 @@ import java.sql.Date
 @RunWith(AndroidJUnit4::class)
 class ScheduleDaoTest {
 
-    private lateinit var db: EmployeesDatabase
+    private lateinit var db: HopperDatabase
     private lateinit var scheduleDao: ScheduleDao
     private lateinit var employeeDao: EmployeeDao
 
@@ -31,7 +31,7 @@ class ScheduleDaoTest {
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, EmployeesDatabase::class.java
+            context, HopperDatabase::class.java
         ).build()
         scheduleDao = db.scheduleDao()
         employeeDao = db.employeeDao()

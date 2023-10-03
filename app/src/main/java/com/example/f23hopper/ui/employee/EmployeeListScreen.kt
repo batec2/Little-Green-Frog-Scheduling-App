@@ -64,7 +64,7 @@ fun EmployeeListScreen(
                 }
 
                 FloatingActionButton(
-                    containerColor = colorScheme.tertiaryContainer.copy(alpha = 0.8f),
+                    containerColor = colorScheme.primary.copy(alpha = 0.8f),
                     contentColor = colorScheme.onTertiaryContainer,
                     onClick = { navigateToEmployeeAdd() },
                     modifier = Modifier.align(Alignment.BottomEnd).padding(16.dp)

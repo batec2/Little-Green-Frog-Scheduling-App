@@ -1,10 +1,11 @@
-package com.example.f23hopper.ui.Navigation
+package com.example.f23hopper.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.f23hopper.ui.calendar.CalendarScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 
@@ -25,6 +26,9 @@ fun AppNavHost(
         }
         composable(route = NavScreen.EmployeeEntry.route) {
             EmployeeEntryScreen()
+        }
+        composable(route = NavScreen.Calendar.route) {
+            CalendarScreen()
         }
     }
 }
