@@ -23,6 +23,8 @@ import com.himanshoe.kalendar.Kalendar
 import com.himanshoe.kalendar.KalendarEvent
 import com.himanshoe.kalendar.KalendarEvents
 import com.himanshoe.kalendar.KalendarType
+import com.himanshoe.kalendar.color.KalendarColor
+import com.himanshoe.kalendar.color.KalendarColors
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -61,7 +63,19 @@ fun KalendarView(
     clickedDay: MutableState<LocalDate?>,
     eventsOnClickedDay: MutableState<List<KalendarEvent>>
 ) {
+
+    val kalendarColors = KalendarColors(
+        color = List(12) {
+            KalendarColor(
+                backgroundColor = MaterialTheme.colorScheme.background,
+                dayBackgroundColor = MaterialTheme.colorScheme.onBackground,
+                headerTextColor = MaterialTheme.colorScheme.primary,
+            )
+        }
+    )
+
     Kalendar(
+        kalendarColors = kalendarColors,
         currentDay = Clock.System.todayIn(TimeZone.currentSystemDefault()),
         kalendarType = KalendarType.Firey,
 //            modifier = Modifier.weight(1f),
