@@ -22,6 +22,7 @@ abstract class HopperDatabase : RoomDatabase()/*Extends RoomDatabase class*/ {
 
     abstract fun employeeDao(): EmployeeDao//tells database about dao
     abstract fun scheduleDao(): ScheduleDao
+    abstract fun hopperDao(): HopperDao
 
     /*Allows access to methods to create or get database*/
     companion object {

@@ -1,12 +1,11 @@
 package com.example.f23hopper.ui.employee
 
-import com.example.f23hopper.data.employee.EmployeeRepository
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.shifttype.ShiftType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -43,7 +42,7 @@ data class EmployeeUiState(
 )
 
 data class EmployeeDetails(
-    val employeeId: Int = 0,
+    val employeeId: Long = 0,
     val firstName: String = "",
     val lastName: String = "",
     val email: String = "",
