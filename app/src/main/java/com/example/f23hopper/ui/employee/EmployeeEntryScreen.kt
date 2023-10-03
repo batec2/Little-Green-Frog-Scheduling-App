@@ -25,7 +25,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -87,27 +96,47 @@ fun EmployeeEntryBody(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeInfo(
     onEmployeeInfoChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
 ) {
+
+    val focusManager = LocalFocusManager.current
+
+    val handleKeyEvent: (KeyEvent) -> Boolean = {
+        when {
+            (it.type == KeyEventType.KeyDown && (it.key == Key.Tab || it.key == Key.Enter)) -> {
+                focusManager.moveFocus(FocusDirection.Next)
+                true
+            }
+
+            else -> false
+        }
+    }
+
+    //TODO: Refactor out this repetition. Structs for the field, for loop of structs into a component?
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
         value = employeeDetails.firstName,
         onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
         label = { Text("First Name") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
         value = employeeDetails.lastName,
         onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
         label = { Text("Last Name") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
         value = employeeDetails.email,
         onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
         label = { Text("Email") }
     )
     OutlinedTextField(
+        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
         value = employeeDetails.phoneNumber,
         onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
         label = { Text("Phone Number") }
@@ -174,12 +203,10 @@ fun ScheduleSelector(
                 steps = 1,
                 valueRange = 0f..2f
             )
-            if (sliderPosition == 0f) {
-                text = ShiftType.DAY.toString()
-            } else if (sliderPosition == 1f) {
-                text = ShiftType.FULL.toString()
-            } else {
-                text = ShiftType.NIGHT.toString()
+            text = when (sliderPosition) {
+                0f -> ShiftType.DAY.toString()
+                1f -> ShiftType.FULL.toString()
+                else -> ShiftType.NIGHT.toString()
             }
         }
         Text(text = text)
