@@ -15,11 +15,12 @@ import java.util.Calendar
 // Adds two employees, and fills out every other day of the current month with their shifts.
 // Will likely need to be tweaked as we go along, but good for keeping our data at a shared state
 // until we're further.
-suspend fun populateDatabase(db: HopperDatabase) {
+suspend fun activateDemoDatabase(db: HopperDatabase) {
     withContext(Dispatchers.IO) {
-        // Clear existing data
         val employeeDao = db.employeeDao()
         val scheduleDao = db.scheduleDao()
+
+        // Clear existing data
         wipeDatabase(db)
 
         // Populate Employees
@@ -115,19 +116,18 @@ suspend fun wipeDatabase(db: HopperDatabase) {
     val scheduleDao = db.scheduleDao()
     val generalDao = db.hopperDao()
 
-    // Delete all schedules
+    // delete all schedules, then all employees
     val allSchedules = scheduleDao.getAllSchedules().first()
     for (schedule in allSchedules) {
         scheduleDao.delete(schedule)
     }
 
-    // Delete all employees
     val allEmployees = employeeDao.getAllEmployees().first()
     for (employee in allEmployees) {
         employeeDao.delete(employee)
     }
 
-    // Reset auto-increment IDs
+    // full reset on tables (resets auto-increment)
     val query = SimpleSQLiteQuery("DELETE FROM sqlite_sequence WHERE name IN ('employees', 'schedules')")
     generalDao.executeRawQuery(query)
 }

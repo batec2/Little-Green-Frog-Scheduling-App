@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         GlobalScope.launch {
             // NOTE: This will wipe the DB and then populate it with dummy fields.
             // Remove this in PROD
-            populateDatabase(db)
+            activateDemoDatabase(db)
         }
 
         setContent {

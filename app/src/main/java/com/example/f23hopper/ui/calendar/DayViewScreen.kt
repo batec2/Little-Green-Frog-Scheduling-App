@@ -28,7 +28,7 @@ fun DayViewScreen(clickedDay: LocalDate) {
 
 
     Column {
-        Text("Events on $clickedDay", style = MaterialTheme.typography.headlineSmall)
+        Text("TODO: $clickedDay", style = MaterialTheme.typography.headlineSmall)
         LazyColumn {
             items(dayEvents) { event ->
                 ScheduleCard(event)
