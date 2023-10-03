@@ -9,6 +9,6 @@ interface AppContainer {
 
 class AppDataContainer(private val context: Context) : AppContainer {
     override val employeeRepository: EmployeeRepository by lazy{
-        EmployeeRepository(EmployeesDatabase.getDatabase(context).employeeDao())
+        EmployeeRepository(HopperDatabase.getDatabase(context).employeeDao())
     }
 }

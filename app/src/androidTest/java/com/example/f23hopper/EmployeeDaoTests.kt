@@ -7,7 +7,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeDao
-import com.example.f23hopper.data.EmployeesDatabase
+import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.WeekDay
 import kotlinx.coroutines.flow.first
@@ -22,14 +22,14 @@ import java.io.IOException
 @RunWith(AndroidJUnit4::class)
 class EmployeeDaoTest {
 
-    private lateinit var db: EmployeesDatabase
+    private lateinit var db: HopperDatabase
     private lateinit var dao: EmployeeDao
 
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         db = Room.inMemoryDatabaseBuilder(
-            context, EmployeesDatabase::class.java
+            context, HopperDatabase::class.java
         ).build()
         dao = db.employeeDao()
     }
