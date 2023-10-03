@@ -19,8 +19,8 @@ import java.sql.Date
 )
 data class Schedule(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0,
     val date: Date,
-    val employeeId: Int,
+    val employeeId: Long,
     val shiftTypeId: Int
 )

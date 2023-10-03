@@ -26,7 +26,7 @@ interface EmployeeDao {
     fun getItem(id: Int): Flow<Employee>
 
     @Query("SELECT * FROM employees")
-    fun getAllItems(): Flow<List<Employee>>
+    fun getAllEmployees(): Flow<List<Employee>>
 
     @RawQuery(observedEntities = [Employee::class])
     fun getEmployeesByDayAndShiftType(query: SupportSQLiteQuery): Flow<List<Employee>>
