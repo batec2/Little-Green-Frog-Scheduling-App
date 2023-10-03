@@ -1,8 +1,9 @@
-package com.example.f23hopper.data
+package com.example.f23hopper.data.schedule
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
+import com.example.f23hopper.data.employee.Employee
 import java.sql.Date
 
 @Entity(

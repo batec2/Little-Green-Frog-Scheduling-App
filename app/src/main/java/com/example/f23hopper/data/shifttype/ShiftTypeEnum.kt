@@ -1,4 +1,4 @@
-package com.example.f23hopper.data
+package com.example.f23hopper.data.shifttype
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

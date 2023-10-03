@@ -1,6 +1,6 @@
 package com.example.f23hopper.data
 
-import EmployeeRepository
+import com.example.f23hopper.data.employee.EmployeeRepository
 import android.content.Context
 
 interface AppContainer {

@@ -1,8 +1,8 @@
+package com.example.f23hopper.data.employee
+
 import kotlinx.coroutines.flow.Flow
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.example.f23hopper.data.Employee
-import com.example.f23hopper.data.EmployeeDao
-import com.example.f23hopper.data.ShiftType
+import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.WeekDay
 
 class EmployeeRepository(private val employeeDao: EmployeeDao) {

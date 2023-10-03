@@ -1,4 +1,4 @@
-package com.example.f23hopper.data
+package com.example.f23hopper.data.schedule
 
 import androidx.room.*
 import kotlinx.coroutines.flow.Flow

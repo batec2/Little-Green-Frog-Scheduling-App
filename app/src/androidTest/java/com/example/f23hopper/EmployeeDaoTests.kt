@@ -1,14 +1,14 @@
 package com.example.f23hopper
 
-import EmployeeRepository
+import com.example.f23hopper.data.employee.EmployeeRepository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.f23hopper.data.Employee
-import com.example.f23hopper.data.EmployeeDao
+import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.employee.EmployeeDao
 import com.example.f23hopper.data.EmployeesDatabase
-import com.example.f23hopper.data.ShiftType
+import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.WeekDay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking

@@ -5,6 +5,11 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.f23hopper.data.*
+import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.employee.EmployeeDao
+import com.example.f23hopper.data.schedule.Schedule
+import com.example.f23hopper.data.schedule.ScheduleDao
+import com.example.f23hopper.data.shifttype.ShiftType
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
