@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -116,31 +117,61 @@ fun EmployeeInfo(
         }
     }
 
-    //TODO: Refactor out this repetition. Structs for the field, for loop of structs into a component?
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.firstName,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
-        label = { Text("First Name") }
+    val fields = listOf(
+        FieldDetail(
+            label = "First Name",
+            value = employeeDetails.firstName,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
+            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
+            errorMessage = "Only letters and hyphens are allowed"
+        ),
+        FieldDetail(
+            label = "Last Name",
+            value = employeeDetails.lastName,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
+            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
+            errorMessage = "Only letters and hyphens are allowed"
+        ),
     )
+
+    fields.forEach { field -> ValidatedOutlinedTextField(field) }
+
+}
+
+data class FieldDetail(
+    val label: String,
+    val value: String,
+    val modifier: Modifier,
+    val onValueChange: (String) -> Unit,
+    val validate: (String) -> Boolean,
+    val errorMessage: String
+)
+
+
+@Composable
+fun ValidatedOutlinedTextField(field: FieldDetail) {
+    val isError = remember { mutableStateOf(false) }
+
     OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.lastName,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
-        label = { Text("Last Name") }
+        value = field.value,
+        modifier = field.modifier,
+        onValueChange = {
+            field.onValueChange(it)
+            isError.value = !field.validate(it)
+        },
+        label = { Text(text = field.label) },
+        isError = isError.value
     )
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.email,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
-        label = { Text("Email") }
-    )
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.phoneNumber,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
-        label = { Text("Phone Number") }
-    )
+    DisplayError(isError = isError.value, errorMessage = field.errorMessage)
+}
+
+@Composable
+fun DisplayError(isError: Boolean, errorMessage: String) {
+    if (isError) {
+        Text(text = errorMessage, color = Color.Red)
+    }
 }
 
 @Composable
