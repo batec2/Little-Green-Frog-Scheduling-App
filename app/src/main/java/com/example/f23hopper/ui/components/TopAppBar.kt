@@ -32,11 +32,19 @@ fun TopAppBar(navController: NavHostController) {
         titleContentColor = colorScheme.onPrimaryContainer,
         actionIconContentColor = colorScheme.onPrimaryContainer
     )
+    val title = when {
+        currentRoute?.startsWith(NavScreen.CalendarDayView.route) == true -> {
+            val date = currentBackStackEntry?.arguments?.getString("date").toString()
+            "Schedule: $date"
+        }
+
+        else -> NavScreen.values().find { it.route == currentRoute }?.toString() ?: "Unknown"
+    }
 
     TopAppBar(
         title = {
             ProvideTextStyle(value = typography.headlineSmall.copy(fontSize = 18.sp)) {
-                Text(currentDestination.toString())
+                Text(title)
             }
         },
         navigationIcon = {
