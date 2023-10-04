@@ -1,7 +1,11 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
@@ -69,10 +73,17 @@ fun CalendarScreen(
     if (sheetState.isVisible) {
         ModalBottomSheet(
             onDismissRequest = { /* Handle dismiss */ },
+            windowInsets = WindowInsets.systemBars,
             sheetState = sheetState,
             content = {
-                if (clickedDay.value != null) {
-                    WeekViewScreen(clickedDay.value!!)
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .systemBarsPadding()
+                ) {
+                    if (clickedDay.value != null) {
+                        WeekViewScreen(clickedDay.value!!)
+                    }
                 }
             }
         )
