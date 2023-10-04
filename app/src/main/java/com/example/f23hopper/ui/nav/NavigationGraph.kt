@@ -1,4 +1,4 @@
-package com.example.f23hopper.ui.navigation
+package com.example.f23hopper.ui.nav
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -6,8 +6,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.f23hopper.ui.calendar.CalendarScreen
+import com.example.f23hopper.ui.calendar.DayViewScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun AppNavHost(
@@ -16,7 +18,7 @@ fun AppNavHost(
 ) {
     NavHost(
         navController = navController,
-        startDestination = NavScreen.EmployeeList.route,
+        startDestination = NavScreen.Calendar.route,
         modifier = modifier
     ) {
         composable(route = NavScreen.EmployeeList.route) {
@@ -28,7 +30,13 @@ fun AppNavHost(
             EmployeeEntryScreen()
         }
         composable(route = NavScreen.Calendar.route) {
-            CalendarScreen()
+            CalendarScreen(
+                navigateToDayView = { clickedDay -> navController.navigate("${NavScreen.CalendarDayView.route}/$clickedDay") }
+            )
+        }
+        composable("${NavScreen.CalendarDayView.route}/{date}") { backStackEntry ->
+            val date = LocalDate.parse(backStackEntry.arguments?.getString("date").toString())
+            DayViewScreen(clickedDay = date)
         }
     }
 }

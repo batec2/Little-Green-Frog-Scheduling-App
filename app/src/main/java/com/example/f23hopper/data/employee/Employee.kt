@@ -7,7 +7,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 @Entity(tableName = "employees")
 data class Employee(
     @PrimaryKey(autoGenerate = true)
-    val employeeId: Int = 0,
+    var employeeId: Long = 0,
     val firstName: String,
     val lastName: String,
     val email: String,
