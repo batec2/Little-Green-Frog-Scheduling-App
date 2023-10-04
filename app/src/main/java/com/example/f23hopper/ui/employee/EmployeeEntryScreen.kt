@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
@@ -28,7 +29,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -36,6 +36,8 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -117,6 +119,9 @@ fun EmployeeInfo(
         }
     }
 
+    // Phone number has autoformatting, so its handled with a tracked TextFieldValue to keep track of
+    // the cursor position when formatted
+    var phoneNumberState by remember { mutableStateOf(TextFieldValue(text = employeeDetails.phoneNumber)) }
     val fields = listOf(
         FieldDetail(
             label = "First Name",
@@ -134,10 +139,28 @@ fun EmployeeInfo(
             validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
             errorMessage = "Only letters and hyphens are allowed"
         ),
+        FieldDetail(
+            label = "Phone Number",
+            formatter = ::formatPhoneNumber, // Pass reference to format function
+            value = phoneNumberState.text,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
+            validate = { it.matches(Regex("^[0-9-]+$")) },
+            errorMessage = "Only numbers are allowed"
+        ),
     )
 
     fields.forEach { field -> ValidatedOutlinedTextField(field) }
+}
 
+fun formatPhoneNumber(input: String): String {
+    val digits = input.filter { it.isDigit() }
+    return when {
+        digits.length <= 3 -> digits
+        digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
+        digits.length >= 10 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}"
+        else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+    }
 }
 
 data class FieldDetail(
@@ -146,32 +169,46 @@ data class FieldDetail(
     val modifier: Modifier,
     val onValueChange: (String) -> Unit,
     val validate: (String) -> Boolean,
-    val errorMessage: String
+    val errorMessage: String,
+    val formatter: ((String) -> String)? = null // optional formatter function
 )
 
 
 @Composable
 fun ValidatedOutlinedTextField(field: FieldDetail) {
     val isError = remember { mutableStateOf(false) }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(text = field.value)) }
 
     OutlinedTextField(
-        value = field.value,
+        value = textFieldValue,
         modifier = field.modifier,
-        onValueChange = {
-            field.onValueChange(it)
-            isError.value = !field.validate(it)
+        onValueChange = { newValue ->
+            var formattedValue = newValue.text
+            if (field.formatter != null) {
+                formattedValue = field.formatter.invoke(newValue.text)
+                textFieldValue = TextFieldValue(
+                    text = formattedValue,
+                    selection = TextRange(formattedValue.length)
+                )
+            } else {
+                textFieldValue = newValue
+            }
+            field.onValueChange(formattedValue)
+            isError.value = !field.validate(textFieldValue.text)
+
         },
         label = { Text(text = field.label) },
-        isError = isError.value
+        isError = isError.value,
+        supportingText = {
+            if (isError.value) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = field.errorMessage,
+                    color = colorScheme.error
+                )
+            }
+        }
     )
-    DisplayError(isError = isError.value, errorMessage = field.errorMessage)
-}
-
-@Composable
-fun DisplayError(isError: Boolean, errorMessage: String) {
-    if (isError) {
-        Text(text = errorMessage, color = Color.Red)
-    }
 }
 
 @Composable
@@ -229,7 +266,7 @@ fun ScheduleSelector(
                 value = sliderPosition,
                 onValueChange = {},
                 colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    thumbColor = colorScheme.secondary,
                 ),
                 steps = 1,
                 valueRange = 0f..2f
