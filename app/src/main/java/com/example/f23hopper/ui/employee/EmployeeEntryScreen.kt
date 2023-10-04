@@ -117,7 +117,6 @@ fun EmployeeInfo(
         FieldDetail(
             label = "First Name",
             value = employeeDetails.firstName,
-            formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
             validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
@@ -125,7 +124,6 @@ fun EmployeeInfo(
         ),
         FieldDetail(
             label = "Last Name",
-            formatter = ::formatName,
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
@@ -143,7 +141,7 @@ fun EmployeeInfo(
 
         FieldDetail(
             label = "Phone Number",
-            formatter = ::formatPhoneNumber, // Pass reference to format function
+            formatter = ::formatPhoneNumber,
             value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
@@ -181,14 +179,15 @@ data class FieldDetail(
     val modifier: Modifier,
     val onValueChange: (String) -> Unit,
     val validate: (String) -> Boolean,
-    val errorMessage: String,
-    val formatter: ((String) -> String)? = null // optional formatter function
+    val errorMessage: String, // Not used currently
+    val formatter: ((String) -> String)? = null // Optional formatter function
 )
 
 
 @Composable
 fun ValidatedOutlinedTextField(field: FieldDetail) {
     val isError = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf("") }
     var textFieldValue by remember { mutableStateOf(TextFieldValue(text = field.value)) }
 
     OutlinedTextField(
@@ -206,8 +205,12 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
                 textFieldValue = newValue
             }
             field.onValueChange(formattedValue)
-            isError.value = textFieldValue.text.isNotEmpty() && !field.validate(textFieldValue.text)
-
+            val isValid = field.validate(textFieldValue.text)
+            isError.value = textFieldValue.text.isNotEmpty() && !isValid
+            if (!isValid) {
+                val invalidChars = textFieldValue.text.filterNot { field.validate(it.toString()) }
+                errorMessage.value = "Not allowed: $invalidChars"
+            }
         },
         label = { Text(text = field.label) },
         isError = isError.value,
@@ -215,7 +218,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
             if (isError.value) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text = field.errorMessage,
+                    text =  errorMessage.value,
                     color = colorScheme.error
                 )
             }
