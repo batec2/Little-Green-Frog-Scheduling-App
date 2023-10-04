@@ -18,7 +18,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,11 +67,7 @@ fun EmployeeEntryBody(
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
     onSaveClick: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {})
-        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -138,6 +133,15 @@ fun EmployeeInfo(
             errorMessage = "Only letters and hyphens are allowed"
         ),
         FieldDetail(
+            label = "Email",
+            value = employeeDetails.email,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
+            validate = { it.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")) },
+            errorMessage = "name@mail.com format accepted"
+        ),
+
+        FieldDetail(
             label = "Phone Number",
             formatter = ::formatPhoneNumber, // Pass reference to format function
             value = employeeDetails.phoneNumber,
@@ -156,7 +160,13 @@ fun formatPhoneNumber(input: String): String {
     return when {
         digits.length <= 3 -> digits
         digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
-        digits.length >= 10 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}"
+        digits.length >= 10 -> "${digits.substring(0, 3)}-${
+            digits.substring(
+                3,
+                6
+            )
+        }-${digits.substring(6, 10)}"
+
         else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
     }
 }
