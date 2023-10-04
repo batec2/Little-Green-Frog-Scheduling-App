@@ -5,19 +5,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,13 +35,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeEntryScreen() {
     val coroutineScope = rememberCoroutineScope()
@@ -66,11 +67,7 @@ fun EmployeeEntryBody(
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
     onSaveClick: () -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(title = {})
-        }
-    ) { innerPadding ->
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -116,30 +113,116 @@ fun EmployeeInfo(
         }
     }
 
-    //TODO: Refactor out this repetition. Structs for the field, for loop of structs into a component?
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.firstName,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
-        label = { Text("First Name") }
+    val fields = listOf(
+        FieldDetail(
+            label = "First Name",
+            value = employeeDetails.firstName,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
+            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
+            errorMessage = "Only letters and hyphens are allowed"
+        ),
+        FieldDetail(
+            label = "Last Name",
+            value = employeeDetails.lastName,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
+            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
+            errorMessage = "Only letters and hyphens are allowed"
+        ),
+        FieldDetail(
+            label = "Email",
+            value = employeeDetails.email,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
+            validate = { it.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")) },
+            errorMessage = "name@mail.com format accepted"
+        ),
+
+        FieldDetail(
+            label = "Phone Number",
+            formatter = ::formatPhoneNumber,
+            value = employeeDetails.phoneNumber,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
+            validate = { it.matches(Regex("^[0-9-]+$")) },
+            errorMessage = "Only numbers are allowed"
+        ),
     )
+
+    fields.forEach { field -> ValidatedOutlinedTextField(field) }
+}
+
+fun formatPhoneNumber(input: String): String {
+    val digits = input.filter { it.isDigit() }
+    return when {
+        digits.length <= 3 -> digits
+        digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
+        digits.length >= 10 -> "${digits.substring(0, 3)}-${
+            digits.substring(
+                3,
+                6
+            )
+        }-${digits.substring(6, 10)}"
+
+        else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+    }
+}
+
+fun formatName(input: String): String {
+    return input.filter { it.isLetter() || it == '-' }
+}
+
+data class FieldDetail(
+    val label: String,
+    val value: String,
+    val modifier: Modifier,
+    val onValueChange: (String) -> Unit,
+    val validate: (String) -> Boolean,
+    val errorMessage: String, // Not used currently
+    val formatter: ((String) -> String)? = null // Optional formatter function
+)
+
+
+@Composable
+fun ValidatedOutlinedTextField(field: FieldDetail) {
+    val isError = remember { mutableStateOf(false) }
+    val errorMessage = remember { mutableStateOf("") }
+    var textFieldValue by remember { mutableStateOf(TextFieldValue(text = field.value)) }
+
     OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.lastName,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
-        label = { Text("Last Name") }
-    )
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.email,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
-        label = { Text("Email") }
-    )
-    OutlinedTextField(
-        modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-        value = employeeDetails.phoneNumber,
-        onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
-        label = { Text("Phone Number") }
+        value = textFieldValue,
+        modifier = field.modifier,
+        onValueChange = { newValue ->
+            var formattedValue = newValue.text
+            if (field.formatter != null) {
+                formattedValue = field.formatter.invoke(newValue.text)
+                textFieldValue = TextFieldValue(
+                    text = formattedValue,
+                    selection = TextRange(formattedValue.length)
+                )
+            } else {
+                textFieldValue = newValue
+            }
+            field.onValueChange(formattedValue)
+            val isValid = field.validate(textFieldValue.text)
+            isError.value = textFieldValue.text.isNotEmpty() && !isValid
+            if (!isValid) {
+                val invalidChars = textFieldValue.text.filterNot { field.validate(it.toString()) }
+                errorMessage.value = "Not allowed: $invalidChars"
+            }
+        },
+        label = { Text(text = field.label) },
+        isError = isError.value,
+        supportingText = {
+            if (isError.value) {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text =  errorMessage.value,
+                    color = colorScheme.error
+                )
+            }
+        }
     )
 }
 
@@ -198,7 +281,7 @@ fun ScheduleSelector(
                 value = sliderPosition,
                 onValueChange = {},
                 colors = SliderDefaults.colors(
-                    thumbColor = MaterialTheme.colorScheme.secondary,
+                    thumbColor = colorScheme.secondary,
                 ),
                 steps = 1,
                 valueRange = 0f..2f
