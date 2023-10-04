@@ -19,6 +19,8 @@ import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.himanshoe.kalendar.Kalendar
 import com.himanshoe.kalendar.KalendarType
+import com.himanshoe.kalendar.color.KalendarColor
+import com.himanshoe.kalendar.color.KalendarColors
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
@@ -33,8 +35,18 @@ fun WeekViewScreen(clickedDay: LocalDate) {
         // TODO: This looks super weird, bring up in the meeting
         Kalendar(
             currentDay = clickedDay,
+            kalendarColors = KalendarColors(
+                color = List(12) {
+                    KalendarColor(
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        dayBackgroundColor = MaterialTheme.colorScheme.onBackground,
+                        headerTextColor = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            ),
             kalendarType = KalendarType.Oceanic,
             onDayClick = { localDate, _ ->
+
             }
         )
         Text("TODO: $clickedDay", style = MaterialTheme.typography.headlineSmall)
