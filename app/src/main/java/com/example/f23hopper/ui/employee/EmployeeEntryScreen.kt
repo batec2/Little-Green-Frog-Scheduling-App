@@ -44,7 +44,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeEntryScreen() {
     val coroutineScope = rememberCoroutineScope()
@@ -119,13 +118,11 @@ fun EmployeeInfo(
         }
     }
 
-    // Phone number has autoformatting, so its handled with a tracked TextFieldValue to keep track of
-    // the cursor position when formatted
-    var phoneNumberState by remember { mutableStateOf(TextFieldValue(text = employeeDetails.phoneNumber)) }
     val fields = listOf(
         FieldDetail(
             label = "First Name",
             value = employeeDetails.firstName,
+            formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
             validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
@@ -133,6 +130,7 @@ fun EmployeeInfo(
         ),
         FieldDetail(
             label = "Last Name",
+            formatter = ::formatName,
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
@@ -142,7 +140,7 @@ fun EmployeeInfo(
         FieldDetail(
             label = "Phone Number",
             formatter = ::formatPhoneNumber, // Pass reference to format function
-            value = phoneNumberState.text,
+            value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
             validate = { it.matches(Regex("^[0-9-]+$")) },
@@ -161,6 +159,10 @@ fun formatPhoneNumber(input: String): String {
         digits.length >= 10 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}"
         else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
     }
+}
+
+fun formatName(input: String): String {
+    return input.filter { it.isLetter() || it == '-' }
 }
 
 data class FieldDetail(
@@ -194,7 +196,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
                 textFieldValue = newValue
             }
             field.onValueChange(formattedValue)
-            isError.value = !field.validate(textFieldValue.text)
+            isError.value = textFieldValue.text.isNotEmpty() && !field.validate(textFieldValue.text)
 
         },
         label = { Text(text = field.label) },
