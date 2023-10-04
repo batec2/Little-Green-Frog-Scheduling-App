@@ -17,17 +17,26 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.himanshoe.kalendar.Kalendar
+import com.himanshoe.kalendar.KalendarType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun DayViewScreen(clickedDay: LocalDate) {
+fun WeekViewScreen(clickedDay: LocalDate) {
     val viewModel = hiltViewModel<DayViewViewModel>()
     val dayEventsFlow: Flow<List<Schedule>> = viewModel.getEventsForClickedDay(clickedDay)
     val dayEvents by dayEventsFlow.collectAsState(initial = emptyList())
 
 
     Column {
+        // TODO: This looks super weird, bring up in the meeting
+        Kalendar(
+            currentDay = clickedDay,
+            kalendarType = KalendarType.Oceanic,
+            onDayClick = { localDate, _ ->
+            }
+        )
         Text("TODO: $clickedDay", style = MaterialTheme.typography.headlineSmall)
         LazyColumn {
             items(dayEvents) { event ->

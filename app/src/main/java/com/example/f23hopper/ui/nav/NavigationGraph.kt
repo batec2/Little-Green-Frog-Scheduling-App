@@ -6,7 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.f23hopper.ui.calendar.CalendarScreen
-import com.example.f23hopper.ui.calendar.DayViewScreen
+import com.example.f23hopper.ui.calendar.WeekViewScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 import kotlinx.datetime.LocalDate
@@ -31,12 +31,12 @@ fun AppNavHost(
         }
         composable(route = NavScreen.Calendar.route) {
             CalendarScreen(
-                navigateToDayView = { clickedDay -> navController.navigate("${NavScreen.CalendarDayView.route}/$clickedDay") }
+                navigateToDayView = { clickedDay -> navController.navigate("${NavScreen.CalendaWeekView.route}/$clickedDay") }
             )
         }
-        composable("${NavScreen.CalendarDayView.route}/{date}") { backStackEntry ->
+        composable("${NavScreen.CalendaWeekView.route}/{date}") { backStackEntry ->
             val date = LocalDate.parse(backStackEntry.arguments?.getString("date").toString())
-            DayViewScreen(clickedDay = date)
+            WeekViewScreen(clickedDay = date)
         }
     }
 }
