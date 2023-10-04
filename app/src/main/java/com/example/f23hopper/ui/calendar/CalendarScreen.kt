@@ -1,15 +1,23 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -19,15 +27,20 @@ import com.himanshoe.kalendar.KalendarEvents
 import com.himanshoe.kalendar.KalendarType
 import com.himanshoe.kalendar.color.KalendarColor
 import com.himanshoe.kalendar.color.KalendarColors
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.todayIn
 
 @Composable
+@ExperimentalMaterial3Api
 fun CalendarScreen(
     navigateToDayView: (String) -> Unit
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val clickedDay = remember { mutableStateOf<LocalDate?>(null) }
+    val sheetState = rememberModalBottomSheetState()
 
     val viewModel = hiltViewModel<CalendarSchedulesViewModel>()
     val schedulesFromDb by viewModel.schedules.collectAsState(initial = emptyList())
@@ -38,19 +51,44 @@ fun CalendarScreen(
         )
     }
 
-    var clickedDay = remember { mutableStateOf<LocalDate?>(null) }
-    var eventsOnClickedDay = remember { mutableStateOf<List<KalendarEvent>>(emptyList()) }
-
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colorScheme.background
     ) {
         Column {
-            KalendarView(kalendarEvents, clickedDay, eventsOnClickedDay, navigateToDayView)
+            KalendarView(
+                kalendarEvents = kalendarEvents,
+                clickedDay = clickedDay,
+                eventsOnClickedDay = remember { mutableStateOf(emptyList()) },
+                navigateToDayView = { day ->
+                    clickedDay.value = LocalDate.parse(day)
+                    coroutineScope.launch {
+                        sheetState.expand()
+                    }
+                }
+            )
         }
     }
-}
 
+    if (sheetState.isVisible) {
+        ModalBottomSheet(
+            onDismissRequest = { /* Handle dismiss */ },
+            windowInsets = WindowInsets.systemBars,
+            sheetState = sheetState,
+            content = {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .systemBarsPadding()
+                ) {
+                    if (clickedDay.value != null) {
+                        WeekViewScreen(clickedDay.value!!)
+                    }
+                }
+            }
+        )
+    }
+}
 
 @Composable
 fun KalendarView(

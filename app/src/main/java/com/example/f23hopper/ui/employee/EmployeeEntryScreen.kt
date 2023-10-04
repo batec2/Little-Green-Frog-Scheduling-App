@@ -158,13 +158,7 @@ fun formatPhoneNumber(input: String): String {
     return when {
         digits.length <= 3 -> digits
         digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
-        digits.length >= 10 -> "${digits.substring(0, 3)}-${
-            digits.substring(
-                3,
-                6
-            )
-        }-${digits.substring(6, 10)}"
-
+        digits.length >= 10 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}"
         else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
     }
 }
@@ -179,7 +173,7 @@ data class FieldDetail(
     val modifier: Modifier,
     val onValueChange: (String) -> Unit,
     val validate: (String) -> Boolean,
-    val errorMessage: String, // Not used currently
+    val errorMessage: String,
     val formatter: ((String) -> String)? = null // Optional formatter function
 )
 
@@ -209,7 +203,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
             isError.value = textFieldValue.text.isNotEmpty() && !isValid
             if (!isValid) {
                 val invalidChars = textFieldValue.text.filterNot { field.validate(it.toString()) }
-                errorMessage.value = "Not allowed: $invalidChars"
+                errorMessage.value = "${field.errorMessage}: $invalidChars"
             }
         },
         label = { Text(text = field.label) },

@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.nav
 
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -11,6 +12,7 @@ import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 import kotlinx.datetime.LocalDate
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
