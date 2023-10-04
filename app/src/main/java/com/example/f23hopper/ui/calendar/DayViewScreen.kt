@@ -17,13 +17,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.himanshoe.kalendar.Kalendar
-import com.himanshoe.kalendar.KalendarType
-import com.himanshoe.kalendar.color.KalendarColor
-import com.himanshoe.kalendar.color.KalendarColors
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 
+//TODO: Pass in the events directly instead of having it make a DB call. Might be a lot snappier that way.
+// Test if that approach works for when a schedule is added though.
 @Composable
 fun WeekViewScreen(clickedDay: LocalDate) {
     val viewModel = hiltViewModel<DayViewViewModel>()
@@ -32,23 +30,6 @@ fun WeekViewScreen(clickedDay: LocalDate) {
 
 
     Column {
-        // TODO: This looks super weird, bring up in the meeting
-        Kalendar(
-            currentDay = clickedDay,
-            kalendarColors = KalendarColors(
-                color = List(12) {
-                    KalendarColor(
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        dayBackgroundColor = MaterialTheme.colorScheme.onBackground,
-                        headerTextColor = MaterialTheme.colorScheme.primary,
-                    )
-                }
-            ),
-            kalendarType = KalendarType.Oceanic,
-            onDayClick = { localDate, _ ->
-
-            }
-        )
         Text("TODO: $clickedDay", style = MaterialTheme.typography.headlineSmall)
         LazyColumn {
             items(dayEvents) { event ->
