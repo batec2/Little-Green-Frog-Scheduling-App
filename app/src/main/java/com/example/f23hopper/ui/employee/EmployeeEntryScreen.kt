@@ -291,49 +291,36 @@ fun ScheduleSelector(
         DaySelector(
             dayOfWeek = "Monday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(monday = it))},
-            employeeDetails = employeeDetails
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Tuesday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(tuesday = it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Wednesday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(wednesday = it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Thursday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(thursday = it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Friday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(friday= it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Saturday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(saturday = it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Sunday",
             onSelectionChange = {onScheduleValueChange(employeeDetails.copy(sunday = it))},
-            employeeDetails = employeeDetails
-
         )
         Spacer(modifier = Modifier.size(10.dp))
     }
@@ -343,7 +330,6 @@ fun ScheduleSelector(
 fun DaySelector(
     dayOfWeek: String,
     onSelectionChange: (ShiftType)->Unit,
-    employeeDetails: EmployeeDetails
     ) {
     var dayShift by remember{ mutableStateOf(false) }
     var nightShift by remember{ mutableStateOf(false) }
