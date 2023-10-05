@@ -106,7 +106,8 @@ fun EmployeeEntryBody(
                 employeeDetails = employeeDetails
             )
             ScheduleSelector(
-
+                onScheduleValueChange = onEmployeeValueChange,
+                employeeDetails = employeeDetails
             )
             Button(
                 onClick = onSaveClick,
@@ -280,34 +281,88 @@ fun WeekendSelector(
 }
 @Composable
 fun ScheduleSelector(
-
+    onScheduleValueChange: (EmployeeDetails) -> Unit = {},
+    employeeDetails: EmployeeDetails
 ){
     Column(
         modifier = Modifier
         .padding(10.dp)
     ){
-        DaySelector(dayOfWeek = "Monday")
+        DaySelector(
+            dayOfWeek = "Monday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Tuesday")
+        DaySelector(
+            dayOfWeek = "Tuesday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Wednesday")
+        DaySelector(
+            dayOfWeek = "Wednesday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Thursday")
+        DaySelector(
+            dayOfWeek = "Thursday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Friday")
+        DaySelector(
+            dayOfWeek = "Friday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Saturday")
+        DaySelector(
+            dayOfWeek = "Saturday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(dayOfWeek = "Sunday")
+        DaySelector(
+            dayOfWeek = "Sunday",
+            onButtonValueChange = onScheduleValueChange,
+            employeeDetails = employeeDetails
+
+        )
         Spacer(modifier = Modifier.size(10.dp))
     }
 }
 
 @Composable
 fun DaySelector(
-    dayOfWeek: String
+    dayOfWeek: String,
+    onButtonValueChange: (EmployeeDetails) -> Unit = {},
+    employeeDetails: EmployeeDetails
     ) {
+    var dayShift by remember{ mutableStateOf(false) }
+    var nightShift by remember{ mutableStateOf(false) }
+
     Column {
+        Text(
+            text = if(dayShift && !nightShift){
+                ShiftType.DAY.toString()
+            }
+            else if(nightShift && !dayShift){
+                ShiftType.NIGHT.toString()
+            }
+            else if(!nightShift && !dayShift){
+                ShiftType.CANT_WORK.toString()
+            }
+            else{
+                ShiftType.FULL.toString()
+            }
+        )
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier =
@@ -327,8 +382,14 @@ fun DaySelector(
                 horizontalArrangement = Arrangement.SpaceEvenly,
                 modifier = Modifier.weight(1f)
             ){
-                dayButton("Day")
-                dayButton("Night")
+                dayButton(
+                    "Day",
+                    onButtonChange = {dayShift = it}
+                )
+                dayButton(
+                    "Night",
+                    onButtonChange = {nightShift = it}
+                )
             }
         }
     }
@@ -336,7 +397,8 @@ fun DaySelector(
 
 @Composable
 fun dayButton(
-    icon:String
+    icon:String,
+    onButtonChange: (Boolean) -> Unit
 ){
     var checked by remember{ mutableStateOf(false) }
     val buttonColor by animateColorAsState(if (checked) Purple80 else White)
@@ -344,6 +406,7 @@ fun dayButton(
         checked = checked,
         onCheckedChange = {
             checked = it
+            onButtonChange(it)
         },
         modifier = Modifier
             .clip(CircleShape)
@@ -361,5 +424,5 @@ fun dayButton(
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeEntryScreenPreview() {
-    ScheduleSelector()
+    //ScheduleSelector()
 }
