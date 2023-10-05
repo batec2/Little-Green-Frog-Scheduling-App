@@ -1,5 +1,8 @@
 package com.example.f23hopper.ui.employee
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,10 +10,17 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -27,7 +37,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Green
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -39,8 +55,14 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.icons.rememberClearNight
+import com.example.f23hopper.ui.icons.rememberSunny
+import com.example.f23hopper.ui.theme.Pink40
+import com.example.f23hopper.ui.theme.Purple80
+import com.example.f23hopper.ui.theme.PurpleGrey40
 import kotlinx.coroutines.launch
 
 @Composable
@@ -82,6 +104,9 @@ fun EmployeeEntryBody(
             WeekendSelector(
                 onWeekendValueChange = onEmployeeValueChange,
                 employeeDetails = employeeDetails
+            )
+            ScheduleSelector(
+
             )
             Button(
                 onClick = onSaveClick,
@@ -253,45 +278,88 @@ fun WeekendSelector(
 
     }
 }
-
 @Composable
 fun ScheduleSelector(
-    day: String,
-    employeeDetails: EmployeeDetails,
-    onSelectionChange: (EmployeeDetails) -> Unit = {},
 
+){
+    Column(
+        modifier = Modifier
+        .padding(10.dp)
+    ){
+        DaySelector(dayOfWeek = "Monday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Tuesday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Wednesday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Thursday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Friday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Saturday")
+        Spacer(modifier = Modifier.size(10.dp))
+        DaySelector(dayOfWeek = "Sunday")
+        Spacer(modifier = Modifier.size(10.dp))
+    }
+}
+
+@Composable
+fun DaySelector(
+    dayOfWeek: String
     ) {
-    var sliderPosition by remember { mutableStateOf(0f) }
-    var text by remember { mutableStateOf("") }
     Column {
         Row(
-            modifier = Modifier,
-            //.width(50.dp)
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-        ) {
-            Text(text = day)
-            Slider(
-                value = sliderPosition,
-                onValueChange = {},
-                colors = SliderDefaults.colors(
-                    thumbColor = colorScheme.secondary,
-                ),
-                steps = 1,
-                valueRange = 0f..2f
-            )
-            text = when (sliderPosition) {
-                0f -> ShiftType.DAY.toString()
-                1f -> ShiftType.FULL.toString()
-                else -> ShiftType.NIGHT.toString()
+            modifier =
+            Modifier
+                .clip(RoundedCornerShape(5.dp))
+                .border(1.dp, Purple80, RoundedCornerShape(5.dp))
+                .fillMaxWidth()
+                .background(White)
+                .padding(5.dp)
+
+        ){
+            Text(text = dayOfWeek,
+                color = PurpleGrey40,
+                fontSize = 30.sp,
+                modifier = Modifier.weight(2f))
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.weight(1f)
+            ){
+                dayButton("Day")
+                dayButton("Night")
             }
         }
-        Text(text = text)
+    }
+}
+
+@Composable
+fun dayButton(
+    icon:String
+){
+    var checked by remember{ mutableStateOf(false) }
+    val buttonColor by animateColorAsState(if (checked) Purple80 else White)
+    IconToggleButton(
+        checked = checked,
+        onCheckedChange = {
+            checked = it
+        },
+        modifier = Modifier
+            .clip(CircleShape)
+            .border(1.dp, PurpleGrey40, CircleShape)
+            .background(buttonColor)
+            .size(35.dp),
+    ) {
+        if(icon == "Day")
+            Icon(imageVector = rememberSunny(), contentDescription = "Sun")
+        else if(icon == "Night")
+            Icon(imageVector = rememberClearNight(), contentDescription = "Moon")
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeEntryScreenPreview() {
-    //ScheduleSelector(day="monday")
+    ScheduleSelector()
 }
