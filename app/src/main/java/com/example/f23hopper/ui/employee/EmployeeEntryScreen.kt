@@ -290,48 +290,48 @@ fun ScheduleSelector(
     ){
         DaySelector(
             dayOfWeek = "Monday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(monday = it))},
             employeeDetails = employeeDetails
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Tuesday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(tuesday = it))},
             employeeDetails = employeeDetails
 
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Wednesday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(wednesday = it))},
             employeeDetails = employeeDetails
 
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Thursday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(thursday = it))},
             employeeDetails = employeeDetails
 
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Friday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(friday= it))},
             employeeDetails = employeeDetails
 
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Saturday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(saturday = it))},
             employeeDetails = employeeDetails
 
         )
         Spacer(modifier = Modifier.size(10.dp))
         DaySelector(
             dayOfWeek = "Sunday",
-            onButtonValueChange = onScheduleValueChange,
+            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(sunday = it))},
             employeeDetails = employeeDetails
 
         )
@@ -342,11 +342,25 @@ fun ScheduleSelector(
 @Composable
 fun DaySelector(
     dayOfWeek: String,
-    onButtonValueChange: (EmployeeDetails) -> Unit = {},
+    onSelectionChange: (ShiftType)->Unit,
     employeeDetails: EmployeeDetails
     ) {
     var dayShift by remember{ mutableStateOf(false) }
     var nightShift by remember{ mutableStateOf(false) }
+    //var shift by remember{ mutableStateOf(ShiftType.CANT_WORK) }
+
+    if(dayShift && !nightShift){
+        onSelectionChange(ShiftType.DAY)
+    }
+    else if(nightShift && !dayShift){
+        onSelectionChange(ShiftType.NIGHT)
+    }
+    else if(!nightShift && !dayShift){
+        onSelectionChange(ShiftType.CANT_WORK)
+    }
+    else{
+        onSelectionChange(ShiftType.FULL)
+    }
 
     Column {
         Text(
