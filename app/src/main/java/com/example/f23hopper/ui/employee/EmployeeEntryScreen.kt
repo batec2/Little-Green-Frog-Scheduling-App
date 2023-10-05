@@ -48,7 +48,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberClearNight
+import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberSunny
+import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.ui.theme.Purple80
 import com.example.f23hopper.ui.theme.PurpleGrey40
 import kotlinx.coroutines.launch
@@ -356,9 +358,9 @@ fun dayButton(
 ) {
     var checked by remember { mutableStateOf(false) }
     val buttonColor = when {
-        icon == "Day" && checked -> Color(0xFFFFA500) // orange for Day
-        icon == "Night" && checked -> Color(0xFF0000FF) // blue for Night
-        else -> Color.Gray // grey for inactive
+        icon == "Day" && checked -> Color(0xFFdb5edb) // orange for Day
+        icon == "Night" && checked -> Color(0xFF792ba6) // blue for Night
+        else -> Color(0XFFc7afc7) // grey for inactive
     }
 
     IconToggleButton(
@@ -375,12 +377,12 @@ fun dayButton(
     ) {
         when (icon) {
             "Day" -> Icon(
-                imageVector = rememberSunny(),
+                imageVector = rememberWbSunny(),
                 contentDescription = "Sun",
                 tint = buttonColor
             )
             "Night" -> Icon(
-                imageVector = rememberClearNight(),
+                imageVector = rememberPartlyCloudyNight(),
                 contentDescription = "Moon",
                 tint = buttonColor
             )
