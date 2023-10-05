@@ -1,15 +1,15 @@
 package com.example.f23hopper
 
-import com.example.f23hopper.data.employee.EmployeeRepository
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.example.f23hopper.data.DayOfWeek
+import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeDao
-import com.example.f23hopper.data.HopperDatabase
+import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.data.WeekDay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -63,7 +63,7 @@ class EmployeeDaoTest {
         val generatedId = dao.insert(employee)
 
         val retrievedEmployee = dao.getItem(generatedId.toInt()).first()
-        assertTrue(retrievedEmployee == employee.copy(employeeId = generatedId.toInt()))
+        assertTrue(retrievedEmployee == employee.copy(employeeId = generatedId))
     }
 
     @Test
@@ -108,7 +108,7 @@ class EmployeeDaoTest {
         val allEmployees = repo.getAllEmployees().first()
         println("All employees: $allEmployees")
 
-        val employees = repo.getEmployeesByDayAndShiftType(WeekDay.SUNDAY, ShiftType.DAY).first()
+        val employees = repo.getEmployeesByDayAndShiftType(DayOfWeek.SUNDAY, ShiftType.DAY).first()
 
         assertTrue(employees.size == 1)
         assertTrue(employees[0].sunday == ShiftType.DAY)
