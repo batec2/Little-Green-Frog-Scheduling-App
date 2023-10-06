@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -48,7 +49,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberClearNight
+import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberSunny
+import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.ui.theme.Purple80
 import com.example.f23hopper.ui.theme.PurpleGrey40
 import kotlinx.coroutines.launch
@@ -356,8 +359,8 @@ fun dayButton(
 ) {
     var checked by remember { mutableStateOf(false) }
     val buttonColor = when {
-        icon == "Day" && checked -> Color(0xFFFFA500) // orange for Day
-        icon == "Night" && checked -> Color(0xFF0000FF) // blue for Night
+        icon == "Day" && checked -> Color(0xFFba68bd) // orange for Day
+        icon == "Night" && checked -> Color(0xFF5A2B80) // blue for Night
         else -> Color.Gray // grey for inactive
     }
 
@@ -375,12 +378,12 @@ fun dayButton(
     ) {
         when (icon) {
             "Day" -> Icon(
-                imageVector = rememberSunny(),
+                imageVector = rememberWbSunny(),
                 contentDescription = "Sun",
                 tint = buttonColor
             )
             "Night" -> Icon(
-                imageVector = rememberClearNight(),
+                imageVector = rememberPartlyCloudyNight(),
                 contentDescription = "Moon",
                 tint = buttonColor
             )

@@ -123,6 +123,7 @@ dependencies {
     //
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
+
 }
 
 // Allow references to generated code
