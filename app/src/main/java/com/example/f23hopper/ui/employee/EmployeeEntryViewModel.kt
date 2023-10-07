@@ -19,7 +19,10 @@ class EmployeeEntryViewModel @Inject constructor(
 
     fun updateUiState(employeeDetails: EmployeeDetails) {
         employeeUiState =
-            EmployeeUiState(employeeDetails = employeeDetails, isEmployeeValid = validateInput(employeeDetails))
+            EmployeeUiState(
+                employeeDetails = employeeDetails,
+                isEmployeeValid = validateInput(employeeDetails)
+            )
     }
 
     private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
@@ -29,8 +32,8 @@ class EmployeeEntryViewModel @Inject constructor(
         }
     }
 
-    suspend fun saveEmployee(){
-        if(validateInput()){ //checks if inputs are not blank
+    suspend fun saveEmployee() {
+        if (validateInput()) { //checks if inputs are not blank
             employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
         }
     }
@@ -96,3 +99,48 @@ fun Employee.toEmployeeDetails(): EmployeeDetails = EmployeeDetails(
     friday = friday,
     saturday = saturday
 )
+
+fun determineShiftType(
+    isWeekend: Boolean,
+    shiftSelected: Boolean,
+    dayShift: Boolean,
+    nightShift: Boolean
+): ShiftType {
+    return if (isWeekend) {
+        if (shiftSelected) ShiftType.FULL else ShiftType.CANT_WORK
+    } else {
+        when {
+            dayShift && nightShift -> ShiftType.FULL
+            dayShift -> ShiftType.DAY
+            nightShift -> ShiftType.NIGHT
+            else -> ShiftType.CANT_WORK
+        }
+    }
+}
+
+fun formatPhoneNumber(input: String): String {
+    val digits = input.filter { it.isDigit() }
+
+    // US & Canada, e.g +1
+    if (digits.startsWith("1") && digits.length == 11) {
+        return "+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}"
+    }
+
+    // international numbers with country codes
+    if (digits.length > 10) {
+        // assumption: if longer than 10, it has country code
+        return "+${digits.substring(0, digits.length - 10)} ${digits.substring(digits.length - 10)}"
+    }
+
+    // Default, CA/US without country code
+    return when {
+        digits.length <= 3 -> digits
+        digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
+        else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+    }
+}
+
+fun formatName(input: String): String {
+    return input.filter { it.isLetter() || it == '-' }
+}
+
