@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.icons
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
@@ -10,10 +11,12 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import com.example.f23hopper.ui.theme.PurpleGrey40
+
 
 @Composable
 fun rememberSunny(): ImageVector {
+
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     return remember {
         ImageVector.Builder(
             name = "sunny",
@@ -23,7 +26,7 @@ fun rememberSunny(): ImageVector {
             viewportHeight = 40.0f
         ).apply {
             path(
-                fill = SolidColor(PurpleGrey40),
+                fill = SolidColor(onPrimaryColor),
                 fillAlpha = 1f,
                 stroke = null,
                 strokeAlpha = 1f,
@@ -154,6 +157,8 @@ fun rememberSunny(): ImageVector {
 
 @Composable
 fun rememberClearNight(): ImageVector {
+
+    val onPrimaryColor = MaterialTheme.colorScheme.onPrimary
     return remember {
         ImageVector.Builder(
             name = "clear_night",
@@ -163,7 +168,7 @@ fun rememberClearNight(): ImageVector {
             viewportHeight = 40.0f
         ).apply {
             path(
-                fill = SolidColor(PurpleGrey40),
+                fill = SolidColor(onPrimaryColor),
                 fillAlpha = 1f,
                 stroke = null,
                 strokeAlpha = 1f,

@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.employee
 
+//import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -77,6 +78,8 @@ fun EmployeeEntryBody(
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
     onSaveClick: () -> Unit
 ) {
+
+//    StatusBarColorUpdateEffect(toolbarColor)
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier

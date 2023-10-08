@@ -54,59 +54,81 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             friday = ShiftType.NIGHT,
             saturday = ShiftType.NIGHT
         )
+
+
+        val employee3 = Employee(
+            firstName = "Alex",
+            lastName = "Smith",
+            email = "alex.smith@example.com",
+            phoneNumber = "1122334455",
+            canOpen = true,
+            canClose = false,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.DAY,
+            tuesday = ShiftType.DAY,
+            wednesday = ShiftType.DAY,
+            thursday = ShiftType.DAY,
+            friday = ShiftType.DAY,
+            saturday = ShiftType.FULL
+        )
+
+        val employee4 = Employee(
+            firstName = "Charlie",
+            lastName = "Brown",
+            email = "charlie.brown@example.com",
+            phoneNumber = "5566778899",
+            canOpen = false,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.NIGHT,
+            tuesday = ShiftType.NIGHT,
+            wednesday = ShiftType.NIGHT,
+            thursday = ShiftType.NIGHT,
+            friday = ShiftType.NIGHT,
+            saturday = ShiftType.FULL
+        )
+
+
         employee1.employeeId = employeeDao.insert(employee1)
         employee2.employeeId = employeeDao.insert(employee2)
-        employeeDao.insert(employee2)
+        employee3.employeeId = employeeDao.insert(employee3)
+        employee4.employeeId = employeeDao.insert(employee4)
 
-        // using a Calendar instance (not ours) to find out the current month and year
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1 // Months are 0-based in Calendar
+        val currentMonth = calendar.get(Calendar.MONTH) + 1
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-
-        // Initialize skipping logic
-        var skip = false
 
         // Populate Schedules for the current month
         for (day in 1..daysInMonth) {
-            if (skip) {
-                skip = false
-                continue
-            }
-
-            // get str for Date parsing
             val monthStr = currentMonth.toString().padStart(2, '0')
             val dayStr = day.toString().padStart(2, '0')
 
-            // ex. 2023-10-04
             val dateStr = "$currentYear-$monthStr-$dayStr"
             val date = Date.valueOf(dateStr)
 
             calendar.time = date
             val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-            // determine shift type based on the day of the week
-            // e.g. weekends are long.
-            val shiftType1: Int
-            val shiftType2: Int
             if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
-                shiftType1 = ShiftType.FULL.ordinal
-                shiftType2 = ShiftType.FULL.ordinal
+                // Full shifts for weekends
+                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
+            } else if (day == 1 || day == 10 || day == 14) { // Change 15 to whichever day in October you want
+                // Special condition for one day in October
+                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
             } else {
-                shiftType1 = ShiftType.DAY.ordinal
-                shiftType2 = ShiftType.NIGHT.ordinal
+                // Regular weekdays
+                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee4.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
             }
-
-            val schedule1 =
-                Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = shiftType1)
-            val schedule2 =
-                Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = shiftType2)
-
-            scheduleDao.insert(schedule1)
-            scheduleDao.insert(schedule2)
-
-            // skip the next day, just for fun and variation.
-            skip = true
         }
     }
 }
@@ -128,7 +150,8 @@ suspend fun wipeDatabase(db: HopperDatabase) {
     }
 
     // full reset on tables (resets auto-increment)
-    val query = SimpleSQLiteQuery("DELETE FROM sqlite_sequence WHERE name IN ('employees', 'schedules')")
+    val query =
+        SimpleSQLiteQuery("DELETE FROM sqlite_sequence WHERE name IN ('employees', 'schedules')")
     generalDao.executeRawQuery(query)
 }
 
