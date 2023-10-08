@@ -37,6 +37,7 @@ fun EmployeeListScreen(
     val viewModel = hiltViewModel<EmployeeListViewModel>()
     val employees by viewModel.employees.asFlow().collectAsState(initial = emptyList())
 
+//    StatusBarColorUpdateEffect(toolbarColor)
     Scaffold(
         content = { innerPadding ->
             Box(

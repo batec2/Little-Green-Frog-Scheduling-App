@@ -22,9 +22,21 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedules")
     fun getAllSchedules(): Flow<List<Schedule>>
 
+    @Transaction
     @Query("SELECT * FROM schedules WHERE employeeId = :employeeId")
-    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Schedule>>
+    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<ScheduleWithEmployee>>
 
+    @Transaction
+    @Query("SELECT * FROM schedules WHERE strftime('%Y-%m', date) = :monthYear")
+    fun getSchedulesWithEmployeesForMonth(monthYear: String): Flow<List<ScheduleWithEmployee>>
+
+
+    @Transaction
+    @Query("SELECT * FROM schedules WHERE schedules.date BETWEEN :startDate AND :endDate")
+    fun getSchedulesWithEmployeesByDateRange(
+        startDate: Date,
+        endDate: Date
+    ): Flow<List<ScheduleWithEmployee>>
 
     @Query(" SELECT * FROM schedules WHERE schedules.date = :date")
     fun getSchedulesWithEmployeesByDate(date: Date): Flow<List<Schedule>>
