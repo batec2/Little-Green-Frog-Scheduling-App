@@ -56,7 +56,7 @@ android {
 
 dependencies {
 
-
+    debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
     implementation("androidx.core:core-ktx:1.9.0")
 
     implementation("androidx.fragment:fragment-ktx:1.6.1")
@@ -71,6 +71,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("com.himanshoe:kalendar:1.3.2")
+    implementation("com.kizitonwose.calendar:compose:2.3.0")
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
@@ -80,6 +81,7 @@ dependencies {
     //Material 3
     implementation("androidx.compose.material3:material3:1.1.2")
     implementation("androidx.compose.material3:material3-window-size-class:1.1.2")
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.20.0")
 
     // Hilt
     val hiltVersion = "2.46"
@@ -113,7 +115,7 @@ dependencies {
     testImplementation("androidx.room:room-testing:2.5.2")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     implementation("androidx.test:core-ktx:1.5.0")
-    implementation("androidx.test.ext:junit-ktx:1.1.5")
+    testImplementation("androidx.test.ext:junit-ktx:1.1.5")
 
     //view model
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
