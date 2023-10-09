@@ -117,9 +117,7 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
 
 
     val eventsByDay =
-        events.groupBy {
-            it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-        }
+        events.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
     val colorsForDays = getColorsForDays(eventsByDay)
 
 
@@ -177,7 +175,7 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
         )
 //        Divider(color = itemBackgroundColor)
         if (selection != null) {  // Conditionally render based on selection
-            Divider(color = Color.White)
+            Divider(color = itemBackgroundColor)
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
                 items(items = eventsOnSelectedDate) { event ->
                     EmployeeInfoForDay(event)
@@ -194,7 +192,7 @@ private fun Day(
     colors: List<Color> = emptyList(),
     onClick: (CalendarDay) -> Unit = {},
 ) {
-    Box(
+    Box( // Square days!!
         modifier = Modifier
             .aspectRatio(1f)
             .border(
@@ -209,7 +207,8 @@ private fun Day(
     ) {
         val textColor = when (day.position) {
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
-            DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor
+            DayPosition.InDate,
+            DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
         Text(
             modifier = Modifier
