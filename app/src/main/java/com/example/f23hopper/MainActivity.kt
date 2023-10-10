@@ -9,18 +9,20 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.compose.F23HopperTheme
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.ui.components.BottomNavigationBar
-import com.example.f23hopper.ui.components.TopAppBar
 import com.example.f23hopper.ui.nav.AppNavHost
-import com.example.f23hopper.ui.theme.F23hopperTheme
+import com.example.f23hopper.utils.isDark
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -47,7 +49,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
 
-            F23hopperTheme {
+            F23HopperTheme {
                 SchedulerApp()
             }
         }
@@ -55,26 +57,33 @@ class MainActivity : ComponentActivity() {
 
     @Composable
     fun SchedulerApp(navController: NavHostController = rememberNavController()) {
-        var selectedItem by remember { mutableStateOf(0) }
+        var selectedItem by remember { mutableIntStateOf(0) }
         val colorScheme = MaterialTheme.colorScheme
+        val systemUiController = rememberSystemUiController()
+        val isDarkTheme = isDark()
+
+        // Set navigation bar color and icon colors
+        SideEffect {
+            systemUiController.setNavigationBarColor(
+                color = colorScheme.surface,
+                darkIcons = !isDarkTheme
+            )
+            systemUiController.setSystemBarsColor(
+                color = colorScheme.surface,
+                darkIcons = !isDarkTheme
+            )
+
+        }
+
 
         Surface(modifier = Modifier.fillMaxSize()) {
             Column {
-                TopAppBar(navController)
                 AppNavHost(navController = navController, modifier = Modifier.weight(6f))
                 BottomNavigationBar(
                     navController,
-                    colorScheme,
-                    Modifier.weight(1f),
-                    selectedItem
-                ) { newIndex ->
-                    selectedItem = newIndex
-                }
+                    Modifier.weight(.4f)
+                )
             }
         }
     }
-
-
-
-
 }

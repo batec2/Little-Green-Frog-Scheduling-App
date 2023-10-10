@@ -1,9 +1,8 @@
 package com.example.f23hopper.ui.employee
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+//import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,12 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,8 +20,6 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,10 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
-import androidx.compose.ui.graphics.Color.Companion.Red
-import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -52,17 +42,16 @@ import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.ui.icons.rememberClearNight
-import com.example.f23hopper.ui.icons.rememberSunny
-import com.example.f23hopper.ui.theme.Pink40
-import com.example.f23hopper.ui.theme.Purple80
-import com.example.f23hopper.ui.theme.PurpleGrey40
+import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
+import com.example.f23hopper.ui.icons.rememberWbSunny
 import kotlinx.coroutines.launch
 
 @Composable
@@ -89,6 +78,8 @@ fun EmployeeEntryBody(
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
     onSaveClick: () -> Unit
 ) {
+
+//    StatusBarColorUpdateEffect(toolbarColor)
     Scaffold { innerPadding ->
         Column(
             modifier = Modifier
@@ -101,18 +92,15 @@ fun EmployeeEntryBody(
                 onEmployeeInfoChange = onEmployeeValueChange,
                 employeeDetails = employeeDetails
             )
-            WeekendSelector(
-                onWeekendValueChange = onEmployeeValueChange,
+            OpenCloseCertificationSelector(
+                onCertValueChange = onEmployeeValueChange,
                 employeeDetails = employeeDetails
             )
             ScheduleSelector(
                 onScheduleValueChange = onEmployeeValueChange,
                 employeeDetails = employeeDetails
             )
-            Button(
-                onClick = onSaveClick,
-                enabled = employeeUiState.isEmployeeValid,
-            ) {
+            Button(onClick = onSaveClick, enabled = employeeUiState.isEmployeeValid) {
                 Text(text = "Add")
             }
         }
@@ -171,26 +159,12 @@ fun EmployeeInfo(
             value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
-            validate = { it.matches(Regex("^[0-9-]+$")) },
+            validate = { it.matches(Regex("^\\+?[0-9\\-() ]+$")) },
             errorMessage = "Only numbers are allowed"
         ),
     )
 
     fields.forEach { field -> ValidatedOutlinedTextField(field) }
-}
-
-fun formatPhoneNumber(input: String): String {
-    val digits = input.filter { it.isDigit() }
-    return when {
-        digits.length <= 3 -> digits
-        digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
-        digits.length >= 10 -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6, 10)}"
-        else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
-    }
-}
-
-fun formatName(input: String): String {
-    return input.filter { it.isLetter() || it == '-' }
 }
 
 data class FieldDetail(
@@ -238,7 +212,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
             if (isError.value) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
-                    text =  errorMessage.value,
+                    text = errorMessage.value,
                     color = colorScheme.error
                 )
             }
@@ -247,8 +221,8 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
 }
 
 @Composable
-fun WeekendSelector(
-    onWeekendValueChange: (EmployeeDetails) -> Unit = {},
+fun OpenCloseCertificationSelector(
+    onCertValueChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
 ) {
     var checkedOpen by remember { mutableStateOf(false) }
@@ -257,167 +231,168 @@ fun WeekendSelector(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Opening")
+        Text(text = "Opening", fontSize = 20.sp)
         Spacer(modifier = Modifier.padding(start = 5.dp))
         Switch(
             checked = checkedOpen,
             onCheckedChange = {
                 checkedOpen = it
-                onWeekendValueChange(employeeDetails.copy(canOpen = it))
+                onCertValueChange(employeeDetails.copy(canOpen = it))
             },
         )
         Spacer(modifier = Modifier.padding(start = 5.dp))
-        Text(text = "Closing")
+        Text(text = "Closing", fontSize = 20.sp)
         Spacer(modifier = Modifier.padding(start = 5.dp))
         Switch(
             checked = checkedClose,
             onCheckedChange = {
                 checkedClose = it
-                onWeekendValueChange(employeeDetails.copy(canClose = it))
+                onCertValueChange(employeeDetails.copy(canClose = it))
             },
         )
 
     }
 }
+
+
 @Composable
 fun ScheduleSelector(
     onScheduleValueChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
-){
+) {
     Column(
-        modifier = Modifier
-        .padding(10.dp)
-    ){
-        DaySelector(
-            dayOfWeek = "Monday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(monday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Tuesday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(tuesday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Wednesday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(wednesday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Thursday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(thursday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Friday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(friday= it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Saturday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(saturday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-        DaySelector(
-            dayOfWeek = "Sunday",
-            onSelectionChange = {onScheduleValueChange(employeeDetails.copy(sunday = it))},
-        )
-        Spacer(modifier = Modifier.size(10.dp))
-    }
-}
-
-@Composable
-fun DaySelector(
-    dayOfWeek: String,
-    onSelectionChange: (ShiftType)->Unit,
+        modifier = Modifier.padding(10.dp)
     ) {
-    var dayShift by remember{ mutableStateOf(false) }
-    var nightShift by remember{ mutableStateOf(false) }
-    //var shift by remember{ mutableStateOf(ShiftType.CANT_WORK) }
-
-    if(dayShift && !nightShift){
-        onSelectionChange(ShiftType.DAY)
-    }
-    else if(nightShift && !dayShift){
-        onSelectionChange(ShiftType.NIGHT)
-    }
-    else if(!nightShift && !dayShift){
-        onSelectionChange(ShiftType.CANT_WORK)
-    }
-    else{
-        onSelectionChange(ShiftType.FULL)
-    }
-
-    Column {
-        Text(
-            text = if(dayShift && !nightShift){
-                ShiftType.DAY.toString()
-            }
-            else if(nightShift && !dayShift){
-                ShiftType.NIGHT.toString()
-            }
-            else if(!nightShift && !dayShift){
-                ShiftType.CANT_WORK.toString()
-            }
-            else{
-                ShiftType.FULL.toString()
-            }
-        )
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier =
-            Modifier
-                .clip(RoundedCornerShape(5.dp))
-                .border(1.dp, Purple80, RoundedCornerShape(5.dp))
-                .fillMaxWidth()
-                .background(White)
-                .padding(5.dp)
-
-        ){
-            Text(text = dayOfWeek,
-                color = PurpleGrey40,
-                fontSize = 30.sp,
-                modifier = Modifier.weight(2f))
-            Row(
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                modifier = Modifier.weight(1f)
-            ){
-                dayButton(
-                    "Day",
-                    onButtonChange = {dayShift = it}
-                )
-                dayButton(
-                    "Night",
-                    onButtonChange = {nightShift = it}
-                )
+        DayOfWeek.values().forEach { day ->
+            Spacer(modifier = Modifier.size(10.dp))
+            DaySelector(
+                dayOfWeek = day
+            ) { updatedDay ->
+                val updatedEmployeeDetails = when (day) {
+                    DayOfWeek.MONDAY -> employeeDetails.copy(monday = updatedDay)
+                    DayOfWeek.TUESDAY -> employeeDetails.copy(tuesday = updatedDay)
+                    DayOfWeek.WEDNESDAY -> employeeDetails.copy(wednesday = updatedDay)
+                    DayOfWeek.THURSDAY -> employeeDetails.copy(thursday = updatedDay)
+                    DayOfWeek.FRIDAY -> employeeDetails.copy(friday = updatedDay)
+                    DayOfWeek.SATURDAY -> employeeDetails.copy(saturday = updatedDay)
+                    DayOfWeek.SUNDAY -> employeeDetails.copy(sunday = updatedDay)
+                }
+                onScheduleValueChange(updatedEmployeeDetails)
             }
         }
     }
 }
 
 @Composable
-fun dayButton(
-    icon:String,
-    onButtonChange: (Boolean) -> Unit
-){
-    var checked by remember{ mutableStateOf(false) }
-    val buttonColor by animateColorAsState(if (checked) Purple80 else White)
+fun DaySelector(
+    dayOfWeek: DayOfWeek,
+    onSelectionChange: (ShiftType) -> Unit
+) {
+    val isWeekend = dayOfWeek.isWeekend()
+
+    var shiftSelected by remember { mutableStateOf(false) }
+    var dayShift by remember { mutableStateOf(false) }
+    var nightShift by remember { mutableStateOf(false) }
+
+    val currentShiftType = determineShiftType(isWeekend, shiftSelected, dayShift, nightShift)
+    onSelectionChange(currentShiftType)
+
+    Box(contentAlignment = Alignment.Center) {
+        DayOfWeekTextBox(dayOfWeek, currentShiftType)
+
+        if (isWeekend) {
+            WeekendButtonRow { shiftSelected = it }
+        } else {
+            WeekdayButtonRow(dayShift, nightShift) { day, night ->
+                dayShift = day
+                nightShift = night
+            }
+        }
+    }
+}
+
+@Composable
+fun WeekendButtonRow(onShiftSelectedChanged: (Boolean) -> Unit) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        Spacer(modifier = Modifier.weight(1.8f))
+        DayButton(
+            "Day",
+            onButtonChange = onShiftSelectedChanged,
+            modifier = Modifier.padding(end = 26.dp)
+        )
+    }
+}
+
+@Composable
+fun WeekdayButtonRow(
+    dayShift: Boolean,
+    nightShift: Boolean,
+    onDayNightShiftChanged: (Boolean, Boolean) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Spacer(modifier = Modifier.weight(1.8f))
+        DayButton(
+            "Day",
+            onButtonChange = { onDayNightShiftChanged(it, nightShift) },
+            modifier = Modifier.padding(end = 8.dp)
+        )
+        DayButton("Night", onButtonChange = { onDayNightShiftChanged(dayShift, it) })
+    }
+}
+
+@Composable
+fun DayOfWeekTextBox(dayOfWeek: DayOfWeek, currentShiftType: ShiftType) {
+    OutlinedTextField(
+        value = dayOfWeek.toString(),
+        onValueChange = {}, // no action as this shouldn't be editable
+        label = { Text(text = currentShiftType.toString(), fontSize = 16.sp) },
+        enabled = false,
+        textStyle = TextStyle(fontSize = 24.sp, color = Color.DarkGray),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(5.dp))
+    )
+}
+
+
+@Composable
+fun DayButton(
+    icon: String,
+    onButtonChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var checked by remember { mutableStateOf(false) }
+    val buttonColor = when {
+        icon == "Day" && checked -> colorScheme.primary
+        icon == "Night" && checked -> colorScheme.primary
+        else -> Color.LightGray
+    }
+
     IconToggleButton(
+        modifier = modifier,
         checked = checked,
         onCheckedChange = {
             checked = it
             onButtonChange(it)
         },
-        modifier = Modifier
-            .clip(CircleShape)
-            .border(1.dp, PurpleGrey40, CircleShape)
-            .background(buttonColor)
-            .size(35.dp),
     ) {
-        if(icon == "Day")
-            Icon(imageVector = rememberSunny(), contentDescription = "Sun")
-        else if(icon == "Night")
-            Icon(imageVector = rememberClearNight(), contentDescription = "Moon")
+        when (icon) {
+            "Day" -> Icon(
+                imageVector = rememberWbSunny(),
+                contentDescription = "Sun",
+                tint = buttonColor
+            )
+
+            "Night" -> Icon(
+                imageVector = rememberPartlyCloudyNight(),
+                contentDescription = "Moon",
+                tint = buttonColor
+            )
+        }
     }
 }
 
