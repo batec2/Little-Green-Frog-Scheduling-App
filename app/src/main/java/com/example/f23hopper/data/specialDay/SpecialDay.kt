@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import java.sql.Date
 
-@Entity(tableName = "specialDay")
+@Entity(tableName = "specialdays")
 data class SpecialDay(
     @PrimaryKey(autoGenerate = false)
     val date: Date
