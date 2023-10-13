@@ -24,6 +24,7 @@ class CalendarSchedulesViewModel @Inject constructor(
     private fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
 
     // determine the start and end dates for the current year ± 2 months.
+    // NOTE: I don't think this logic is correct, needs testing.
     private val currentDate = LocalDate.now()
     private val startDate = currentDate.minusMonths(2).withDayOfMonth(1).toSqlDate()
     private val endDate = currentDate.plusMonths(12).withDayOfMonth(1).minusDays(1).toSqlDate()
