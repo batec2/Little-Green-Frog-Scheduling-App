@@ -10,6 +10,7 @@ data class Employee(
     var employeeId: Long = 0,
     val firstName: String,
     val lastName: String,
+    val nickname: String,
     val email: String,
     val phoneNumber: String,
     var canOpen: Boolean,

@@ -27,6 +27,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         val employee1 = Employee(
             firstName = "John",
             lastName = "Doe",
+            nickname = "JohnJohn",
             email = "john.doe@example.com",
             phoneNumber = "1234567890",
             canOpen = true,
@@ -42,6 +43,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         val employee2 = Employee(
             firstName = "Jane",
             lastName = "Doe",
+            nickname = "JaneJane",
             email = "jane.doe@example.com",
             phoneNumber = "0987654321",
             canOpen = false,
@@ -59,6 +61,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         val employee3 = Employee(
             firstName = "Alex",
             lastName = "Smith",
+            nickname = "Alal",
             email = "alex.smith@example.com",
             phoneNumber = "1122334455",
             canOpen = true,
@@ -75,6 +78,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         val employee4 = Employee(
             firstName = "Charlie",
             lastName = "Brown",
+            nickname = "CharChar",
             email = "charlie.brown@example.com",
             phoneNumber = "5566778899",
             canOpen = false,
