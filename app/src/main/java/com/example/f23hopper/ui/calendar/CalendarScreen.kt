@@ -8,14 +8,17 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -39,8 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.employee.Employee
-import com.example.f23hopper.data.schedule.ScheduleWithEmployee
+import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -54,11 +58,11 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 
-data class Event(val date: LocalDate, val eventName: String, val shiftType: ShiftType)
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,12 +71,12 @@ fun CalendarScreen(navigateToDayView: (String) -> Unit) {
     val clickedDay = remember { mutableStateOf<LocalDate?>(null) }
     val sheetState = rememberModalBottomSheetState()
 
-    val viewModel = hiltViewModel<CalendarSchedulesViewModel>()
-    val events by viewModel.parsedEvents.collectAsState(initial = emptyList())
-
+    val viewModel = hiltViewModel<CalendarViewModel>()
+    val shifts by viewModel.parsedShifts.collectAsState(initial = emptyList())
+    val specialDays by viewModel.parsedDays.collectAsState(initial = emptyList())
 
     clickedDay.value = LocalDate.of(2023, 10, 7)
-    Calendar(events) { day ->
+    Calendar(shifts, specialDays) { day ->
         clickedDay.value = LocalDate.parse(day)
         coroutineScope.launch {
             sheetState.expand()
@@ -82,6 +86,7 @@ fun CalendarScreen(navigateToDayView: (String) -> Unit) {
 //    EventDetailsBottomSheet(sheetState, clickedDay)
 }
 
+//NOTE: Unused atm
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EventDetailsBottomSheet(sheetState: SheetState, clickedDay: MutableState<LocalDate?>) {
@@ -103,22 +108,25 @@ fun EventDetailsBottomSheet(sheetState: SheetState, clickedDay: MutableState<Loc
 }
 
 @Composable
-fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> Unit) {
+fun Calendar(
+    shifts: List<Shift>,
+    specialDays: List<SpecialDay>,
+    navigateToDayView: (String) -> Unit
+) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
     var selection by remember { mutableStateOf<CalendarDay?>(null) }
 
-    val eventsOnSelectedDate = if (selection?.date != null) {
-        events.filter { it.schedule.date.toString() == selection?.date.toString() }
+    val shiftsOnSelectedDate = if (selection?.date != null) {
+        shifts.filter { it.schedule.date.toString() == selection?.date.toString() }
     } else {
         emptyList()
     }
 
-
-    val eventsByDay =
-        events.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-    val colorsForDays = getColorsForDays(eventsByDay)
+    val shiftsByDay =
+        shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+    val colorsForDots = getColorDateMap(shiftsByDay)
 
 
     //TODO: Fix stuttering of top bar
@@ -162,8 +170,8 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
             modifier = Modifier.wrapContentWidth(),
             state = state,
             dayContent = { day ->
-                val dayColors = colorsForDays[day.date] ?: emptyList()
-                Day(day = day, isSelected = selection == day, colors = dayColors) { clicked ->
+                val dotColors = colorsForDots[day.date] ?: emptyList()
+                Day(day = day, isSelected = selection == day, dotColors = dotColors) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
                     Log.d("Test", clicked.date.toString())
@@ -177,8 +185,8 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
         if (selection != null) {  // Conditionally render based on selection
             Divider(color = itemBackgroundColor)
             LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(items = eventsOnSelectedDate) { event ->
-                    EmployeeInfoForDay(event)
+                item {
+                    ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!)
                 }
             }
         }
@@ -189,7 +197,7 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
 private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
-    colors: List<Color> = emptyList(),
+    dotColors: List<Color> = emptyList(),
     onClick: (CalendarDay) -> Unit = {},
 ) {
     Box( // Square days!!
@@ -219,7 +227,7 @@ private fun Day(
             fontSize = 12.sp
         )
 
-        ColorGroupLayout(colors = colors, modifier = Modifier.align(Alignment.Center))
+        ColorGroupLayout(colors = dotColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -267,8 +275,74 @@ private fun WeekDays(modifier: Modifier) {
 }
 
 @Composable
+fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(itemBackgroundColor)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            //Looks bad atm
+//            Text(text = date.dayOfWeek.toString().take(3), fontSize = 24.sp)  // "Wed" for Wednesday
+
+            val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+            shiftsByType.forEach { (shiftType, shiftsForType) ->
+                if (date.dayOfWeek !in setOf(
+                        DayOfWeek.SATURDAY,
+                        DayOfWeek.SUNDAY
+                    ) || shiftType == ShiftType.FULL
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Icon(
+                            imageVector = if (shiftType == ShiftType.DAY) Icons.Default.Info else Icons.Default.Info,
+                            contentDescription = null
+                        )
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            repeat(shiftsForType.size) {
+                                // Color each circle according to the shift
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .background(getShiftColor(shiftType), CircleShape)
+                                )
+                            }
+                        }
+
+                        val MAX_SHIFTS_PER_TYPE = 2
+                        Text(text = if (shiftsForType.size >= MAX_SHIFTS_PER_TYPE) "$shiftType Shift Covered" else "Incomplete")
+                        if (shiftsForType.size >= MAX_SHIFTS_PER_TYPE) {
+                            Icon(imageVector = Icons.Default.Check, contentDescription = null)
+                        } else {
+                            IconButton(onClick = { /* Handle add employee for this shift type */ }) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Add Employee"
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun LazyItemScope.EmployeeInfoForDay(
-    event: ScheduleWithEmployee
+    event: Shift
 ) {
     Row(
         modifier = Modifier
@@ -347,25 +421,32 @@ private fun EmployeeInformation(employee: Employee) {
 }
 
 
+@Composable
+fun getColorDateMap(eventsByDay: Map<LocalDate, List<Shift>>): Map<LocalDate, List<Color>> {
+    return eventsByDay.mapValues { entry ->
+        entry.value.map { event ->
+            val shiftType = ShiftType.values()[event.schedule.shiftTypeId]
+            getShiftColor(shiftType)
+        }
+    }
+}
+
+@Composable
+fun getShiftColor(shiftType: ShiftType): Color {
+    val isDarkTheme = isSystemInDarkTheme()
+    return when (shiftType) {
+        ShiftType.CANT_WORK -> MaterialTheme.colorScheme.primary
+        ShiftType.DAY -> if (isDarkTheme) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
+        ShiftType.NIGHT -> if (isDarkTheme) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onTertiaryContainer
+        ShiftType.FULL -> MaterialTheme.colorScheme.secondary
+        else -> Color.Transparent
+    }
+}
+
 val pageBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
 val itemBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryContainer
 val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryContainer
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
-@Composable
-fun getColorsForDays(eventsByDay: Map<LocalDate, List<ScheduleWithEmployee>>): Map<LocalDate, List<Color>> {
-    val isDarkTheme = isSystemInDarkTheme()
 
-    return eventsByDay.mapValues { entry ->
-        entry.value.map { event ->
-            when (ShiftType.values()[event.schedule.shiftTypeId]) {
-                ShiftType.CANT_WORK -> MaterialTheme.colorScheme.primary
-                ShiftType.DAY -> if (isDarkTheme) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
-                ShiftType.NIGHT -> if (isDarkTheme) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onTertiaryContainer
-                ShiftType.FULL -> MaterialTheme.colorScheme.secondary
-                else -> Color.Transparent
-            }
-        }
-    }
-}

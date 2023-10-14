@@ -44,10 +44,14 @@ data class EmployeeUiState(
     val isEmployeeValid: Boolean = false
 )
 
+/**
+ * Initializing the default values of Employee
+ */
 data class EmployeeDetails(
     val employeeId: Long = 0,
     val firstName: String = "",
     val lastName: String = "",
+    val nickname: String = "",
     val email: String = "",
     val phoneNumber: String = "",
     var canOpen: Boolean = false,
@@ -61,10 +65,14 @@ data class EmployeeDetails(
     var saturday: ShiftType = ShiftType.CANT_WORK
 )
 
+/**
+ * Converts and Employee object to and Employee entity for the table
+ */
 fun EmployeeDetails.toEmployee(): Employee = Employee(
     employeeId = employeeId,
     firstName = firstName,
     lastName = lastName,
+    nickname = nickname,
     email = email,
     phoneNumber = phoneNumber,
     canOpen = canOpen,
@@ -78,15 +86,20 @@ fun EmployeeDetails.toEmployee(): Employee = Employee(
     saturday = saturday
 )
 
+
 fun Employee.toEmployeeUiState(isEmployeeValid: Boolean = false): EmployeeUiState = EmployeeUiState(
     employeeDetails = this.toEmployeeDetails(),
     isEmployeeValid = isEmployeeValid
 )
 
+/**
+ * Converts an Entry from the employee database to an EmployeeDetails object
+ */
 fun Employee.toEmployeeDetails(): EmployeeDetails = EmployeeDetails(
     employeeId = employeeId,
     firstName = firstName,
     lastName = lastName,
+    nickname = nickname,
     email = email,
     phoneNumber = phoneNumber,
     canOpen = canOpen,

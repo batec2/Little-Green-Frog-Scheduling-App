@@ -1,6 +1,7 @@
 package com.example.f23hopper.ui.employee
 
 //import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import android.icu.text.CaseMap.Title
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,20 +9,28 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,12 +59,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
+import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
 @Composable
-fun EmployeeEntryScreen() {
+fun EmployeeEntryScreen(
+    navigateToEmployeeList:() -> Unit
+) {
+    StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     val coroutineScope = rememberCoroutineScope()
     val viewModel = hiltViewModel<EmployeeEntryViewModel>()
     EmployeeEntryBody(
@@ -67,6 +81,7 @@ fun EmployeeEntryScreen() {
                 viewModel.saveEmployee()
             }
         },
+        navigateToEmployeeList = navigateToEmployeeList
     )
 }
 
@@ -76,11 +91,44 @@ fun EmployeeEntryBody(
     employeeUiState: EmployeeUiState,
     employeeDetails: EmployeeDetails,
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
-    onSaveClick: () -> Unit
+    onSaveClick: () -> Unit,
+    navigateToEmployeeList: () -> Unit
 ) {
 
 //    StatusBarColorUpdateEffect(toolbarColor)
-    Scaffold { innerPadding ->
+    Scaffold (
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.secondaryContainer,
+                    titleContentColor = colorScheme.primary,
+                    navigationIconContentColor = colorScheme.primary,
+                    actionIconContentColor = colorScheme.primary
+                ),
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = { navigateToEmployeeList() }) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Back To list"
+                        )
+                    }
+                },
+                actions = {
+                    ElevatedButton(
+                        modifier = Modifier,
+                        onClick = {
+                                    onSaveClick()
+                                    navigateToEmployeeList()
+                                  },
+                        enabled = employeeUiState.isEmployeeValid) {
+                        Text(text = "Done")
+                    }
+                },
+                modifier = Modifier.height(50.dp),
+            )
+        }
+    ){ innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -100,9 +148,6 @@ fun EmployeeEntryBody(
                 onScheduleValueChange = onEmployeeValueChange,
                 employeeDetails = employeeDetails
             )
-            Button(onClick = onSaveClick, enabled = employeeUiState.isEmployeeValid) {
-                Text(text = "Add")
-            }
         }
     }
 }
@@ -141,6 +186,14 @@ fun EmployeeInfo(
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
+            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
+            errorMessage = "Only letters and hyphens are allowed"
+        ),
+        FieldDetail(
+            label = "Nickname",
+            value = employeeDetails.nickname,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(nickname = it)) },
             validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
             errorMessage = "Only letters and hyphens are allowed"
         ),

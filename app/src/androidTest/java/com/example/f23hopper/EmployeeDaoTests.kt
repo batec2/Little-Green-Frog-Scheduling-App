@@ -46,6 +46,7 @@ class EmployeeDaoTest {
         val employee = Employee(
             firstName = "John",
             lastName = "Doe",
+            nickname = "johnnyjohnny",
             email = "john.doe@example.com",
             phoneNumber = "1234567890",
             canOpen = true,
@@ -72,6 +73,7 @@ class EmployeeDaoTest {
         val employee1 = Employee(
             firstName = "John",
             lastName = "Doe",
+            nickname = "johnjohnny",
             email = "john.doe@example.com",
             phoneNumber = "1234567890",
             canOpen = true,
@@ -87,6 +89,7 @@ class EmployeeDaoTest {
         val employee2 = Employee(
             firstName = "Jane",
             lastName = "Doe",
+            nickname = "janejane",
             email = "jane.doe@example.com",
             phoneNumber = "0987654321",
             canOpen = false,

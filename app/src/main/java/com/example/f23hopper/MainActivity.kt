@@ -61,7 +61,6 @@ class MainActivity : ComponentActivity() {
         val colorScheme = MaterialTheme.colorScheme
         val systemUiController = rememberSystemUiController()
         val isDarkTheme = isDark()
-
         // Set navigation bar color and icon colors
         SideEffect {
             systemUiController.setNavigationBarColor(
@@ -72,7 +71,6 @@ class MainActivity : ComponentActivity() {
                 color = colorScheme.surface,
                 darkIcons = !isDarkTheme
             )
-
         }
 
 
@@ -86,4 +84,5 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
 }
