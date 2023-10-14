@@ -123,7 +123,8 @@ fun Calendar(
 
     val eventsByDay =
         events.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-    val colorsForDays = getColorsForDays(eventsByDay)
+    val colorsForDots = getColorsForDots(eventsByDay)
+
 
     //TODO: Fix stuttering of top bar
     StatusBarColorUpdateEffect(toolbarColor)
@@ -166,8 +167,8 @@ fun Calendar(
             modifier = Modifier.wrapContentWidth(),
             state = state,
             dayContent = { day ->
-                val dayColors = colorsForDays[day.date] ?: emptyList()
-                Day(day = day, isSelected = selection == day, colors = dayColors) { clicked ->
+                val dotColors = colorsForDots[day.date] ?: emptyList()
+                Day(day = day, isSelected = selection == day, dotColors = dotColors) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
                     Log.d("Test", clicked.date.toString())
@@ -193,7 +194,7 @@ fun Calendar(
 private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
-    colors: List<Color> = emptyList(),
+    dotColors: List<Color> = emptyList(),
     onClick: (CalendarDay) -> Unit = {},
 ) {
     Box( // Square days!!
@@ -223,7 +224,7 @@ private fun Day(
             fontSize = 12.sp
         )
 
-        ColorGroupLayout(colors = colors, modifier = Modifier.align(Alignment.Center))
+        ColorGroupLayout(colors = dotColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
@@ -358,7 +359,7 @@ val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSur
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
 @Composable
-fun getColorsForDays(eventsByDay: Map<LocalDate, List<ScheduleWithEmployee>>): Map<LocalDate, List<Color>> {
+fun getColorsForDots(eventsByDay: Map<LocalDate, List<ScheduleWithEmployee>>): Map<LocalDate, List<Color>> {
     val isDarkTheme = isSystemInDarkTheme()
 
     return eventsByDay.mapValues { entry ->
