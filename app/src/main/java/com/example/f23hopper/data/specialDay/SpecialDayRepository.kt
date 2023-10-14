@@ -16,7 +16,7 @@ class SpecialDayRepository(private val specialDayDao: SpecialDayDao) {
         specialDayDao.delete(specialDay)
     }
 
-    fun getSpecialDays(): Flow<SpecialDay> {
+    fun getSpecialDays(): Flow<List<SpecialDay>> {
         return specialDayDao.getSpecialDays()
     }
 

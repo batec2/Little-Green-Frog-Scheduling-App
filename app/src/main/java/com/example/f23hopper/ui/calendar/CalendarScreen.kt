@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.ScheduleWithEmployee
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -67,12 +68,13 @@ fun CalendarScreen(navigateToDayView: (String) -> Unit) {
     val clickedDay = remember { mutableStateOf<LocalDate?>(null) }
     val sheetState = rememberModalBottomSheetState()
 
-    val viewModel = hiltViewModel<CalendarSchedulesViewModel>()
-    val events by viewModel.parsedEvents.collectAsState(initial = emptyList())
-
+    val schedulesViewModel = hiltViewModel<CalendarSchedulesViewModel>()
+    val specialDaysViewModel = hiltViewModel<CalendarSpecialDaysViewModel>()
+    val events by schedulesViewModel.parsedEvents.collectAsState(initial = emptyList())
+    val specialDays by specialDaysViewModel.parsedDays.collectAsState(initial = emptyList())
 
     clickedDay.value = LocalDate.of(2023, 10, 7)
-    Calendar(events) { day ->
+    Calendar(events, specialDays) { day ->
         clickedDay.value = LocalDate.parse(day)
         coroutineScope.launch {
             sheetState.expand()
@@ -103,7 +105,11 @@ fun EventDetailsBottomSheet(sheetState: SheetState, clickedDay: MutableState<Loc
 }
 
 @Composable
-fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> Unit) {
+fun Calendar(
+    events: List<ScheduleWithEmployee>,
+    specialDays: List<SpecialDay>,
+    navigateToDayView: (String) -> Unit
+) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
@@ -115,11 +121,9 @@ fun Calendar(events: List<ScheduleWithEmployee>, navigateToDayView: (String) -> 
         emptyList()
     }
 
-
     val eventsByDay =
         events.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
     val colorsForDays = getColorsForDays(eventsByDay)
-
 
     //TODO: Fix stuttering of top bar
     StatusBarColorUpdateEffect(toolbarColor)
