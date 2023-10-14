@@ -92,11 +92,121 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             saturday = ShiftType.FULL
         )
 
+        val employee5 = Employee(
+            firstName = "Super",
+            lastName = "Fast",
+            nickname = "VroomVroom",
+            email = "VroomVroom@Vroom.Vroom",
+            phoneNumber = "53333333",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.FULL,
+            tuesday = ShiftType.FULL,
+            wednesday = ShiftType.FULL,
+            thursday = ShiftType.FULL,
+            friday = ShiftType.FULL,
+            saturday = ShiftType.FULL
+        )
+
+        val employee6 = Employee(
+            firstName = "thisisaveryveryveryveryverylongname",
+            lastName = "thisisaveryveryveryveryverylonglastname",
+            nickname = "longlong",
+            email = "long.long@long.long",
+            phoneNumber = "21235235",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.CANT_WORK,
+            monday = ShiftType.CANT_WORK,
+            tuesday = ShiftType.CANT_WORK,
+            wednesday = ShiftType.CANT_WORK,
+            thursday = ShiftType.FULL,
+            friday = ShiftType.FULL,
+            saturday = ShiftType.FULL
+        )
+
+        val employee7 = Employee(
+            firstName = "sh",
+            lastName = "ort",
+            nickname = "short",
+            email = "snam2s@s.s",
+            phoneNumber = "1245777777",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.CANT_WORK,
+            tuesday = ShiftType.CANT_WORK,
+            wednesday = ShiftType.CANT_WORK,
+            thursday = ShiftType.CANT_WORK,
+            friday = ShiftType.CANT_WORK,
+            saturday = ShiftType.FULL
+        )
+
+        val employee8 = Employee(
+            firstName = "THISNAMEISINALLCAPS",
+            lastName = "THISNAMEISALSOINALCAPS",
+            nickname = "MYNICKNAMEISALSOINALLCAPSANDISALSOVERYVERYLONG",
+            email = "LONGEMAILINALLCAPS@EMAILINALLCAPS.COM",
+            phoneNumber = "2342342342",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.NIGHT,
+            tuesday = ShiftType.FULL,
+            wednesday = ShiftType.DAY,
+            thursday = ShiftType.FULL,
+            friday = ShiftType.DAY,
+            saturday = ShiftType.FULL
+        )
+
+        val employee9 = Employee(
+            firstName = "SupersClone",
+            lastName = "Fast",
+            nickname = "Brother",
+            email = "VroomVroomClone@Vroom.Vroom",
+            phoneNumber = "53333331",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.FULL,
+            tuesday = ShiftType.FULL,
+            wednesday = ShiftType.FULL,
+            thursday = ShiftType.FULL,
+            friday = ShiftType.FULL,
+            saturday = ShiftType.FULL
+        )
+
+        val employee10 = Employee(
+            firstName = "SupersBrother",
+            lastName = "Fast",
+            nickname = "Brother",
+            email = "VroomVroomBrother@Vroom.Vroom",
+            phoneNumber = "53333332",
+            canOpen = true,
+            canClose = true,
+            sunday = ShiftType.FULL,
+            monday = ShiftType.FULL,
+            tuesday = ShiftType.FULL,
+            wednesday = ShiftType.FULL,
+            thursday = ShiftType.FULL,
+            friday = ShiftType.FULL,
+            saturday = ShiftType.FULL
+        )
+
+
+
 
         employee1.employeeId = employeeDao.insert(employee1)
         employee2.employeeId = employeeDao.insert(employee2)
         employee3.employeeId = employeeDao.insert(employee3)
         employee4.employeeId = employeeDao.insert(employee4)
+        employee5.employeeId = employeeDao.insert(employee5)
+        employee6.employeeId = employeeDao.insert(employee6)
+        employee7.employeeId = employeeDao.insert(employee7)
+        employee8.employeeId = employeeDao.insert(employee8)
+        employee9.employeeId = employeeDao.insert(employee9)
+        employee10.employeeId = employeeDao.insert(employee10)
 
         val calendar = Calendar.getInstance()
         val currentYear = calendar.get(Calendar.YEAR)

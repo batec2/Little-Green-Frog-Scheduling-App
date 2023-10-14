@@ -29,7 +29,9 @@ fun AppNavHost(
             )
         }
         composable(route = NavScreen.EmployeeEntry.route) {
-            EmployeeEntryScreen()
+            EmployeeEntryScreen(
+                navigateToEmployeeList = {navController.navigate(NavScreen.EmployeeList.route)}
+            )
         }
         composable(route = NavScreen.Calendar.route) {
             CalendarScreen(
