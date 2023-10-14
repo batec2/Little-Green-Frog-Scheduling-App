@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -29,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,14 +59,17 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
+import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
 @Composable
 fun EmployeeEntryScreen(
     navigateToEmployeeList:() -> Unit
 ) {
+    StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     val coroutineScope = rememberCoroutineScope()
     val viewModel = hiltViewModel<EmployeeEntryViewModel>()
     EmployeeEntryBody(
@@ -94,9 +99,13 @@ fun EmployeeEntryBody(
     Scaffold (
         topBar = {
             CenterAlignedTopAppBar(
-                title = {
-                    Text("Employee")
-                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorScheme.secondaryContainer,
+                    titleContentColor = colorScheme.primary,
+                    navigationIconContentColor = colorScheme.primary,
+                    actionIconContentColor = colorScheme.primary
+                ),
+                title = {},
                 navigationIcon = {
                     IconButton(onClick = { navigateToEmployeeList() }) {
                         Icon(
@@ -115,7 +124,8 @@ fun EmployeeEntryBody(
                         enabled = employeeUiState.isEmployeeValid) {
                         Text(text = "Done")
                     }
-                }
+                },
+                modifier = Modifier.height(50.dp),
             )
         }
     ){ innerPadding ->
