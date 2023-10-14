@@ -3,6 +3,7 @@ package com.example.f23hopper.ui.employee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,9 +31,14 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,6 +64,9 @@ fun EmployeeListScreen(
     val colorScheme = MaterialTheme.colorScheme
     val viewModel = hiltViewModel<EmployeeListViewModel>()
     val employees by viewModel.employees.asFlow().collectAsState(initial = emptyList())
+
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
 
     StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     Scaffold(
@@ -91,16 +100,28 @@ fun EmployeeListScreen(
             ) {
                 EmployeeListItem(employees)
                 FloatingActionButton(
-                    containerColor = colorScheme.primary.copy(alpha=0.6f),
+                    containerColor = colorScheme.primary.copy(),
                     onClick = { navigateToEmployeeAdd() },
                     modifier = Modifier
+                        .graphicsLayer(
+                            translationX = offsetX,
+                            translationY = offsetY
+                        )
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                offsetX += dragAmount.x
+                                offsetY += dragAmount.y
+                            }
+                        }
+
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                 ) {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "add",
-                        tint = colorScheme.onPrimary.copy(alpha=0.6f)
+                        tint = colorScheme.onPrimary.copy()
                     )
                 }
             }
