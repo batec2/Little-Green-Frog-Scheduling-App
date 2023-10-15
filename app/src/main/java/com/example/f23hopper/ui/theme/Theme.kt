@@ -8,7 +8,8 @@ import androidx.compose.runtime.Composable
 
 
 private val LightColors = lightColorScheme(
-    primary = md_theme_light_primary,
+    //primary = md_theme_light_primary,
+    primary = md_theme_light_morningShift, //morning shift light
     onPrimary = md_theme_light_onPrimary,
     primaryContainer = md_theme_light_primaryContainer,
     onPrimaryContainer = md_theme_light_onPrimaryContainer,
@@ -19,7 +20,8 @@ private val LightColors = lightColorScheme(
     tertiary = md_theme_light_tertiary,
     onTertiary = md_theme_light_onTertiary,
     tertiaryContainer = md_theme_light_tertiaryContainer,
-    onTertiaryContainer = md_theme_light_onTertiaryContainer,
+    //onTertiaryContainer = md_theme_light_onTertiaryContainer,
+    onTertiaryContainer = md_theme_light_eveningShift, //evening shift light
     error = md_theme_light_error,
     errorContainer = md_theme_light_errorContainer,
     onError = md_theme_light_onError,
@@ -37,6 +39,7 @@ private val LightColors = lightColorScheme(
     surfaceTint = md_theme_light_surfaceTint,
     outlineVariant = md_theme_light_outlineVariant,
     scrim = md_theme_light_scrim,
+
 )
 
 
@@ -51,7 +54,8 @@ private val DarkColors = darkColorScheme(
     onSecondaryContainer = md_theme_dark_onSecondaryContainer,
     tertiary = md_theme_dark_tertiary,
     onTertiary = md_theme_dark_onTertiary,
-    tertiaryContainer = md_theme_dark_tertiaryContainer,
+    //tertiaryContainer = md_theme_dark_tertiaryContainer,
+    tertiaryContainer = md_theme_dark_morningShift, //morning shift dark
     onTertiaryContainer = md_theme_dark_onTertiaryContainer,
     error = md_theme_dark_error,
     errorContainer = md_theme_dark_errorContainer,
@@ -67,7 +71,8 @@ private val DarkColors = darkColorScheme(
     inverseOnSurface = md_theme_dark_inverseOnSurface,
     inverseSurface = md_theme_dark_inverseSurface,
     inversePrimary = md_theme_dark_inversePrimary,
-    surfaceTint = md_theme_dark_surfaceTint,
+    //surfaceTint = md_theme_dark_surfaceTint,
+    surfaceTint = md_theme_dark_nighShift, //evening shift dark
     outlineVariant = md_theme_dark_outlineVariant,
     scrim = md_theme_dark_scrim,
 )

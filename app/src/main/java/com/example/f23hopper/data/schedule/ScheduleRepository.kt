@@ -24,12 +24,12 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
         return scheduleDao.getAllSchedules()
     }
 
-    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<ScheduleWithEmployee>> {
+    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Shift>> {
         return scheduleDao.getSchedulesByEmployeeId(employeeId)
 
     }
 
-    fun getSchedulesWithEmployeesForMonth(monthYear: String): Flow<List<ScheduleWithEmployee>> {
+    fun getSchedulesWithEmployeesForMonth(monthYear: String): Flow<List<Shift>> {
         return scheduleDao.getSchedulesWithEmployeesForMonth(monthYear)
     }
 
@@ -42,7 +42,7 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
     }
 
 
-    fun getSchedulesWithEmployeesByDateRange(startDate: Date, endDate: Date): Flow<List<ScheduleWithEmployee>> {
+    fun getSchedulesWithEmployeesByDateRange(startDate: Date, endDate: Date): Flow<List<Shift>> {
         return scheduleDao.getSchedulesWithEmployeesByDateRange(startDate, endDate)
     }
 }

@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import com.example.f23hopper.data.employee.Employee
 
-data class ScheduleWithEmployee(
+data class Shift(
     @Embedded val schedule: Schedule,
     @Relation(
         parentColumn = "employeeId",

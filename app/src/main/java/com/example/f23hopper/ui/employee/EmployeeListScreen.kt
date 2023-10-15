@@ -3,6 +3,7 @@ package com.example.f23hopper.ui.employee
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,29 +19,27 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -69,6 +68,9 @@ fun EmployeeListScreen(
     val colorScheme = MaterialTheme.colorScheme
     val viewModel = sharedViewModel
     val employees by viewModel.employees.asFlow().collectAsState(initial = emptyList())
+
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
 
     StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     Scaffold(
@@ -108,16 +110,28 @@ fun EmployeeListScreen(
                     navigateToEmployeeEdit()
                 }
                 FloatingActionButton(
-                    containerColor = colorScheme.primary.copy(alpha=0.6f),
+                    containerColor = colorScheme.primary.copy(),
                     onClick = { navigateToEmployeeAdd() },
                     modifier = Modifier
+                        .graphicsLayer(
+                            translationX = offsetX,
+                            translationY = offsetY
+                        )
+                        .pointerInput(Unit) {
+                            detectDragGestures { change, dragAmount ->
+                                change.consume()
+                                offsetX += dragAmount.x
+                                offsetY += dragAmount.y
+                            }
+                        }
+
                         .align(Alignment.BottomEnd)
                         .padding(16.dp)
                 ) {
                     Icon(
                         Icons.Default.Add,
                         contentDescription = "add",
-                        tint = colorScheme.onPrimary.copy(alpha=0.6f)
+                        tint = colorScheme.onPrimary.copy()
                     )
                 }
             }
@@ -236,7 +250,7 @@ fun ListScheduleInfo(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(5.dp))
-                .background(color = MaterialTheme.colorScheme.secondaryContainer),
+                .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
             Icon(imageVector = rememberWbSunny(),
@@ -244,7 +258,7 @@ fun ListScheduleInfo(
                 contentDescription = "Day Shift")
             week.forEach {
                     week -> Text(text = if(week.first==ShiftType.DAY||week.first==ShiftType.FULL) week.second else "",
-                color = Color.DarkGray)
+                color = colorScheme.onSecondaryContainer)
             }
         }
         Spacer(modifier = Modifier.size(5.dp))
@@ -252,7 +266,7 @@ fun ListScheduleInfo(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(5.dp))
-                .background(color = MaterialTheme.colorScheme.secondaryContainer),
+                .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
         ){
             Icon(imageVector = rememberPartlyCloudyNight(),
@@ -260,7 +274,7 @@ fun ListScheduleInfo(
                 contentDescription = "Night Shift")
             week.forEach {
                     week -> Text(text = if(week.first==ShiftType.NIGHT||week.first==ShiftType.FULL) week.second else " ",
-                color = Color.DarkGray)
+                 color = colorScheme.onSecondaryContainer)
             }
         }
     }
