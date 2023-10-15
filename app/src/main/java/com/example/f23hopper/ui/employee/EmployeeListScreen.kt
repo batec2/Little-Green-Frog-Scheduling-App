@@ -20,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -32,6 +34,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,19 +47,16 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
-import com.example.f23hopper.ui.icons.rememberLockOpenRight
+import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -66,8 +66,7 @@ fun EmployeeListScreen(
     sharedViewModel: EmployeeListViewModel
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val viewModel = sharedViewModel
-    val employees by viewModel.employees.asFlow().collectAsState(initial = emptyList())
+    val employees by sharedViewModel.employees.asFlow().collectAsState(initial = emptyList())
 
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
@@ -84,13 +83,17 @@ fun EmployeeListScreen(
                 ),
                 title = {},
                 actions = {
+                    var isExpanded by remember { mutableStateOf(false) }
                     Box(modifier = Modifier, contentAlignment = Alignment.Center){
                         Icon(
                             imageVector = rememberFilterList(),
                             contentDescription = "Filter",
-                            modifier = Modifier,
+                            modifier = Modifier.clickable {isExpanded = true},
                             )
                     }
+                    FilterDialogue(isFilterExpanded = isExpanded,
+                        filterState = {isExpanded=it},
+                        ) { filter -> sharedViewModel.filterEmployee(filter) }
                 },
                 modifier = Modifier.height(50.dp),
             )
@@ -104,9 +107,9 @@ fun EmployeeListScreen(
             ) {
                 EmployeeListItem(
                     employees,
-                ){ navigateToEdit->
+                ) { navigateToEdit ->
                     println("this: ${navigateToEdit.firstName}")
-                    viewModel.setEmployee(navigateToEdit)
+                    sharedViewModel.setEmployee(navigateToEdit)
                     navigateToEmployeeEdit()
                 }
                 FloatingActionButton(
@@ -211,11 +214,11 @@ fun ListEmployeeInfo(
         }
         Row(
             modifier = Modifier.weight(.5f),
-            horizontalArrangement = Arrangement.Start
+            //horizontalArrangement = Arrangement.Start
         ) {
-            if (employee.canOpen) {
+            if (true) {
                 Icon(
-                    imageVector = rememberLockOpenRight(),
+                    imageVector = rememberLockOpen(),
                     modifier = Modifier.size(20.dp),
                     contentDescription = "Can Open"
                 )
@@ -244,7 +247,7 @@ fun ListScheduleInfo(
             Pair(employee.wednesday,"W"),
             Pair(employee.thursday,"R"),
             Pair(employee.friday,"F"),
-            Pair(employee.sunday,"S"))
+            Pair(employee.saturday,"S"))
 
         Row(
             modifier = Modifier
@@ -282,9 +285,21 @@ fun ListScheduleInfo(
 
 @Composable
 fun FilterDialogue(
-
+    isFilterExpanded:Boolean,
+    filterState:(Boolean)->Unit,
+    filterSelection:(String)->Unit,
 ){
-
+    DropdownMenu(expanded = isFilterExpanded
+        , onDismissRequest = { filterState(false) }
+    ) {
+        val selections = listOf("Can Open","Can Close","Can Work Weekend");
+        selections.forEach{item->
+            DropdownMenuItem(text = { Text(item) }, onClick = {
+                filterSelection(item)
+                filterState(false)
+            })
+        }
+    }
 }
 @Preview(showBackground = true)
 @Composable

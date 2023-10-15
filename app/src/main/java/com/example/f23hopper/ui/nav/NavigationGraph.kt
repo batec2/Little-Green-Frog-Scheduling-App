@@ -33,6 +33,7 @@ fun AppNavHost(
         startDestination = NavScreen.Calendar.route,
         modifier = modifier
     ) {
+        //sub graph
         navigation(
             route = NavScreen.SharedEmployeeList.route,
             startDestination = NavScreen.EmployeeList.route
@@ -40,30 +41,37 @@ fun AppNavHost(
             composable(route = NavScreen.EmployeeList.route) {
                 EmployeeListScreen(
                     //For button to go to Entry screen from the list
-                    navigateToEmployeeAdd = {
+                    navigateToEmployeeAdd =
+                    {
                         navController.navigate(NavScreen.EmployeeEntry.route)
-                                            },
-                    navigateToEmployeeEdit = {
+                    },
+                    navigateToEmployeeEdit =
+                    {
                         navController.navigate(NavScreen.EmployeeEdit.route)
                     },
                     sharedViewModel = viewModel
                 )
             }
-            composable(route = NavScreen.EmployeeEdit.route) { entry->
+            composable(route = NavScreen.EmployeeEdit.route) {
                 EmployeeEditScreen(
                     //For button to go back to the List screen when done editing
-                    navigateToEmployeeList = {navController.navigate(NavScreen.EmployeeList.route)},
+                    navigateToEmployeeList =
+                    {
+                        //navController.navigate(NavScreen.EmployeeList.route)
+                        navController.popBackStack()
+                    },
                     sharedViewModel = viewModel
                 )
             }
-        }
-        composable(route = NavScreen.EmployeeEntry.route) {
-            EmployeeEntryScreen(
-                //For button to go back to list from entry screen
-                navigateToEmployeeList = {
-                    navController.navigate(NavScreen.SharedEmployeeList.route)
-                }
-            )
+            composable(route = NavScreen.EmployeeEntry.route) {
+                EmployeeEntryScreen(
+                    //For button to go back to list from entry screen
+                    navigateToEmployeeList = {
+                        //navController.navigate(NavScreen.SharedEmployeeList.route)
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
         composable(route = NavScreen.Calendar.route) {
             CalendarScreen(
@@ -77,13 +85,4 @@ fun AppNavHost(
     }
 }
 
-@Composable
-inline fun <reified T : ViewModel> NavBackStackEntry.sharedViewModel(
-    navController: NavHostController,
-): T {
-    val navGraphRoute = destination.parent?.route ?: return viewModel()
-    val parentEntry = remember(this) {
-        navController.getBackStackEntry(navGraphRoute)
-    }
-    return hiltViewModel(parentEntry)
-}
+

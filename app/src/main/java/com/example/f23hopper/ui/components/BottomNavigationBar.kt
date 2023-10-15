@@ -34,31 +34,34 @@ fun BottomNavigationBar(
     ) {
         items.forEachIndexed { index, item ->
             val selected = item.route == currentRoute
-            NavigationBarItem(
-                icon = {
-                    when (item) {
-                        NavScreen.Calendar -> Icon(
-                            Icons.Default.DateRange,
-                            contentDescription = item.toString()
-                        )
-                        NavScreen.EmployeeList -> Icon(
-                            Icons.Default.AccountBox,
-                            contentDescription = item.toString()
-                        )
-                        else -> {}
-                    }
-                },
-                selected = selected,
-                onClick = {
-                    if (!selected) {  // prevent re-navigation to the current screen
-                        navController.navigate(item.route) {
-                            // To clear the back stack to prevent a growing stack
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
+            if(currentRoute != NavScreen.EmployeeEntry.route||
+                currentRoute != NavScreen.EmployeeEdit.route){
+                NavigationBarItem(
+                    icon = {
+                        when (item) {
+                            NavScreen.Calendar -> Icon(
+                                Icons.Default.DateRange,
+                                contentDescription = item.toString()
+                            )
+                            NavScreen.EmployeeList -> Icon(
+                                Icons.Default.AccountBox,
+                                contentDescription = item.toString()
+                            )
+                            else -> {}
+                        }
+                    },
+                    selected = selected,
+                    onClick = {
+                        if (!selected) {  // prevent re-navigation to the current screen
+                            navController.navigate(item.route) {
+                                // To clear the back stack to prevent a growing stack
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
                         }
                     }
-                }
-            )
+                )
+            }
         }
     }
 }

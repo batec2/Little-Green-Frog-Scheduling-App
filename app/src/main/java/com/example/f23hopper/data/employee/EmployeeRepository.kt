@@ -11,6 +11,18 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         return employeeDao.getAllEmployees()
     }
 
+    fun getCanWorkWeekends(): Flow<List<Employee>> {
+        return employeeDao.getCanWorkWeekends()
+    }
+
+    fun getCanOpen(): Flow<List<Employee>> {
+        return employeeDao.getCanOpen()
+    }
+
+    fun getCanClose(): Flow<List<Employee>> {
+        return employeeDao.getCanClose()
+    }
+
     suspend fun insertEmployee(employee: Employee): Long {
         return employeeDao.insert(employee)
     }

@@ -1,6 +1,7 @@
 package com.example.f23hopper.ui.employee
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class EmployeeListViewModel @Inject constructor (
     private val employeeRepository: EmployeeRepository
 ) : ViewModel() {
-    val employees = employeeRepository.getAllEmployees().asLiveData()
+    var employees by mutableStateOf( employeeRepository.getAllEmployees().asLiveData() )
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
@@ -25,6 +26,15 @@ class EmployeeListViewModel @Inject constructor (
                 employeeDetails = employeeDetails,
                 isEmployeeValid = validateInput(employeeDetails)
             )
+    }
+
+    fun filterEmployee(filter: String){
+        employees = when(filter) {
+            "Can Open" -> employeeRepository.getCanOpen().asLiveData()
+            "Can Close" -> employeeRepository.getCanClose().asLiveData()
+            "Can Work Weekend" -> employeeRepository.getCanWorkWeekends().asLiveData()
+            else -> employeeRepository.getAllEmployees().asLiveData()
+        }
     }
 
     private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
