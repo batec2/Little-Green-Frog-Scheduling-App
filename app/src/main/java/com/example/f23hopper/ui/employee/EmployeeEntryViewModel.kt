@@ -17,11 +17,6 @@ class EmployeeEntryViewModel @Inject constructor(
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
-    //Sets view model to an Employee from the database
-    fun getUiState(employee: Employee){
-        employeeUiState = employee.toEmployeeUiState();
-    }
-
     //updates current employee details
     fun updateUiState(employeeDetails: EmployeeDetails) {
         employeeUiState =

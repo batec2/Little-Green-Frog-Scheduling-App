@@ -20,8 +20,7 @@ fun EmployeeEditScreen(
     val coroutineScope = rememberCoroutineScope()
     val viewModel = sharedViewModel
     //val employeeDetails = viewModel.employeeUiState.employeeDetails
-    Text(text = "This = ${viewModel.employeeUiState.employeeDetails.firstName}")
-    /*
+    //Text(text = "This = ${viewModel.employeeUiState.employeeDetails.firstName}")
     EmployeeEntryBody(
         employeeUiState = viewModel.employeeUiState,
         employeeDetails = viewModel.employeeUiState.employeeDetails,
@@ -33,6 +32,6 @@ fun EmployeeEditScreen(
         },
         navigateToEmployeeList = navigateToEmployeeList
     )
-     */
+
 }
 
