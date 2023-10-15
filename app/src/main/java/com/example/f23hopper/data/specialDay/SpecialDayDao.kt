@@ -7,10 +7,7 @@ import kotlinx.coroutines.flow.Flow
 interface SpecialDayDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun insert(specialDay: SpecialDay): SpecialDay {
-        return specialDay
-    }
-
+    suspend fun insert(specialDay: SpecialDay)
 
     @Update
     suspend fun update(specialDay: SpecialDay)

@@ -1,10 +1,12 @@
 package com.example.f23hopper
 
+import android.util.Log
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.data.specialDay.SpecialDay
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -19,6 +21,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
     withContext(Dispatchers.IO) {
         val employeeDao = db.employeeDao()
         val scheduleDao = db.scheduleDao()
+        val specialDayDao = db.specialDayDao()
 
         // Clear existing data
         wipeDatabase(db)
@@ -236,6 +239,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
+                specialDayDao.insert(SpecialDay(date = date))
             } else {
                 // Regular weekdays
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
