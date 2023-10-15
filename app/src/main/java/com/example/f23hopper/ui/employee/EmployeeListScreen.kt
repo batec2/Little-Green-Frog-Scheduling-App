@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -55,14 +56,17 @@ import com.example.f23hopper.ui.icons.rememberLockOpenRight
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeListScreen(
-    navigateToEmployeeAdd: () -> Unit
+    navigateToEmployeeAdd: () -> Unit,
+    navigateToEmployeeEdit: () -> Unit,
+    sharedViewModel: EmployeeListViewModel
 ) {
     val colorScheme = MaterialTheme.colorScheme
-    val viewModel = hiltViewModel<EmployeeListViewModel>()
+    val viewModel = sharedViewModel
     val employees by viewModel.employees.asFlow().collectAsState(initial = emptyList())
 
     var offsetX by remember { mutableFloatStateOf(0f) }
@@ -98,7 +102,13 @@ fun EmployeeListScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
             ) {
-                EmployeeListItem(employees)
+                EmployeeListItem(
+                    employees,
+                ){ navigateToEdit->
+                    println("this: ${navigateToEdit.firstName}")
+                    viewModel.setEmployee(navigateToEdit)
+                    navigateToEmployeeEdit()
+                }
                 FloatingActionButton(
                     containerColor = colorScheme.primary.copy(),
                     onClick = { navigateToEmployeeAdd() },
@@ -131,7 +141,8 @@ fun EmployeeListScreen(
 
 @Composable
 fun EmployeeListItem(
-    employees: List<Employee>
+    employees: List<Employee>,
+    navigateToEdit: (Employee) -> Unit
 ){
     LazyColumn (
         modifier = Modifier.padding(5.dp),
@@ -142,7 +153,7 @@ fun EmployeeListItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clip(shape = RoundedCornerShape(2.dp))
-                    .clickable { /* handle on click to each employee*/ }
+                    .clickable { navigateToEdit(employee) }
                     .border(
                         2.dp,
                         shape = RoundedCornerShape(2.dp),
