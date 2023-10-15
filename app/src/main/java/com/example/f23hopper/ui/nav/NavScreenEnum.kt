@@ -4,6 +4,8 @@ enum class NavScreen(val route: String) {
     CalendaWeekView("CalendarWeekView"),
     CalendarScheduleEntry("CalendarScheduleEntry"),
     EmployeeEntry("EmployeeEntry"),
+    EmployeeEdit("EmployeeEdit"),
+    SharedEmployeeList("SharedEmployeeList"),
     EmployeeList("EmployeeList");
 
     override fun toString(): String {
@@ -12,6 +14,8 @@ enum class NavScreen(val route: String) {
             CalendaWeekView->"CalendaWeekView"
             CalendarScheduleEntry->"CalendarScheduleEntry"
             EmployeeEntry -> "Employee Entry"
+            EmployeeEdit -> "Employee Edit"
+            SharedEmployeeList -> "Shared Employee List"
             EmployeeList -> "Employees"
         }
     }
