@@ -120,9 +120,7 @@ fun Calendar(
 
     val shiftsOnSelectedDate = if (selection?.date != null) {
         shifts.filter { it.schedule.date.toString() == selection?.date.toString() }
-    } else {
-        emptyList()
-    }
+    } else emptyList()
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
@@ -170,8 +168,18 @@ fun Calendar(
             modifier = Modifier.wrapContentWidth(),
             state = state,
             dayContent = { day ->
+
+                val isSpecialDayExists = specialDays.any {
+                    it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() == day.date
+                }
+
                 val dotColors = colorsForDots[day.date] ?: emptyList()
-                Day(day = day, isSelected = selection == day, dotColors = dotColors) { clicked ->
+                Day(
+                    day = day,
+                    isSelected = selection == day,
+                    dotColors = dotColors,
+                    isSpecialDay = isSpecialDayExists
+                ) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
                     Log.d("Test", clicked.date.toString())
@@ -198,6 +206,7 @@ private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
     dotColors: List<Color> = emptyList(),
+    isSpecialDay: Boolean,
     onClick: (CalendarDay) -> Unit = {},
 ) {
     Box( // Square days!!
@@ -208,7 +217,7 @@ private fun Day(
                 color = if (isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(color = itemBackgroundColor)
+            .background(if (isSpecialDay) Color.Red else itemBackgroundColor)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
                 onClick = { onClick(day) })
@@ -420,7 +429,6 @@ private fun EmployeeInformation(employee: Employee) {
     }
 }
 
-
 @Composable
 fun getColorDateMap(eventsByDay: Map<LocalDate, List<Shift>>): Map<LocalDate, List<Color>> {
     return eventsByDay.mapValues { entry ->
@@ -448,5 +456,3 @@ val itemBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.sec
 val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryContainer
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
-
-

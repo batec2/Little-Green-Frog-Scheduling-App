@@ -8,8 +8,8 @@ import java.sql.Date
 
 class SpecialDayRepository(private val specialDayDao: SpecialDayDao) {
     @Insert
-    suspend fun insert(date: Date): Date {
-        return specialDayDao.insert(SpecialDay(date)).date
+    suspend fun insert(date: Date) {
+        specialDayDao.insert(SpecialDay(date))
     }
 
     @Update
