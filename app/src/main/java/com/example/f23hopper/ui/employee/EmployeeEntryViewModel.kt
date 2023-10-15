@@ -17,6 +17,12 @@ class EmployeeEntryViewModel @Inject constructor(
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
+    //Sets view model to an Employee from the database
+    fun getUiState(employee: Employee){
+        employeeUiState = employee.toEmployeeUiState();
+    }
+
+    //updates current employee details
     fun updateUiState(employeeDetails: EmployeeDetails) {
         employeeUiState =
             EmployeeUiState(
@@ -24,14 +30,14 @@ class EmployeeEntryViewModel @Inject constructor(
                 isEmployeeValid = validateInput(employeeDetails)
             )
     }
-
+    //checks if fields: firstName,lastName,email,phone number is not blank
     private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
         return with(uiState) {
             firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
                     && phoneNumber.isNotBlank()
         }
     }
-
+    //inserts employee details into database
     suspend fun saveEmployee() {
         if (validateInput()) { //checks if inputs are not blank
             employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
@@ -87,7 +93,7 @@ fun EmployeeDetails.toEmployee(): Employee = Employee(
 )
 
 
-fun Employee.toEmployeeUiState(isEmployeeValid: Boolean = false): EmployeeUiState = EmployeeUiState(
+fun Employee.toEmployeeUiState(isEmployeeValid: Boolean = true): EmployeeUiState = EmployeeUiState(
     employeeDetails = this.toEmployeeDetails(),
     isEmployeeValid = isEmployeeValid
 )
