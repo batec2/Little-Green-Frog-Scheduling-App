@@ -19,6 +19,27 @@ class EmployeeListViewModel @Inject constructor (
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
+    fun updateUiState(employeeDetails: EmployeeDetails) {
+        employeeUiState =
+            EmployeeUiState(
+                employeeDetails = employeeDetails,
+                isEmployeeValid = validateInput(employeeDetails)
+            )
+    }
+
+    private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
+        return with(uiState) {
+            firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
+                    && phoneNumber.isNotBlank()
+        }
+    }
+
+    suspend fun saveEmployee() {
+        if (validateInput()) { //checks if inputs are not blank
+            employeeRepository.updateEmployee(employeeUiState.employeeDetails.toEmployee())
+        }
+    }
+
     fun setEmployee(employee: Employee){
         employeeUiState = employee.toEmployeeUiState()
         println("that: ${employee.firstName}")

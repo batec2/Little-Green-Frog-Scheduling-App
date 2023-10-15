@@ -158,9 +158,7 @@ fun EmployeeInfo(
     onEmployeeInfoChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
 ) {
-
     val focusManager = LocalFocusManager.current
-
     val handleKeyEvent: (KeyEvent) -> Boolean = {
         when {
             (it.type == KeyEventType.KeyDown && (it.key == Key.Tab || it.key == Key.Enter)) -> {
@@ -278,8 +276,8 @@ fun OpenCloseCertificationSelector(
     onCertValueChange: (EmployeeDetails) -> Unit = {},
     employeeDetails: EmployeeDetails
 ) {
-    var checkedOpen by remember { mutableStateOf(false) }
-    var checkedClose by remember { mutableStateOf(false) }
+    var checkedOpen by remember { mutableStateOf(employeeDetails.canOpen) }
+    var checkedClose by remember { mutableStateOf(employeeDetails.canClose) }
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
@@ -319,7 +317,8 @@ fun ScheduleSelector(
         DayOfWeek.values().forEach { day ->
             Spacer(modifier = Modifier.size(10.dp))
             DaySelector(
-                dayOfWeek = day
+                dayOfWeek = day,
+                employeeDetails = employeeDetails
             ) { updatedDay ->
                 val updatedEmployeeDetails = when (day) {
                     DayOfWeek.MONDAY -> employeeDetails.copy(monday = updatedDay)
@@ -338,6 +337,7 @@ fun ScheduleSelector(
 
 @Composable
 fun DaySelector(
+    employeeDetails: EmployeeDetails,
     dayOfWeek: DayOfWeek,
     onSelectionChange: (ShiftType) -> Unit
 ) {
