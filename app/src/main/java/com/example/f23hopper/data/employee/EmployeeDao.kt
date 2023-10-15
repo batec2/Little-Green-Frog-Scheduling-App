@@ -28,6 +28,15 @@ interface EmployeeDao {
     @Query("SELECT * FROM employees")
     fun getAllEmployees(): Flow<List<Employee>>
 
+    @Query("SELECT * FROM employees Where saturday = \"FULL\" or sunday = \"FULL\"")
+    fun getCanWorkWeekends(): Flow<List<Employee>>
+
+    @Query("SELECT * FROM employees Where canClose = 1")
+    fun getCanClose(): Flow<List<Employee>>
+
+    @Query("SELECT * FROM employees Where canOpen = 1")
+    fun getCanOpen(): Flow<List<Employee>>
+
     @RawQuery(observedEntities = [Employee::class])
     fun getEmployeesByDayAndShiftType(query: SupportSQLiteQuery): Flow<List<Employee>>
 }
