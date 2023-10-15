@@ -6,9 +6,15 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -113,9 +119,7 @@ fun Calendar(
 
     val shiftsOnSelectedDate = if (selection?.date != null) {
         shifts.filter { it.schedule.date.toString() == selection?.date.toString() }
-    } else {
-        emptyList()
-    }
+    } else emptyList()
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
@@ -163,8 +167,18 @@ fun Calendar(
             modifier = Modifier.wrapContentWidth(),
             state = state,
             dayContent = { day ->
+
+                val isSpecialDayExists = specialDays.any {
+                    it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() == day.date
+                }
+
                 val dotColors = colorsForDots[day.date] ?: emptyList()
-                Day(day = day, isSelected = selection == day, dotColors = dotColors) { clicked ->
+                Day(
+                    day = day,
+                    isSelected = selection == day,
+                    dotColors = dotColors,
+                    isSpecialDay = isSpecialDayExists
+                ) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
                     Log.d("Test", clicked.date.toString())
@@ -188,6 +202,7 @@ private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
     dotColors: List<Color> = emptyList(),
+    isSpecialDay: Boolean,
     onClick: (CalendarDay) -> Unit = {},
 ) {
     Box( // Square days!!
@@ -198,7 +213,7 @@ private fun Day(
                 color = if (isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(color = itemBackgroundColor)
+            .background(if (isSpecialDay) Color.Red else itemBackgroundColor)
             .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) })
     ) {
         val textColor = when (day.position) {
