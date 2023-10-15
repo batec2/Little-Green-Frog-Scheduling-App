@@ -6,15 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,11 +34,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
+import com.example.f23hopper.ui.icons.rememberSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -58,7 +54,6 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
-import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -109,9 +104,7 @@ fun EventDetailsBottomSheet(sheetState: SheetState, clickedDay: MutableState<Loc
 
 @Composable
 fun Calendar(
-    shifts: List<Shift>,
-    specialDays: List<SpecialDay>,
-    navigateToDayView: (String) -> Unit
+    shifts: List<Shift>, specialDays: List<SpecialDay>, navigateToDayView: (String) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
@@ -192,11 +185,8 @@ fun Calendar(
 //        Divider(color = itemBackgroundColor)
         if (selection != null) {  // Conditionally render based on selection
             Divider(color = itemBackgroundColor)
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                item {
-                    ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!)
-                }
-            }
+            ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!)
+
         }
     }
 }
@@ -218,14 +208,11 @@ private fun Day(
             )
             .padding(1.dp)
             .background(if (isSpecialDay) Color.Red else itemBackgroundColor)
-            .clickable(
-                enabled = day.position == DayPosition.MonthDate,
-                onClick = { onClick(day) })
+            .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) })
     ) {
         val textColor = when (day.position) {
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
-            DayPosition.InDate,
-            DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
+            DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
         Text(
             modifier = Modifier
@@ -277,157 +264,157 @@ private fun WeekDays(modifier: Modifier) {
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 text = dayOfWeek.displayText(uppercase = true),
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        DateBox(date = date)
+        ShiftContent(shifts = shifts)
+    }
+}
+
+@Composable
+fun DateBox(date: LocalDate) {
+    Box(
+        modifier = Modifier
+            .width(120.dp)
+            .height(2 * 56.dp)
+            .background(pageBackgroundColor),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(text = date.dayOfWeek.name.take(3).uppercase()) // Day of week abbreviated
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(text = date.dayOfMonth.toString()) // Day of the month
+            Spacer(
+                modifier = Modifier
+                    .height(1.dp)
+                    .background(Color.Black)
             )
         }
     }
 }
 
 @Composable
-fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate) {
-    Box(
+fun ShiftContent(shifts: List<Shift>) {
+    Column(
         modifier = Modifier
-            .fillMaxSize()
-            .background(itemBackgroundColor)
+            .fillMaxWidth()
+            .background(pageBackgroundColor)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(8.dp)
-        ) {
-            //Looks bad atm
-//            Text(text = date.dayOfWeek.toString().take(3), fontSize = 24.sp)  // "Wed" for Wednesday
+        val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+        val rowWeight = 1f / shiftsByType.size
 
-            val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
-            shiftsByType.forEach { (shiftType, shiftsForType) ->
-                if (date.dayOfWeek !in setOf(
-                        DayOfWeek.SATURDAY,
-                        DayOfWeek.SUNDAY
-                    ) || shiftType == ShiftType.FULL
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Icon(
-                            imageVector = if (shiftType == ShiftType.DAY) Icons.Default.Info else Icons.Default.Info,
-                            contentDescription = null
-                        )
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            repeat(shiftsForType.size) {
-                                // Color each circle according to the shift
-                                Box(
-                                    modifier = Modifier
-                                        .size(8.dp)
-                                        .background(getShiftColor(shiftType), CircleShape)
-                                )
-                            }
-                        }
+        val entries = shiftsByType.entries.toList()
+        for (index in entries.indices) {
+            val (shiftType, shiftsForType) = entries[index]
 
-                        val MAX_SHIFTS_PER_TYPE = 2
-                        Text(text = if (shiftsForType.size >= MAX_SHIFTS_PER_TYPE) "$shiftType Shift Covered" else "Incomplete")
-                        if (shiftsForType.size >= MAX_SHIFTS_PER_TYPE) {
-                            Icon(imageVector = Icons.Default.Check, contentDescription = null)
-                        } else {
-                            IconButton(onClick = { /* Handle add employee for this shift type */ }) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = "Add Employee"
-                                )
-                            }
-                        }
-                    }
-                }
+            ShiftRow(
+                shiftType = shiftType,
+                shiftsForType = shiftsForType,
+                modifier = Modifier.weight(rowWeight),
+                maxShifts = 2 //TODO: This should be dynamic on if important day/not
+            )
+
+            // add a spacer only if it's not the last row
+            if (index != entries.size - 1) {
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.outline)
+                )
             }
         }
     }
 }
 
+
 @Composable
-private fun LazyItemScope.EmployeeInfoForDay(
-    event: Shift
+fun ShiftRow(
+    maxShifts: Int,
+    shiftType: ShiftType,
+    shiftsForType: List<Shift>,
+    modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .fillParentMaxWidth()
-            .height(IntrinsicSize.Max),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        val dateIcon = Icons.Outlined.DateRange
-        Box(
-            modifier = Modifier
-                .background(color = itemBackgroundColor)
-                .fillParentMaxWidth(1 / 7f)
-                .aspectRatio(1f),
-            contentAlignment = Alignment.Center,
-        ) {
-            Icon(dateIcon, contentDescription = "Date Icon")
-//            Text(
-//                text = event.schedule.date.toString(),
-//                textAlign = TextAlign.Center,
-//                lineHeight = 17.sp,
-//                fontSize = 12.sp,
-//            )
-        }
-        Box(
-            modifier = Modifier
-                .background(color = itemBackgroundColor)
-                .weight(1f)
-                .fillMaxHeight(),
-        ) {
-            EmployeeInformation(event.employee)
-        }
+        ShiftIcon(shiftType)
+        ShiftCircles(maxShifts, shiftsForType, shiftType)
+        ShiftCompletionText(shiftsForType, shiftType)
+        EditShiftButton()
     }
-    Divider(color = pageBackgroundColor, thickness = 2.dp)
 }
 
 @Composable
-private fun EmployeeInformation(employee: Employee) {
-    Row(
+fun ShiftIcon(shiftType: ShiftType) {
+    Icon(
+        imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
+        contentDescription = null,
+
+        tint = MaterialTheme.colorScheme.onSecondaryContainer
+    )
+}
+
+@Composable
+fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftType) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(),
+//            .weight(0.1f)
+            .padding(start = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        val icon =
-            Icons.Outlined.Person  // Assuming you want to use a person icon for employees
-        Box(
-            modifier = Modifier
-                .weight(0.3f)
-                .fillMaxHeight(),
-            contentAlignment = Alignment.CenterEnd,
-        ) {
-            Icon(icon, contentDescription = "Employee Icon")
-        }
-        Column(
-            modifier = Modifier
-                .weight(0.7f)
-                .fillMaxHeight()
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = employee.firstName,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Black,
-            )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = "${employee.firstName} ${employee.lastName}",
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Light,
+        for (index in 0 until maxShifts) {
+            Box(
+                modifier = if (index < shiftsForType.size) {
+                    Modifier
+                        .size(8.dp)
+                        .background(getShiftColor(shiftType), CircleShape)
+                } else {
+                    Modifier
+                        .size(8.dp)
+                        .border(
+                            1.dp,
+                            MaterialTheme.colorScheme.onTertiaryContainer,
+                            CircleShape
+                        )
+                }
             )
         }
     }
 }
+
+@Composable
+fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType) {
+    Text(
+        text = if (shiftsForType.size >= 2) "$shiftType Shift Covered" else "Incomplete",
+        color = MaterialTheme.colorScheme.onSecondaryContainer
+    )
+}
+
+@Composable
+fun EditShiftButton() {
+    IconButton(onClick = { /* Handle add employee for this shift type */ }) {
+        Icon(imageVector = Icons.Default.Create, contentDescription = "Add Employee")
+    }
+}
+
 
 @Composable
 fun getColorDateMap(eventsByDay: Map<LocalDate, List<Shift>>): Map<LocalDate, List<Color>> {
@@ -456,3 +443,5 @@ val itemBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.sec
 val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryContainer
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+
+
