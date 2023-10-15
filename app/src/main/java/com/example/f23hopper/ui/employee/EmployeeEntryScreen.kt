@@ -318,7 +318,15 @@ fun ScheduleSelector(
             Spacer(modifier = Modifier.size(10.dp))
             DaySelector(
                 dayOfWeek = day,
-                employeeDetails = employeeDetails
+                shiftStatus = when (day) {
+                    DayOfWeek.MONDAY -> employeeDetails.monday
+                    DayOfWeek.TUESDAY -> employeeDetails.tuesday
+                    DayOfWeek.WEDNESDAY -> employeeDetails.wednesday
+                    DayOfWeek.THURSDAY -> employeeDetails.thursday
+                    DayOfWeek.FRIDAY -> employeeDetails.friday
+                    DayOfWeek.SATURDAY -> employeeDetails.saturday
+                    DayOfWeek.SUNDAY -> employeeDetails.sunday
+                }
             ) { updatedDay ->
                 val updatedEmployeeDetails = when (day) {
                     DayOfWeek.MONDAY -> employeeDetails.copy(monday = updatedDay)
@@ -337,15 +345,21 @@ fun ScheduleSelector(
 
 @Composable
 fun DaySelector(
-    employeeDetails: EmployeeDetails,
+    shiftStatus:ShiftType,
     dayOfWeek: DayOfWeek,
     onSelectionChange: (ShiftType) -> Unit
 ) {
     val isWeekend = dayOfWeek.isWeekend()
 
-    var shiftSelected by remember { mutableStateOf(false) }
-    var dayShift by remember { mutableStateOf(false) }
-    var nightShift by remember { mutableStateOf(false) }
+    var shiftSelected by remember {
+        mutableStateOf(shiftStatus == ShiftType.FULL)
+    }
+    var dayShift by remember {
+        mutableStateOf(shiftStatus == ShiftType.DAY||shiftStatus == ShiftType.FULL)
+    }
+    var nightShift by remember {
+        mutableStateOf(shiftStatus == ShiftType.NIGHT||shiftStatus == ShiftType.FULL)
+    }
 
     val currentShiftType = determineShiftType(isWeekend, shiftSelected, dayShift, nightShift)
     onSelectionChange(currentShiftType)
@@ -354,9 +368,9 @@ fun DaySelector(
         DayOfWeekTextBox(dayOfWeek, currentShiftType)
 
         if (isWeekend) {
-            WeekendButtonRow { shiftSelected = it }
+            WeekendButtonRow(shiftStatus=shiftStatus) { shiftSelected = it }
         } else {
-            WeekdayButtonRow(dayShift, nightShift) { day, night ->
+            WeekdayButtonRow(dayShift, nightShift, shiftStatus=shiftStatus) { day, night ->
                 dayShift = day
                 nightShift = night
             }
@@ -365,13 +379,17 @@ fun DaySelector(
 }
 
 @Composable
-fun WeekendButtonRow(onShiftSelectedChanged: (Boolean) -> Unit) {
+fun WeekendButtonRow(
+    shiftStatus: ShiftType,
+    onShiftSelectedChanged: (Boolean) -> Unit,
+) {
     Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1.8f))
         DayButton(
             "Day",
             onButtonChange = onShiftSelectedChanged,
-            modifier = Modifier.padding(end = 26.dp)
+            modifier = Modifier.padding(end = 26.dp),
+            status = shiftStatus==ShiftType.FULL
         )
     }
 }
@@ -380,7 +398,8 @@ fun WeekendButtonRow(onShiftSelectedChanged: (Boolean) -> Unit) {
 fun WeekdayButtonRow(
     dayShift: Boolean,
     nightShift: Boolean,
-    onDayNightShiftChanged: (Boolean, Boolean) -> Unit
+    shiftStatus: ShiftType,
+    onDayNightShiftChanged: (Boolean, Boolean) -> Unit,
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -391,9 +410,14 @@ fun WeekdayButtonRow(
         DayButton(
             "Day",
             onButtonChange = { onDayNightShiftChanged(it, nightShift) },
-            modifier = Modifier.padding(end = 8.dp)
+            modifier = Modifier.padding(end = 8.dp),
+            status = shiftStatus==ShiftType.FULL||shiftStatus==ShiftType.DAY
+
         )
-        DayButton("Night", onButtonChange = { onDayNightShiftChanged(dayShift, it) })
+        DayButton("Night",
+            onButtonChange = { onDayNightShiftChanged(dayShift, it) },
+            status = shiftStatus==ShiftType.FULL||shiftStatus==ShiftType.NIGHT
+        )
     }
 }
 
@@ -417,8 +441,9 @@ fun DayButton(
     icon: String,
     onButtonChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    status:Boolean
 ) {
-    var checked by remember { mutableStateOf(false) }
+    var checked by remember { mutableStateOf(status) }
     val buttonColor = when {
         icon == "Day" && checked -> colorScheme.primary
         icon == "Night" && checked -> colorScheme.primary
