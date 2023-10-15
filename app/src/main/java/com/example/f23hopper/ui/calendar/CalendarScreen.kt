@@ -6,15 +6,9 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -270,7 +264,7 @@ private fun WeekDays(modifier: Modifier) {
                 fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 text = dayOfWeek.displayText(uppercase = true),
-                fontWeight = FontWeight.Light,
+                fontWeight = FontWeight.Medium,
             )
         }
     }
@@ -371,7 +365,9 @@ fun ShiftRow(
 fun ShiftIcon(shiftType: ShiftType) {
     Icon(
         imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
-        contentDescription = null
+        contentDescription = null,
+
+        tint = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
 
@@ -408,6 +404,7 @@ fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftTyp
 fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType) {
     Text(
         text = if (shiftsForType.size >= 2) "$shiftType Shift Covered" else "Incomplete",
+        color = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
 
