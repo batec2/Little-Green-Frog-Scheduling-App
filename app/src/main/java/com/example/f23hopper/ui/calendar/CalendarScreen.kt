@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
@@ -207,7 +208,7 @@ private fun Day(
                 color = if (isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(if (isSpecialDay) Color.Red else itemBackgroundColor)
+            .background(if (isSpecialDay) CustomColor.specialDay else itemBackgroundColor)
             .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) })
     ) {
         val textColor = when (day.position) {
