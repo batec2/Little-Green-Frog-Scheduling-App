@@ -214,10 +214,6 @@ private fun Day(
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
 
-        // get max shifts from maxShifts(isSpecialDay)
-        // we should move dot color grouping to here, then check if all groups max = maxShift
-        // if no, show icon below
-        // if yes, do not show icon
 
         val minDots = groupedColors.entries.minOfOrNull { it.value.size } ?: 0
         if (minDots < maxShifts(isSpecialDay)) {
@@ -228,7 +224,7 @@ private fun Day(
                     .size(12.dp, 12.dp),
                 imageVector = Icons.Default.Warning,
                 tint = MaterialTheme.colorScheme.error,
-                contentDescription = null  // Optional, for accessibility purposes
+                contentDescription = "Day is incomplete"
             )
         }
 
