@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -121,8 +122,6 @@ fun Calendar(
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
     val colorsForDots = getColorDateMap(shiftsByDay)
-
-
     StatusBarColorUpdateEffect(toolbarColor)
     Column(
         modifier = Modifier
@@ -213,6 +212,22 @@ private fun Day(
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
+
+        // get max shifts from maxShifts(isSpecialDay)
+        // we should move dot color grouping to here, then check if all groups max = maxShift
+        // if no, show icon below
+        // if yes, do not show icon
+        Icon(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(2.dp)
+                .size(12.dp, 12.dp),
+            imageVector = Icons.Default.Warning,
+            tint = MaterialTheme.colorScheme.error,
+            contentDescription = null  // Optional, for accessibility purposes
+
+        )
+
         Text(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -322,7 +337,7 @@ fun ShiftContent(shifts: List<Shift>, isSpecialDay: Boolean = false) {
                 shiftType = shiftType,
                 shiftsForType = shiftsForType,
                 modifier = Modifier.weight(rowWeight),
-                maxShifts = if (isSpecialDay) 3 else 2
+                maxShifts = maxShifts(isSpecialDay)
             )
 
             // add a spacer only if it's not the last row
@@ -443,4 +458,4 @@ val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryC
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
-
+fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
