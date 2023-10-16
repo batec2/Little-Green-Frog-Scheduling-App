@@ -322,13 +322,6 @@ fun DateBox(date: LocalDate) {
     }
 }
 
-// Make a composable that gets date, and if special day, and returns a shift row to be filled.
-//ShiftRowsBuilder, date, isSpecialDay
-// Identify if date is a weekend
-// If not weekend, build shiftrows with Day and Night and fill them.
-// If weekend, Build ShiftRow with Full and fill
-// If no entries, return the empty shifts.
-
 @Composable
 fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = false) {
     Column(
