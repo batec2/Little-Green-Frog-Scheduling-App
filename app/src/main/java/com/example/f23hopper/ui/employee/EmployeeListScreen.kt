@@ -211,7 +211,7 @@ fun EmployeeListItem(
                                 shape = RoundedCornerShape(2.dp),
                                 color = colorScheme.secondaryContainer
                             )
-                            .background(colorScheme.onPrimary)
+                            .background(colorScheme.background)
                             .padding(16.dp)
                     ) {
                         Column {
