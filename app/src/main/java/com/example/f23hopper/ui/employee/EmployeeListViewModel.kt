@@ -28,8 +28,13 @@ class EmployeeListViewModel @Inject constructor (
             )
     }
 
+    suspend fun deleteEmployee(employee: Employee){
+        employeeRepository.deleteEmployee(employee)
+    }
+
     fun filterEmployee(filter: String){
         employees = when(filter) {
+            "All Employees" -> employeeRepository.getAllEmployees().asLiveData()
             "Can Open" -> employeeRepository.getCanOpen().asLiveData()
             "Can Close" -> employeeRepository.getCanClose().asLiveData()
             "Can Work Weekend" -> employeeRepository.getCanWorkWeekends().asLiveData()
