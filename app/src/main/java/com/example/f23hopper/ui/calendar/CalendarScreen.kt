@@ -55,6 +55,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -163,13 +164,16 @@ fun Calendar(
             state = state,
             dayContent = { day ->
 
-                val dotColors = colorsForDots[day.date] ?: emptyList()
+                val dotColors = (colorsForDots[day.date] ?: emptyList())
+                val groupedColors = dotColors.groupBy { it }
                 val isSpecialDay = specialDaysByDay[day.date] != null
                 Day(
                     day = day,
                     isSelected = selection == day,
-                    dotColors = dotColors,
-                    isSpecialDay = isSpecialDay
+                    groupedColors = groupedColors,
+                    isSpecialDay = isSpecialDay,
+                    // TODO: Pass in shifts on selection
+//                    shiftsOnSelectedDate = shiftsOnSelectedDate
                 ) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
@@ -193,7 +197,7 @@ fun Calendar(
 private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
-    dotColors: List<Color> = emptyList(),
+    groupedColors: Map<Color, List<Color>>,
     isSpecialDay: Boolean,
     onClick: (CalendarDay) -> Unit = {},
 ) {
@@ -213,20 +217,21 @@ private fun Day(
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
 
-        // get max shifts from maxShifts(isSpecialDay)
-        // we should move dot color grouping to here, then check if all groups max = maxShift
-        // if no, show icon below
-        // if yes, do not show icon
-        Icon(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(2.dp)
-                .size(12.dp, 12.dp),
-            imageVector = Icons.Default.Warning,
-            tint = MaterialTheme.colorScheme.error,
-            contentDescription = null  // Optional, for accessibility purposes
 
-        )
+        val minDots = groupedColors.entries.minOfOrNull { it.value.size } ?: 0
+        // This condition should be changed. Lets get the shifts themselves and run them through shift checking logic
+        // this is the IF_VALID_DAY check
+        if (minDots < maxShifts(isSpecialDay)) {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(12.dp, 12.dp),
+                imageVector = Icons.Default.Warning,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = "Day is incomplete"
+            )
+        }
 
         Text(
             modifier = Modifier
@@ -237,13 +242,15 @@ private fun Day(
             fontSize = 12.sp
         )
 
-        ColorGroupLayout(colors = dotColors, modifier = Modifier.align(Alignment.Center))
+        ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
+//TODO: Add valid day checking
+//fun isValidDay()
+
 @Composable
-fun ColorGroupLayout(colors: List<Color>, modifier: Modifier = Modifier) {
-    val groupedColors = colors.groupBy { it }
+fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -291,7 +298,7 @@ fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate, isSpecialDay: Boole
         modifier = Modifier.fillMaxWidth()
     ) {
         DateBox(date = date)
-        ShiftContent(shifts = shifts, isSpecialDay = isSpecialDay)
+        ShiftContent(date = date, shifts = shifts, isSpecialDay = isSpecialDay)
     }
 }
 
@@ -320,46 +327,53 @@ fun DateBox(date: LocalDate) {
 }
 
 @Composable
-fun ShiftContent(shifts: List<Shift>, isSpecialDay: Boolean = false) {
+fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(pageBackgroundColor)
     ) {
+        // dots in each shift type
         val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
-        val rowWeight = 1f / shiftsByType.size
 
-        val entries = shiftsByType.entries.toList()
-        for (index in entries.indices) {
-            val (shiftType, shiftsForType) = entries[index]
+        // Build 2 rows if weekday, 1 row if weekend
+        if (isWeekday(date)) {
 
             ShiftRow(
-                shiftType = shiftType,
-                shiftsForType = shiftsForType,
-                modifier = Modifier.weight(rowWeight),
+                shiftType = ShiftType.DAY,
+                shiftsForType = shiftsByType[ShiftType.DAY].orEmpty(),
+                modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
+                maxShifts = maxShifts(isSpecialDay)
+            )
+            Spacer(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.outline)
+            )
+            ShiftRow(
+                shiftType = ShiftType.NIGHT,
+                shiftsForType = shiftsByType[ShiftType.NIGHT].orEmpty(),
+                modifier = Modifier.weight(1f / maxShiftRows(date)),
+                maxShifts = maxShifts(isSpecialDay)
+            )
+        } else {
+            ShiftRow(
+                shiftType = ShiftType.FULL,
+                shiftsForType = shiftsByType[ShiftType.FULL].orEmpty(),
+                modifier = Modifier.weight(1f / maxShiftRows(date)),
                 maxShifts = maxShifts(isSpecialDay)
             )
 
-            // add a spacer only if it's not the last row
-            if (index != entries.size - 1) {
-                Spacer(
-                    modifier = Modifier
-                        .height(1.dp)
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.outline)
-                )
-            }
         }
+
     }
 }
 
 
 @Composable
 fun ShiftRow(
-    maxShifts: Int,
-    shiftType: ShiftType,
-    shiftsForType: List<Shift>,
-    modifier: Modifier = Modifier
+    maxShifts: Int, shiftType: ShiftType, shiftsForType: List<Shift>, modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
@@ -404,9 +418,7 @@ fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftTyp
                     Modifier
                         .size(8.dp)
                         .border(
-                            1.dp,
-                            MaterialTheme.colorScheme.onTertiaryContainer,
-                            CircleShape
+                            1.dp, MaterialTheme.colorScheme.onTertiaryContainer, CircleShape
                         )
                 }
             )
@@ -458,4 +470,8 @@ val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryC
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
+fun isWeekday(date: LocalDate) =
+    !(date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY)
+
 fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
+fun maxShiftRows(date: LocalDate) = if (isWeekday(date)) 2 else 1
