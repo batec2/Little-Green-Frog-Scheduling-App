@@ -18,6 +18,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -272,7 +274,7 @@ class StatusBarColorLifecycleObserver(
 ) : DefaultLifecycleObserver {
     private val isLightColor = ColorUtils.calculateLuminance(color) > 0.5
     private val defaultStatusBarColor =
-        "#4CAF50".toColorInt() //activity.getColorCompat(Color.Green.value.toInt())
+        "#CEE9DB".toColorInt() //activity.getColorCompat(Color.Green.value.toInt())
     private val activity = WeakReference(activity)
 
     override fun onStart(owner: LifecycleOwner) {
@@ -283,6 +285,7 @@ class StatusBarColorLifecycleObserver(
             }
         }
     }
+/*
 
     override fun onStop(owner: LifecycleOwner) {
         activity.get()?.window?.apply {
@@ -290,6 +293,7 @@ class StatusBarColorLifecycleObserver(
             if (isLightColor) decorView.systemUiVisibility = 0
         }
     }
+ */
 
     override fun onDestroy(owner: LifecycleOwner) = activity.clear()
 }
