@@ -22,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
@@ -68,7 +67,6 @@ import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -96,21 +94,21 @@ fun EmployeeListScreen(
                 title = {},
                 actions = {
                     var isExpanded by remember { mutableStateOf(false) }
-                    Box(modifier = Modifier, contentAlignment = Alignment.Center){
+                    Box(modifier = Modifier, contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = rememberFilterList(),
                             contentDescription = "Filter",
-                            modifier = Modifier.clickable {isExpanded = true},
-                            )
+                            modifier = Modifier.clickable { isExpanded = true },
+                        )
                     }
-                    FilterDialogue(isFilterExpanded = isExpanded,
-                        filterState = {isExpanded=it},
-                        ) { filter -> sharedViewModel.filterEmployee(filter) }
+                    FilterDialogue(
+                        isFilterExpanded = isExpanded,
+                        filterState = { isExpanded = it },
+                    ) { filter -> sharedViewModel.filterEmployee(filter) }
                 },
                 modifier = Modifier.height(50.dp),
             )
-        }
-                ,
+        },
         content = { innerPadding ->
             Box(
                 modifier = Modifier
@@ -130,31 +128,31 @@ fun EmployeeListScreen(
                     sharedViewModel.setEmployee(navigateToEdit)
                     navigateToEmployeeEdit()
                 }
-                FloatingActionButton(
-                    containerColor = colorScheme.primary.copy(),
-                    onClick = { navigateToEmployeeAdd() },
-                    modifier = Modifier
-                        .graphicsLayer(
-                            translationX = offsetX,
-                            translationY = offsetY
-                        )
-                        .pointerInput(Unit) {
-                            detectDragGestures { change, dragAmount ->
-                                change.consume()
-                                offsetX += dragAmount.x
-                                offsetY += dragAmount.y
-                            }
-                        }
+            }
+        }, floatingActionButton = {
 
-                        .align(Alignment.BottomEnd)
-                        .padding(16.dp)
-                ) {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = "add",
-                        tint = colorScheme.onPrimary.copy()
+            FloatingActionButton(
+                containerColor = colorScheme.primary.copy(),
+                onClick = { navigateToEmployeeAdd() },
+                modifier = Modifier
+                    .graphicsLayer(
+                        translationX = offsetX,
+                        translationY = offsetY
                     )
-                }
+                    .pointerInput(Unit) {
+                        detectDragGestures { change, dragAmount ->
+                            change.consume()
+                            offsetX += dragAmount.x
+                            offsetY += dragAmount.y
+                        }
+                    }
+                    .padding(16.dp)
+            ) {
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = "add",
+                    tint = colorScheme.onPrimary.copy()
+                )
             }
         }
     )
@@ -164,17 +162,17 @@ fun EmployeeListScreen(
 @Composable
 fun EmployeeListItem(
     employees: List<Employee>,
-    deleteItem: (Employee)->Unit,
+    deleteItem: (Employee) -> Unit,
     navigateToEdit: (Employee) -> Unit,
-){
-    LazyColumn (
+) {
+    LazyColumn(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
-    ){
-        items(items = employees,key = {employee ->employee.employeeId}) { employee ->
+    ) {
+        items(items = employees, key = { employee -> employee.employeeId }) { employee ->
             val dismissState = rememberDismissState(
                 confirmValueChange = {
-                    if(it == DismissValue.DismissedToStart){
+                    if (it == DismissValue.DismissedToStart) {
                         deleteItem(employee)
                     }
                     true
@@ -185,19 +183,20 @@ fun EmployeeListItem(
                 directions = setOf(DismissDirection.EndToStart),
                 background = {
                     val color by animateColorAsState(
-                        targetValue = when(dismissState.targetValue){
-                            DismissValue.Default-> colorScheme.onPrimary
+                        targetValue = when (dismissState.targetValue) {
+                            DismissValue.Default -> colorScheme.onPrimary
                             DismissValue.DismissedToStart -> colorScheme.errorContainer
                             DismissValue.DismissedToEnd -> colorScheme.errorContainer
-                            null-> Color.Transparent
+                            null -> Color.Transparent
                         }, label = ""
                     )
-                    Box(modifier = Modifier
-                        .fillMaxSize()
-                        .background(color)
-                        .padding(16.dp),
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(color)
+                            .padding(16.dp),
                         Alignment.CenterEnd
-                    ){
+                    ) {
                         Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
                     }
                 },
@@ -215,7 +214,7 @@ fun EmployeeListItem(
                             .background(colorScheme.onPrimary)
                             .padding(16.dp)
                     ) {
-                        Column{
+                        Column {
                             ListEmployeeInfo(employee = employee)
                             ListScheduleInfo(employee = employee)
                         }
@@ -229,7 +228,7 @@ fun EmployeeListItem(
 //Need to names and nickname position
 @Composable
 fun ListEmployeeInfo(
-    employee:Employee
+    employee: Employee
 ) {
     Row(
         //verticalAlignment = Alignment.CenterVertically,
@@ -291,16 +290,17 @@ fun ListEmployeeInfo(
 @Composable
 fun ListScheduleInfo(
     employee: Employee
-){
-    Row{
+) {
+    Row {
         val week = listOf(
-            Pair(employee.sunday,"S"),
-            Pair(employee.monday,"M"),
-            Pair(employee.tuesday,"T"),
-            Pair(employee.wednesday,"W"),
-            Pair(employee.thursday,"R"),
-            Pair(employee.friday,"F"),
-            Pair(employee.saturday,"S"))
+            Pair(employee.sunday, "S"),
+            Pair(employee.monday, "M"),
+            Pair(employee.tuesday, "T"),
+            Pair(employee.wednesday, "W"),
+            Pair(employee.thursday, "R"),
+            Pair(employee.friday, "F"),
+            Pair(employee.saturday, "S")
+        )
 
         Row(
             modifier = Modifier
@@ -308,13 +308,17 @@ fun ListScheduleInfo(
                 .clip(RoundedCornerShape(5.dp))
                 .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
-            Icon(imageVector = rememberWbSunny(),
+        ) {
+            Icon(
+                imageVector = rememberWbSunny(),
                 modifier = Modifier.size(20.dp),
-                contentDescription = "Day Shift")
-            week.forEach {
-                    week -> Text(text = if(week.first==ShiftType.DAY||week.first==ShiftType.FULL) week.second else "",
-                color = colorScheme.onSecondaryContainer)
+                contentDescription = "Day Shift"
+            )
+            week.forEach { week ->
+                Text(
+                    text = if (week.first == ShiftType.DAY || week.first == ShiftType.FULL) week.second else "",
+                    color = colorScheme.onSecondaryContainer
+                )
             }
         }
         Spacer(modifier = Modifier.size(5.dp))
@@ -324,13 +328,17 @@ fun ListScheduleInfo(
                 .clip(RoundedCornerShape(5.dp))
                 .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
-        ){
-            Icon(imageVector = rememberPartlyCloudyNight(),
+        ) {
+            Icon(
+                imageVector = rememberPartlyCloudyNight(),
                 modifier = Modifier.size(20.dp),
-                contentDescription = "Night Shift")
-            week.forEach {
-                    week -> Text(text = if(week.first==ShiftType.NIGHT||week.first==ShiftType.FULL) week.second else " ",
-                 color = colorScheme.onSecondaryContainer)
+                contentDescription = "Night Shift"
+            )
+            week.forEach { week ->
+                Text(
+                    text = if (week.first == ShiftType.NIGHT || week.first == ShiftType.FULL) week.second else " ",
+                    color = colorScheme.onSecondaryContainer
+                )
             }
         }
     }
@@ -338,22 +346,24 @@ fun ListScheduleInfo(
 
 @Composable
 fun FilterDialogue(
-    isFilterExpanded:Boolean,
-    filterState:(Boolean)->Unit,
-    filterSelection:(String)->Unit,
-){
-    var currentSelected by remember{mutableStateOf("All Employees")}
-    DropdownMenu(expanded = isFilterExpanded
-        , onDismissRequest = { filterState(false) }
+    isFilterExpanded: Boolean,
+    filterState: (Boolean) -> Unit,
+    filterSelection: (String) -> Unit,
+) {
+    var currentSelected by remember { mutableStateOf("All Employees") }
+    DropdownMenu(expanded = isFilterExpanded, onDismissRequest = { filterState(false) }
     ) {
         var selections =
-            listOf("All Employees",
-            "Can Open",
-            "Can Close",
-           "Can Work Weekend")
+            listOf(
+                "All Employees",
+                "Can Open",
+                "Can Close",
+                "Can Work Weekend"
+            )
 
-        selections.forEach{item->
-            DropdownMenuItem(text = { Text(item) },
+        selections.forEach { item ->
+            DropdownMenuItem(
+                text = { Text(item) },
                 onClick = {
                     filterSelection(item)
                     filterState(false)
@@ -361,7 +371,7 @@ fun FilterDialogue(
                 },
                 trailingIcon = {
                     val isSelected = currentSelected == item
-                    if(isSelected){
+                    if (isSelected) {
                         Icon(imageVector = Icons.Default.Check, contentDescription = "check")
                     }
                 }
@@ -370,6 +380,7 @@ fun FilterDialogue(
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeListScreenPreview() {

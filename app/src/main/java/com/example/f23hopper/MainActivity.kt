@@ -4,6 +4,7 @@ package com.example.f23hopper
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,6 @@ import com.example.compose.F23HopperTheme
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.ui.components.BottomNavigationBar
 import com.example.f23hopper.ui.nav.AppNavHost
-import com.example.f23hopper.utils.isDark
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
         var selectedItem by remember { mutableIntStateOf(0) }
         val colorScheme = MaterialTheme.colorScheme
         val systemUiController = rememberSystemUiController()
-        val isDarkTheme = isDark()
+        val isDarkTheme = isSystemInDarkTheme()
         // Set navigation bar color and icon colors
         SideEffect {
             systemUiController.setNavigationBarColor(

@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.calendar
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -118,10 +117,12 @@ fun Calendar(
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+
+    val specialDaysByDay =
+        specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
     val colorsForDots = getColorDateMap(shiftsByDay)
 
 
-    //TODO: Fix stuttering of top bar
     StatusBarColorUpdateEffect(toolbarColor)
     Column(
         modifier = Modifier
@@ -163,20 +164,16 @@ fun Calendar(
             state = state,
             dayContent = { day ->
 
-                val isSpecialDayExists = specialDays.any {
-                    it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() == day.date
-                }
-
                 val dotColors = colorsForDots[day.date] ?: emptyList()
+                val isSpecialDay = specialDaysByDay[day.date] != null
                 Day(
                     day = day,
                     isSelected = selection == day,
                     dotColors = dotColors,
-                    isSpecialDay = isSpecialDayExists
+                    isSpecialDay = isSpecialDay
                 ) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
-                    Log.d("Test", clicked.date.toString())
                 }
             },
             monthHeader = {
@@ -186,7 +183,8 @@ fun Calendar(
 //        Divider(color = itemBackgroundColor)
         if (selection != null) {  // Conditionally render based on selection
             Divider(color = itemBackgroundColor)
-            ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!)
+            val isSpecialDay = specialDaysByDay[selection?.date!!] != null
+            ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!, isSpecialDay = isSpecialDay)
 
         }
     }
@@ -273,12 +271,12 @@ private fun WeekDays(modifier: Modifier) {
 
 
 @Composable
-fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate) {
+fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate, isSpecialDay: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         DateBox(date = date)
-        ShiftContent(shifts = shifts)
+        ShiftContent(shifts = shifts, isSpecialDay = isSpecialDay)
     }
 }
 
@@ -307,7 +305,7 @@ fun DateBox(date: LocalDate) {
 }
 
 @Composable
-fun ShiftContent(shifts: List<Shift>) {
+fun ShiftContent(shifts: List<Shift>, isSpecialDay: Boolean = false) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -324,7 +322,7 @@ fun ShiftContent(shifts: List<Shift>) {
                 shiftType = shiftType,
                 shiftsForType = shiftsForType,
                 modifier = Modifier.weight(rowWeight),
-                maxShifts = 2 //TODO: This should be dynamic on if important day/not
+                maxShifts = if (isSpecialDay) 3 else 2
             )
 
             // add a spacer only if it's not the last row
@@ -357,7 +355,7 @@ fun ShiftRow(
     ) {
         ShiftIcon(shiftType)
         ShiftCircles(maxShifts, shiftsForType, shiftType)
-        ShiftCompletionText(shiftsForType, shiftType)
+        ShiftCompletionText(shiftsForType, shiftType, maxShifts)
         EditShiftButton()
     }
 }
@@ -402,9 +400,9 @@ fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftTyp
 }
 
 @Composable
-fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType) {
+fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType, maxShifts: Int) {
     Text(
-        text = if (shiftsForType.size >= 2) "$shiftType Shift Covered" else "Incomplete",
+        text = if (shiftsForType.size >= maxShifts) "$shiftType Shift Covered" else "Incomplete",
         color = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
