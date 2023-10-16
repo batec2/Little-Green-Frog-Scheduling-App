@@ -396,7 +396,7 @@ fun ShiftIcon(shiftType: ShiftType) {
 }
 
 @Composable
-fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>?, shiftType: ShiftType) {
+fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftType) {
     Column(
         modifier = Modifier
 //            .weight(0.1f)
@@ -406,7 +406,7 @@ fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>?, shiftType: ShiftTy
     ) {
         for (index in 0 until maxShifts) {
             Box(
-                modifier = if (shiftsForType != null && index < shiftsForType.size) {
+                modifier = if (index < shiftsForType.size) {
                     Modifier
                         .size(8.dp)
                         .background(getShiftColor(shiftType), CircleShape)
@@ -423,9 +423,9 @@ fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>?, shiftType: ShiftTy
 }
 
 @Composable
-fun ShiftCompletionText(shiftsForType: List<Shift>?, shiftType: ShiftType, maxShifts: Int) {
+fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType, maxShifts: Int) {
     Text(
-        text = if (shiftsForType != null && shiftsForType.size >= maxShifts) "$shiftType Shift Covered" else "Incomplete",
+        text = if (shiftsForType.size >= maxShifts) "$shiftType Shift Covered" else "Incomplete",
         color = MaterialTheme.colorScheme.onSecondaryContainer
     )
 }
