@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 
 
 private val LightColors = lightColorScheme(
@@ -76,6 +77,15 @@ private val DarkColors = darkColorScheme(
     outlineVariant = md_theme_dark_outlineVariant,
     scrim = md_theme_dark_scrim,
 )
+
+class CustomColor {
+    companion object {
+        val specialDay: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_specialDay // Dark theme special day color
+            } else md_theme_light_specialDay// Light theme special day color
+    }
+}
 
 @Composable
 fun F23HopperTheme(
