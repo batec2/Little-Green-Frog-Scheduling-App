@@ -163,12 +163,13 @@ fun Calendar(
             state = state,
             dayContent = { day ->
 
-                val dotColors = colorsForDots[day.date] ?: emptyList()
+                val dotColors = (colorsForDots[day.date] ?: emptyList())
+                val groupedColors = dotColors.groupBy { it }
                 val isSpecialDay = specialDaysByDay[day.date] != null
                 Day(
                     day = day,
                     isSelected = selection == day,
-                    dotColors = dotColors,
+                    groupedColors = groupedColors,
                     isSpecialDay = isSpecialDay
                 ) { clicked ->
                     selection = clicked
@@ -193,7 +194,7 @@ fun Calendar(
 private fun Day(
     day: CalendarDay,
     isSelected: Boolean = false,
-    dotColors: List<Color> = emptyList(),
+    groupedColors: Map<Color, List<Color>>,
     isSpecialDay: Boolean,
     onClick: (CalendarDay) -> Unit = {},
 ) {
@@ -217,16 +218,19 @@ private fun Day(
         // we should move dot color grouping to here, then check if all groups max = maxShift
         // if no, show icon below
         // if yes, do not show icon
-        Icon(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(2.dp)
-                .size(12.dp, 12.dp),
-            imageVector = Icons.Default.Warning,
-            tint = MaterialTheme.colorScheme.error,
-            contentDescription = null  // Optional, for accessibility purposes
 
-        )
+        val minDots = groupedColors.entries.minOfOrNull { it.value.size } ?: 0
+        if (minDots < maxShifts(isSpecialDay)) {
+            Icon(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(12.dp, 12.dp),
+                imageVector = Icons.Default.Warning,
+                tint = MaterialTheme.colorScheme.error,
+                contentDescription = null  // Optional, for accessibility purposes
+            )
+        }
 
         Text(
             modifier = Modifier
@@ -237,13 +241,12 @@ private fun Day(
             fontSize = 12.sp
         )
 
-        ColorGroupLayout(colors = dotColors, modifier = Modifier.align(Alignment.Center))
+        ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
 @Composable
-fun ColorGroupLayout(colors: List<Color>, modifier: Modifier = Modifier) {
-    val groupedColors = colors.groupBy { it }
+fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
     Column(
         verticalArrangement = Arrangement.Bottom,
         horizontalAlignment = Alignment.CenterHorizontally,
