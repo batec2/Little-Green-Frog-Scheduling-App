@@ -171,7 +171,9 @@ fun Calendar(
                     day = day,
                     isSelected = selection == day,
                     groupedColors = groupedColors,
-                    isSpecialDay = isSpecialDay
+                    isSpecialDay = isSpecialDay,
+                    // TODO: Pass in shifts on selection
+//                    shiftsOnSelectedDate = shiftsOnSelectedDate
                 ) { clicked ->
                     selection = clicked
 //                    navigateToDayView(clicked.date.toString())
@@ -216,10 +218,9 @@ private fun Day(
         }
 
 
-        // Min dots should be the max shift amount if fully booked.
-        // We could tweak this so it flags days with too many ppl?
-        // But I think that should just be constrained when adding.
         val minDots = groupedColors.entries.minOfOrNull { it.value.size } ?: 0
+        // This condition should be changed. Lets get the shifts themselves and run them through shift checking logic
+        // this is the IF_VALID_DAY check
         if (minDots < maxShifts(isSpecialDay)) {
             Icon(
                 modifier = Modifier
@@ -244,6 +245,9 @@ private fun Day(
         ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
+
+//TODO: Add valid day checking
+//fun isValidDay()
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
