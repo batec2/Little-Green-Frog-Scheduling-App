@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.employee
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -19,7 +20,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,18 +34,22 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +67,8 @@ import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,7 +79,7 @@ fun EmployeeListScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val employees by sharedViewModel.employees.asFlow().collectAsState(initial = emptyList())
-
+    val coroutineScope = rememberCoroutineScope()
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
 
@@ -107,6 +119,12 @@ fun EmployeeListScreen(
             ) {
                 EmployeeListItem(
                     employees,
+                    deleteItem =
+                    {
+                        coroutineScope.launch {
+                            sharedViewModel.deleteEmployee(it)
+                        }
+                    },
                 ) { navigateToEdit ->
                     println("this: ${navigateToEdit.firstName}")
                     sharedViewModel.setEmployee(navigateToEdit)
@@ -142,33 +160,68 @@ fun EmployeeListScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeListItem(
     employees: List<Employee>,
-    navigateToEdit: (Employee) -> Unit
+    deleteItem: (Employee)->Unit,
+    navigateToEdit: (Employee) -> Unit,
 ){
     LazyColumn (
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ){
-        items(employees) { employee ->
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(shape = RoundedCornerShape(2.dp))
-                    .clickable { navigateToEdit(employee) }
-                    .border(
-                        2.dp,
-                        shape = RoundedCornerShape(2.dp),
-                        color = colorScheme.secondaryContainer
-                    )
-                    .padding(16.dp)
-            ) {
-                Column{
-                    ListEmployeeInfo(employee = employee)
-                    ListScheduleInfo(employee = employee)
+        items(items = employees,key = {employee ->employee.employeeId}) { employee ->
+            val dismissState = rememberDismissState(
+                confirmValueChange = {
+                    if(it == DismissValue.DismissedToStart){
+                        deleteItem(employee)
+                    }
+                    true
                 }
-            }
+            )
+            SwipeToDismiss(
+                state = dismissState,
+                directions = setOf(DismissDirection.EndToStart),
+                background = {
+                    val color by animateColorAsState(
+                        targetValue = when(dismissState.targetValue){
+                            DismissValue.Default-> colorScheme.onPrimary
+                            DismissValue.DismissedToStart -> colorScheme.errorContainer
+                            DismissValue.DismissedToEnd -> colorScheme.errorContainer
+                            null-> Color.Transparent
+                        }, label = ""
+                    )
+                    Box(modifier = Modifier
+                        .fillMaxSize()
+                        .background(color)
+                        .padding(16.dp),
+                        Alignment.CenterEnd
+                    ){
+                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                    }
+                },
+                dismissContent = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(shape = RoundedCornerShape(2.dp))
+                            .clickable { navigateToEdit(employee) }
+                            .border(
+                                2.dp,
+                                shape = RoundedCornerShape(2.dp),
+                                color = colorScheme.secondaryContainer
+                            )
+                            .background(colorScheme.onPrimary)
+                            .padding(16.dp)
+                    ) {
+                        Column{
+                            ListEmployeeInfo(employee = employee)
+                            ListScheduleInfo(employee = employee)
+                        }
+                    }
+                },
+            )
         }
     }
 }
@@ -289,15 +342,31 @@ fun FilterDialogue(
     filterState:(Boolean)->Unit,
     filterSelection:(String)->Unit,
 ){
+    var currentSelected by remember{mutableStateOf("All Employees")}
     DropdownMenu(expanded = isFilterExpanded
         , onDismissRequest = { filterState(false) }
     ) {
-        val selections = listOf("Can Open","Can Close","Can Work Weekend");
+        var selections =
+            listOf("All Employees",
+            "Can Open",
+            "Can Close",
+           "Can Work Weekend")
+
         selections.forEach{item->
-            DropdownMenuItem(text = { Text(item) }, onClick = {
-                filterSelection(item)
-                filterState(false)
-            })
+            DropdownMenuItem(text = { Text(item) },
+                onClick = {
+                    filterSelection(item)
+                    filterState(false)
+                    currentSelected = item
+                },
+                trailingIcon = {
+                    val isSelected = currentSelected == item
+                    if(isSelected){
+                        Icon(imageVector = Icons.Default.Check, contentDescription = "check")
+                    }
+                }
+
+            )
         }
     }
 }
