@@ -227,10 +227,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             calendar.time = date
             val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-            if (day == 11 || day == 15 || day == 22) {
-                // Incomplete shifts
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
-            } else if (day == 10) {
+            if (day == 10) {
                 // Special Day in October
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
@@ -239,7 +236,16 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 specialDayDao.insert(SpecialDay(date = date))
-            } else if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+            }
+            else if (day == 11) {
+                // Incomplete weekday shift
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
+            }
+            else if (day == 15) {
+                // Incomplete weekend shift
+                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
+            }
+            else if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
                 // Completed weekend shifts
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
