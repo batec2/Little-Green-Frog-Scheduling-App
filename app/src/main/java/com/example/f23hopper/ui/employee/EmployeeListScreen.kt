@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,6 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
@@ -66,6 +69,7 @@ import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -165,6 +169,10 @@ fun EmployeeListItem(
     deleteItem: (Employee) -> Unit,
     navigateToEdit: (Employee) -> Unit,
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    var confirmDelete by remember {
+        mutableStateOf(false);
+    }
     LazyColumn(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -172,11 +180,9 @@ fun EmployeeListItem(
         items(items = employees, key = { employee -> employee.employeeId }) { employee ->
             val dismissState = rememberDismissState(
                 confirmValueChange = {
-                    if (it == DismissValue.DismissedToStart) {
-                        deleteItem(employee)
-                    }
                     true
-                }
+                },
+                //positionalThreshold =
             )
             SwipeToDismiss(
                 state = dismissState,
@@ -187,7 +193,6 @@ fun EmployeeListItem(
                             DismissValue.Default -> colorScheme.onPrimary
                             DismissValue.DismissedToStart -> colorScheme.errorContainer
                             DismissValue.DismissedToEnd -> colorScheme.errorContainer
-                            null -> Color.Transparent
                         }, label = ""
                     )
                     Box(
@@ -197,7 +202,37 @@ fun EmployeeListItem(
                             .padding(16.dp),
                         Alignment.CenterEnd
                     ) {
-                        Icon(imageVector = Icons.Filled.Delete, contentDescription = "Delete")
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceEvenly
+                        ){
+                            Column(
+                                modifier = Modifier.weight(.25f)
+                            ){
+                                Icon(modifier = Modifier
+                                    .clickable
+                                    {
+                                        coroutineScope.launch {
+                                            dismissState.reset()
+                                        }
+                                    },
+                                    imageVector = Icons.Filled.Refresh,
+                                    contentDescription = "Undo")
+                            }
+                            Column (
+                                modifier = Modifier.weight(.25f)
+                            ){
+                                Icon(modifier = Modifier
+                                    .weight(.25f)
+                                    .clickable
+                                    {
+                                        deleteItem(employee)
+                                    },
+                                    imageVector = Icons.Filled.Delete,
+                                    contentDescription = "Delete")
+                            }
+
+                        }
                     }
                 },
                 dismissContent = {
@@ -205,7 +240,9 @@ fun EmployeeListItem(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(shape = RoundedCornerShape(2.dp))
-                            .clickable { navigateToEdit(employee) }
+                            .clickable {
+                                navigateToEdit(employee)
+                            }
                             .border(
                                 2.dp,
                                 shape = RoundedCornerShape(2.dp),
@@ -231,44 +268,28 @@ fun ListEmployeeInfo(
     employee: Employee
 ) {
     Row(
-        //verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
         Row(
-            modifier = Modifier.weight(1f),
+            modifier = Modifier.weight(2f),
             horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                employee.firstName,
+                text = if (employee.nickname.isNotBlank()) (employee.nickname + " " + employee.lastName)
+                else (employee.firstName + " " + employee.lastName),
                 style = TextStyle(fontSize = 20.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f),
             )
-            Spacer(modifier = Modifier.size(5.dp))
-            Text(
-                employee.lastName,
-                style = TextStyle(fontSize = 20.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-            if (employee.nickname.isNotBlank()) {
-                Spacer(modifier = Modifier.size(5.dp))
-                Text(
-                    text = "aka: ${employee.nickname}",
-                    style = TextStyle(fontSize = 20.sp),
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(2f),
-                )
-            }
+
         }
         Row(
-            modifier = Modifier.weight(.5f),
+            modifier = Modifier.weight(1f)
             //horizontalArrangement = Arrangement.Start
         ) {
-            if (true) {
+            if (employee.canOpen) {
                 Icon(
                     imageVector = rememberLockOpen(),
                     modifier = Modifier.size(20.dp),
@@ -282,10 +303,12 @@ fun ListEmployeeInfo(
                     contentDescription = "Can Close"
                 )
             }
-        }
-    }
 
+        }
+
+    }
 }
+
 
 @Composable
 fun ListScheduleInfo(
@@ -305,7 +328,8 @@ fun ListScheduleInfo(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(5.dp))
+                .clip(RoundedCornerShape(2.dp))
+                .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
                 .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
@@ -326,6 +350,7 @@ fun ListScheduleInfo(
             modifier = Modifier
                 .weight(1f)
                 .clip(RoundedCornerShape(5.dp))
+                .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
                 .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
