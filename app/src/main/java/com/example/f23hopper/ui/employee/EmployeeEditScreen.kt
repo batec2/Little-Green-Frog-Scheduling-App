@@ -19,8 +19,6 @@ fun EmployeeEditScreen(
     StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     val coroutineScope = rememberCoroutineScope()
     val viewModel = sharedViewModel
-    //val employeeDetails = viewModel.employeeUiState.employeeDetails
-    //Text(text = "This = ${viewModel.employeeUiState.employeeDetails.firstName}")
     EmployeeEntryBody(
         employeeUiState = viewModel.employeeUiState,
         employeeDetails = viewModel.employeeUiState.employeeDetails,

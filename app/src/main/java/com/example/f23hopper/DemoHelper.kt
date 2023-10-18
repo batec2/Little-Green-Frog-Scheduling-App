@@ -62,11 +62,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 
 
         val employee3 = Employee(
-            firstName = "Alex",
+            firstName = "John",
             lastName = "Smith",
-            nickname = "Alal",
-            email = "alex.smith@example.com",
-            phoneNumber = "1122334455",
+            nickname = "JoJo",
+            email = "John.Smith@example.com",
+            phoneNumber = "52344442134",
             canOpen = true,
             canClose = false,
             sunday = ShiftType.FULL,
@@ -81,7 +81,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         val employee4 = Employee(
             firstName = "Charlie",
             lastName = "Brown",
-            nickname = "CharChar",
+            nickname = "",
             email = "charlie.brown@example.com",
             phoneNumber = "5566778899",
             canOpen = false,
@@ -96,11 +96,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee5 = Employee(
-            firstName = "Super",
-            lastName = "Fast",
-            nickname = "VroomVroom",
-            email = "VroomVroom@Vroom.Vroom",
-            phoneNumber = "53333333",
+            firstName = "Bob",
+            lastName = "Builder",
+            nickname = "",
+            email = "Bob.Builder@example.com",
+            phoneNumber = "0000000000",
             canOpen = true,
             canClose = true,
             sunday = ShiftType.FULL,
@@ -113,11 +113,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee6 = Employee(
-            firstName = "thisisaveryveryveryveryverylongname",
-            lastName = "thisisaveryveryveryveryverylonglastname",
-            nickname = "longlong",
-            email = "long.long@long.long",
-            phoneNumber = "21235235",
+            firstName = "Steve",
+            lastName = "Crafter",
+            nickname = "",
+            email = "steve.miner@example.com",
+            phoneNumber = "4566575242",
             canOpen = true,
             canClose = true,
             sunday = ShiftType.CANT_WORK,
@@ -130,10 +130,10 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee7 = Employee(
-            firstName = "sh",
-            lastName = "ort",
-            nickname = "short",
-            email = "snam2s@s.s",
+            firstName = "AJ",
+            lastName = "Bruningham",
+            nickname = "",
+            email = "AJ@example.com",
             phoneNumber = "1245777777",
             canOpen = true,
             canClose = true,
@@ -147,11 +147,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee8 = Employee(
-            firstName = "THISNAMEISINALLCAPS",
-            lastName = "THISNAMEISALSOINALCAPS",
-            nickname = "MYNICKNAMEISALSOINALLCAPSANDISALSOVERYVERYLONG",
-            email = "LONGEMAILINALLCAPS@EMAILINALLCAPS.COM",
-            phoneNumber = "2342342342",
+            firstName = "Victoria",
+            lastName = "Secretur",
+            nickname = "Vicky",
+            email = "VickyVic@example.com",
+            phoneNumber = "7802342342",
             canOpen = true,
             canClose = true,
             sunday = ShiftType.FULL,
@@ -164,37 +164,37 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee9 = Employee(
-            firstName = "SupersClone",
-            lastName = "Fast",
-            nickname = "Brother",
-            email = "VroomVroomClone@Vroom.Vroom",
-            phoneNumber = "53333331",
+            firstName = "Jason",
+            lastName = "Todd",
+            nickname = "Red",
+            email = "BatmanFan#1@example.com",
+            phoneNumber = "3242346757",
             canOpen = true,
             canClose = true,
-            sunday = ShiftType.FULL,
+            sunday = ShiftType.CANT_WORK,
             monday = ShiftType.FULL,
             tuesday = ShiftType.FULL,
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.CANT_WORK
         )
 
         val employee10 = Employee(
-            firstName = "SupersBrother",
-            lastName = "Fast",
-            nickname = "Brother",
-            email = "VroomVroomBrother@Vroom.Vroom",
-            phoneNumber = "53333332",
+            firstName = "Jason",
+            lastName = "Bourne",
+            nickname = "",
+            email = "itsJasonBourne@example.com",
+            phoneNumber = "2342347567",
             canOpen = true,
             canClose = true,
-            sunday = ShiftType.FULL,
+            sunday = ShiftType.CANT_WORK,
             monday = ShiftType.FULL,
             tuesday = ShiftType.FULL,
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.CANT_WORK
         )
 
 
