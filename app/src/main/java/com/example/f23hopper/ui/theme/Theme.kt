@@ -84,6 +84,12 @@ class CustomColor {
             @Composable get() = if (isSystemInDarkTheme()) {
                 md_theme_dark_specialDay // Dark theme special day color
             } else md_theme_light_specialDay// Light theme special day color
+
+
+        val secondaryBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_secondaryBackground // Dark theme special day color
+            } else md_theme_light_secondaryBackground// Light theme special day color
     }
 }
 

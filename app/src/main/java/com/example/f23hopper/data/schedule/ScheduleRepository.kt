@@ -34,7 +34,11 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
     }
 
     fun getSchedulesByDate(date: Date): Flow<List<Schedule>> {
-        return scheduleDao.getSchedulesWithEmployeesByDate(date)
+        return scheduleDao.getSchedulesByDate(date)
+    }
+
+    fun getShiftsByDate(date: Date): Flow<List<Shift>> {
+        return scheduleDao.getShiftByDate(date)
     }
 
     suspend fun deleteAllSchedules() {
@@ -42,7 +46,7 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
     }
 
 
-    fun getSchedulesWithEmployeesByDateRange(startDate: Date, endDate: Date): Flow<List<Shift>> {
-        return scheduleDao.getSchedulesWithEmployeesByDateRange(startDate, endDate)
+    fun getShiftsByDateRange(startDate: Date, endDate: Date): Flow<List<Shift>> {
+        return scheduleDao.getShiftByDateRange(startDate, endDate)
     }
 }

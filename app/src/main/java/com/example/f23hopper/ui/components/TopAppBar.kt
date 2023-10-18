@@ -33,7 +33,7 @@ fun TopAppBar(navController: NavHostController) {
         actionIconContentColor = colorScheme.onPrimaryContainer
     )
     val title = when {
-        currentRoute?.startsWith(NavScreen.CalendaWeekView.route) == true -> {
+        currentRoute?.startsWith(NavScreen.ScheduleEdit.route) == true -> {
             val date = currentBackStackEntry?.arguments?.getString("date").toString()
             "Schedule: $date"
         }
