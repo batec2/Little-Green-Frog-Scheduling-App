@@ -227,12 +227,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             calendar.time = date
             val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 
-            if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
-                // Full shifts for weekends
-                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
+            if (day == 11 || day == 15 || day == 22) {
+                // Incomplete shifts
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
-            } else if (day == 1 || day == 10 || day == 14) { // Change 15 to whichever day in October you want
-                // Special condition for one day in October
+            } else if (day == 10) {
+                // Special Day in October
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
@@ -240,6 +239,10 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
                 scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftTypeId = ShiftType.NIGHT.ordinal))
                 specialDayDao.insert(SpecialDay(date = date))
+            } else if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
+                // Completed weekend shifts
+                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
+                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftTypeId = ShiftType.FULL.ordinal))
             } else {
                 // Regular weekdays
                 scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftTypeId = ShiftType.DAY.ordinal))
@@ -254,21 +257,30 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 suspend fun wipeDatabase(db: HopperDatabase) {
     val employeeDao = db.employeeDao()
     val scheduleDao = db.scheduleDao()
+    val specialDayDao = db.specialDayDao()
     val generalDao = db.hopperDao()
 
-    // delete all schedules, then all employees
+    // Delete all schedules
     val allSchedules = scheduleDao.getAllSchedules().first()
     for (schedule in allSchedules) {
         scheduleDao.delete(schedule)
     }
 
+    // Delete all employees
     val allEmployees = employeeDao.getAllEmployees().first()
     for (employee in allEmployees) {
         employeeDao.delete(employee)
     }
 
+    // Delete all special days
+    val allSpecialDays = specialDayDao.getSpecialDays().first()
+    for (specialDay in allSpecialDays) {
+        specialDayDao.delete(specialDay)
+    }
+
     // full reset on tables (resets auto-increment)
     val query =
+        // TODO: Will including 'specialdays' cause an issue here?
         SimpleSQLiteQuery("DELETE FROM sqlite_sequence WHERE name IN ('employees', 'schedules')")
     generalDao.executeRawQuery(query)
 }
