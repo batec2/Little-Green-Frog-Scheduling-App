@@ -267,7 +267,8 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
                     color = colorScheme.error
                 )
             }
-        }
+        },
+        maxLines = 1,
     )
 }
 
@@ -428,7 +429,7 @@ fun DayOfWeekTextBox(dayOfWeek: DayOfWeek, currentShiftType: ShiftType) {
         onValueChange = {}, // no action as this shouldn't be editable
         label = { Text(text = currentShiftType.toString(), fontSize = 16.sp) },
         enabled = false,
-        textStyle = TextStyle(fontSize = 24.sp, color = Color.DarkGray),
+        textStyle = TextStyle(fontSize = 24.sp, color = colorScheme.secondary),
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(5.dp))

@@ -95,6 +95,15 @@ fun EmployeeListScreen(
                     navigationIconContentColor = colorScheme.primary,
                     actionIconContentColor = colorScheme.primary
                 ),
+                navigationIcon = {
+                    Icon(
+                        Icons.Default.Add,
+                        contentDescription = "add",
+                        modifier = Modifier
+                            .clickable { navigateToEmployeeAdd() }
+                            .size(40.dp)
+                    )
+                },
                 title = {},
                 actions = {
                     var isExpanded by remember { mutableStateOf(false) }
@@ -110,6 +119,7 @@ fun EmployeeListScreen(
                         filterState = { isExpanded = it },
                     ) { filter -> sharedViewModel.filterEmployee(filter) }
                 },
+
                 modifier = Modifier.height(50.dp),
             )
         },
@@ -340,7 +350,8 @@ fun ListScheduleInfo(
             )
             week.forEach { week ->
                 Text(
-                    text = if (week.first == ShiftType.DAY || week.first == ShiftType.FULL) week.second else "",
+                    text = if (week.first == ShiftType.DAY ||
+                        week.first == ShiftType.FULL) week.second else "",
                     color = colorScheme.onSecondaryContainer
                 )
             }
@@ -349,7 +360,7 @@ fun ListScheduleInfo(
         Row(
             modifier = Modifier
                 .weight(1f)
-                .clip(RoundedCornerShape(5.dp))
+                .clip(RoundedCornerShape(2.dp))
                 .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
                 .background(color = colorScheme.secondaryContainer),
             horizontalArrangement = Arrangement.SpaceEvenly
@@ -361,7 +372,8 @@ fun ListScheduleInfo(
             )
             week.forEach { week ->
                 Text(
-                    text = if (week.first == ShiftType.NIGHT || week.first == ShiftType.FULL) week.second else " ",
+                    text = if (week.first == ShiftType.NIGHT ||
+                        week.first == ShiftType.FULL) week.second else " ",
                     color = colorScheme.onSecondaryContainer
                 )
             }
