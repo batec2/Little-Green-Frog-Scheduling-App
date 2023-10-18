@@ -8,18 +8,22 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -41,6 +45,10 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.calendar.getShiftColor
+import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
+import com.example.f23hopper.ui.icons.rememberSunny
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
@@ -73,6 +81,43 @@ fun Modifier.clickable(
         role = role,
         onClick = onClick,
     )
+}
+
+@Composable
+fun ShiftIcon(shiftType: ShiftType) {
+    Icon(
+        imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
+        contentDescription = null,
+        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+    )
+}
+
+
+@Composable
+fun ShiftCircles(maxShifts: Int, shiftCount: Int, shiftType: ShiftType) {
+    Column(
+        modifier = Modifier
+//            .weight(0.1f)
+            .padding(start = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        for (index in 0 until maxShifts) {
+            Box(
+                modifier = if (index < shiftCount) {
+                    Modifier
+                        .size(8.dp)
+                        .background(getShiftColor(shiftType), CircleShape)
+                } else {
+                    Modifier
+                        .size(8.dp)
+                        .border(
+                            1.dp, MaterialTheme.colorScheme.onTertiaryContainer, CircleShape
+                        )
+                }
+            )
+        }
+    }
 }
 
 fun java.time.LocalDate.toSqlDate(): Date =

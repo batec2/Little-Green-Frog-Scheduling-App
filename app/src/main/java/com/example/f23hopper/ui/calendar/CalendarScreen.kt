@@ -4,23 +4,29 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,12 +46,12 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
-import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
-import com.example.f23hopper.ui.icons.rememberSunny
+import com.example.f23hopper.ui.icons.rememberError
+import com.example.f23hopper.utils.ShiftCircles
+import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
-import com.example.f23hopper.utils.toKotlinxLocalDate
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
@@ -62,51 +68,22 @@ import java.time.ZoneId
 
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun CalendarScreen(navigateToDayView: (String) -> Unit) {
-    val coroutineScope = rememberCoroutineScope()
+fun CalendarScreen(navigateToShiftView: (String) -> Unit) {
+//    val coroutineScope = rememberCoroutineScope()
     val clickedDay = remember { mutableStateOf<LocalDate?>(null) }
-    val sheetState = rememberModalBottomSheetState()
 
     val viewModel = hiltViewModel<CalendarViewModel>()
     val shifts by viewModel.parsedShifts.collectAsState(initial = emptyList())
     val specialDays by viewModel.parsedDays.collectAsState(initial = emptyList())
 
-    clickedDay.value = LocalDate.of(2023, 10, 7)
-    Calendar(shifts, specialDays) { day ->
-        clickedDay.value = LocalDate.parse(day)
-        coroutineScope.launch {
-            sheetState.expand()
-        }
-    }
-
-//    EventDetailsBottomSheet(sheetState, clickedDay)
-}
-
-//NOTE: Unused atm
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun EventDetailsBottomSheet(sheetState: SheetState, clickedDay: MutableState<LocalDate?>) {
-    if (sheetState.isVisible) {
-        ModalBottomSheet(onDismissRequest = { /* Handle dismiss */ },
-            sheetState = sheetState,
-            content = {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .systemBarsPadding()
-                ) {
-                    clickedDay.value?.let {
-                        WeekViewScreen(clickedDay.value!!.toKotlinxLocalDate())
-                    }
-                }
-            })
-    }
+    Calendar(shifts, specialDays, navigateToShiftView)
 }
 
 @Composable
 fun Calendar(
-    shifts: List<Shift>, specialDays: List<SpecialDay>, navigateToDayView: (String) -> Unit
+    shifts: List<Shift>,
+    specialDays: List<SpecialDay>,
+    navigateToShiftView: (String) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
@@ -187,7 +164,12 @@ fun Calendar(
         if (selection != null) {  // Conditionally render based on selection
             Divider(color = itemBackgroundColor)
             val isSpecialDay = specialDaysByDay[selection?.date!!] != null
-            ShiftDetailsForDay(shiftsOnSelectedDate, selection?.date!!, isSpecialDay = isSpecialDay)
+            ShiftDetailsForDay(
+                shiftsOnSelectedDate,
+                selection?.date!!,
+                isSpecialDay = isSpecialDay,
+                navigateToShiftView
+            )
 
         }
     }
@@ -226,8 +208,8 @@ private fun Day(
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(2.dp)
-                    .size(12.dp, 12.dp),
-                imageVector = Icons.Default.Warning,
+                    .size(15.dp, 15.dp),
+                imageVector = rememberError(),
                 tint = MaterialTheme.colorScheme.error,
                 contentDescription = "Day is incomplete"
             )
@@ -293,12 +275,22 @@ private fun WeekDays(modifier: Modifier) {
 
 
 @Composable
-fun ShiftDetailsForDay(shifts: List<Shift>, date: LocalDate, isSpecialDay: Boolean = false) {
+fun ShiftDetailsForDay(
+    shifts: List<Shift>,
+    date: LocalDate,
+    isSpecialDay: Boolean = false,
+    navigateToShiftView: (String) -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
         DateBox(date = date)
-        ShiftContent(date = date, shifts = shifts, isSpecialDay = isSpecialDay)
+        ShiftContent(
+            date = date,
+            shifts = shifts,
+            isSpecialDay = isSpecialDay,
+            navigateToShiftView = navigateToShiftView
+        )
     }
 }
 
@@ -327,7 +319,12 @@ fun DateBox(date: LocalDate) {
 }
 
 @Composable
-fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = false) {
+fun ShiftContent(
+    date: LocalDate,
+    shifts: List<Shift>,
+    isSpecialDay: Boolean = false,
+    navigateToShiftView: (String) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -337,11 +334,13 @@ fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = f
         val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
 
         // Build 2 rows if weekday, 1 row if weekend
-        if (isWeekday(date)) {
+        if (date.isWeekday()) {
 
             ShiftRow(
                 shiftType = ShiftType.DAY,
                 shiftsForType = shiftsByType[ShiftType.DAY].orEmpty(),
+                date = date,
+                navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
                 maxShifts = maxShifts(isSpecialDay)
             )
@@ -354,6 +353,8 @@ fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = f
             ShiftRow(
                 shiftType = ShiftType.NIGHT,
                 shiftsForType = shiftsByType[ShiftType.NIGHT].orEmpty(),
+                date = date,
+                navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
                 maxShifts = maxShifts(isSpecialDay)
             )
@@ -361,6 +362,8 @@ fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = f
             ShiftRow(
                 shiftType = ShiftType.FULL,
                 shiftsForType = shiftsByType[ShiftType.FULL].orEmpty(),
+                date = date,
+                navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
                 maxShifts = maxShifts(isSpecialDay)
             )
@@ -373,7 +376,12 @@ fun ShiftContent(date: LocalDate, shifts: List<Shift>, isSpecialDay: Boolean = f
 
 @Composable
 fun ShiftRow(
-    maxShifts: Int, shiftType: ShiftType, shiftsForType: List<Shift>, modifier: Modifier = Modifier
+    maxShifts: Int,
+    shiftType: ShiftType,
+    shiftsForType: List<Shift>,
+    date: LocalDate,
+    navigateToShiftView: (String) -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
@@ -383,48 +391,14 @@ fun ShiftRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         ShiftIcon(shiftType)
-        ShiftCircles(maxShifts, shiftsForType, shiftType)
+        ShiftCircles(maxShifts, shiftsForType.size, shiftType)
         ShiftCompletionText(shiftsForType, shiftType, maxShifts)
-        EditShiftButton()
-    }
-}
-
-@Composable
-fun ShiftIcon(shiftType: ShiftType) {
-    Icon(
-        imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
-        contentDescription = null,
-
-        tint = MaterialTheme.colorScheme.onSecondaryContainer
-    )
-}
-
-@Composable
-fun ShiftCircles(maxShifts: Int, shiftsForType: List<Shift>, shiftType: ShiftType) {
-    Column(
-        modifier = Modifier
-//            .weight(0.1f)
-            .padding(start = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        for (index in 0 until maxShifts) {
-            Box(
-                modifier = if (index < shiftsForType.size) {
-                    Modifier
-                        .size(8.dp)
-                        .background(getShiftColor(shiftType), CircleShape)
-                } else {
-                    Modifier
-                        .size(8.dp)
-                        .border(
-                            1.dp, MaterialTheme.colorScheme.onTertiaryContainer, CircleShape
-                        )
-                }
-            )
+        EditShiftButton {
+            navigateToShiftView(date.toString())
         }
     }
 }
+
 
 @Composable
 fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType, maxShifts: Int) {
@@ -435,8 +409,8 @@ fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType, maxShi
 }
 
 @Composable
-fun EditShiftButton() {
-    IconButton(onClick = { /* Handle add employee for this shift type */ }) {
+fun EditShiftButton(navigateToShiftView: () -> Unit) {
+    IconButton(onClick = navigateToShiftView) {
         Icon(imageVector = Icons.Default.Create, contentDescription = "Add Employee")
     }
 }
@@ -470,8 +444,8 @@ val toolbarColor: Color @Composable get() = MaterialTheme.colorScheme.secondaryC
 val selectedItemColor: Color @Composable get() = MaterialTheme.colorScheme.onSurface
 val inActiveTextColor: Color @Composable get() = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
 
-fun isWeekday(date: LocalDate) =
-    !(date.dayOfWeek == DayOfWeek.SATURDAY || date.dayOfWeek == DayOfWeek.SUNDAY)
+fun LocalDate.isWeekday() =
+    !(this.dayOfWeek == DayOfWeek.SATURDAY || this.dayOfWeek == DayOfWeek.SUNDAY)
 
 fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
-fun maxShiftRows(date: LocalDate) = if (isWeekday(date)) 2 else 1
+fun maxShiftRows(date: LocalDate) = if (date.isWeekday()) 2 else 1

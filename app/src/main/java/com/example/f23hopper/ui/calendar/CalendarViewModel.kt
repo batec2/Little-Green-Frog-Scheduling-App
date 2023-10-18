@@ -6,6 +6,7 @@ import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.utils.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -25,7 +26,6 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
 
 
-    private fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
 
     private val startDate: Date = getStartDate()
     private val endDate: Date = getEndDate()
@@ -45,7 +45,7 @@ class CalendarViewModel @Inject constructor(
     }
 
     private fun fetchRawShifts(): Flow<List<Shift>> {
-        return scheduleRepo.getSchedulesWithEmployeesByDateRange(startDate, endDate)
+        return scheduleRepo.getShiftsByDateRange(startDate, endDate)
     }
 
     private fun parseShifts(rawShifts: Flow<List<Shift>>): StateFlow<List<Shift>> {

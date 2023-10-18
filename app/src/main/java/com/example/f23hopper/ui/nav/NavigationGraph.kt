@@ -1,27 +1,20 @@
 package com.example.f23hopper.ui.nav
 
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.example.f23hopper.ui.calendar.CalendarScreen
-import com.example.f23hopper.ui.calendar.WeekViewScreen
 import com.example.f23hopper.ui.employee.EmployeeEditScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
-import com.example.f23hopper.ui.employee.EmployeeEntryViewModel
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 import com.example.f23hopper.ui.employee.EmployeeListViewModel
+import com.example.f23hopper.ui.shiftedit.ShiftEditScreen
 import kotlinx.datetime.LocalDate
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavHost(
     navController: NavHostController,
@@ -75,12 +68,12 @@ fun AppNavHost(
         }
         composable(route = NavScreen.Calendar.route) {
             CalendarScreen(
-                navigateToDayView = { clickedDay -> navController.navigate("${NavScreen.CalendaWeekView.route}/$clickedDay") }
+                navigateToShiftView = { clickedDay -> navController.navigate("${NavScreen.ScheduleEdit.route}/$clickedDay") }
             )
         }
-        composable("${NavScreen.CalendaWeekView.route}/{date}") { backStackEntry ->
+        composable("${NavScreen.ScheduleEdit.route}/{date}") { backStackEntry ->
             val date = LocalDate.parse(backStackEntry.arguments?.getString("date").toString())
-            WeekViewScreen(clickedDay = date)
+            ShiftEditScreen(clickedDay = date, navController)
         }
     }
 }

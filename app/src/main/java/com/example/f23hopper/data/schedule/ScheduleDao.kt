@@ -33,13 +33,15 @@ interface ScheduleDao {
 
     @Transaction
     @Query("SELECT * FROM schedules WHERE schedules.date BETWEEN :startDate AND :endDate")
-    fun getSchedulesWithEmployeesByDateRange(
-        startDate: Date,
-        endDate: Date
+    fun getShiftByDateRange(
+        startDate: Date, endDate: Date
     ): Flow<List<Shift>>
 
+    @Query("SELECT * FROM schedules WHERE schedules.date = :date")
+    fun getShiftByDate(date: Date): Flow<List<Shift>>
+
     @Query(" SELECT * FROM schedules WHERE schedules.date = :date")
-    fun getSchedulesWithEmployeesByDate(date: Date): Flow<List<Schedule>>
+    fun getSchedulesByDate(date: Date): Flow<List<Schedule>>
 
     @Query("DELETE FROM schedules")
     suspend fun deleteAllSchedules()

@@ -29,4 +29,8 @@ class SpecialDayRepository(private val specialDayDao: SpecialDayDao) {
     suspend fun deleteAllSchedules() {
         return specialDayDao.deleteAllSpecialDays()
     }
+
+    suspend fun isDateInTable(date: Date): Boolean {
+        return specialDayDao.countDate(date) > 0
+    }
 }
