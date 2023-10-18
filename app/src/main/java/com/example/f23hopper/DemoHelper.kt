@@ -171,13 +171,13 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             phoneNumber = "3242346757",
             canOpen = true,
             canClose = true,
-            sunday = ShiftType.FULL,
+            sunday = ShiftType.CANT_WORK,
             monday = ShiftType.FULL,
             tuesday = ShiftType.FULL,
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.CANT_WORK
         )
 
         val employee10 = Employee(
@@ -188,13 +188,13 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             phoneNumber = "2342347567",
             canOpen = true,
             canClose = true,
-            sunday = ShiftType.FULL,
+            sunday = ShiftType.CANT_WORK,
             monday = ShiftType.FULL,
             tuesday = ShiftType.FULL,
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.CANT_WORK
         )
 
 

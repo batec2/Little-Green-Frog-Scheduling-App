@@ -2,6 +2,7 @@ package com.example.f23hopper.ui.employee
 
 //import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import android.icu.text.CaseMap.Title
+import android.widget.ToggleButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,7 +18,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,6 +59,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -117,6 +121,7 @@ fun EmployeeEntryBody(
                 actions = {
                     ElevatedButton(
                         modifier = Modifier,
+                        shape = RoundedCornerShape(10.dp),
                         onClick = {
                                     onSaveClick()
                                     navigateToEmployeeList()
@@ -475,8 +480,42 @@ fun DayButton(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DayFilter(){
+    val openDialog = remember{ mutableStateOf(true) }
+    val week = listOf("S", "M", "T", "W", "R", "F", "S")
+    Dialog(onDismissRequest = { /*TODO*/ }) {
+        Column {
+            Row {
+            Text(text = "here")
+            }
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ){
+                week.forEach{day->
+                    Button(modifier = Modifier.size(30.dp),onClick = { /*TODO*/ }) {
+                        Text(text = day, color = colorScheme.primary)
+                    }
+                }
+            }
+            Row (
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(3.dp)
+            ){
+                week.forEach{day->
+                    Button(modifier = Modifier.size(30.dp),onClick = { /*TODO*/ }) {
+                        Text(text = day, color = Color.White)
+                    }
+                }
+            }
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun EmployeeEntryScreenPreview() {
-    //ScheduleSelector()
+    DayFilter()
 }
