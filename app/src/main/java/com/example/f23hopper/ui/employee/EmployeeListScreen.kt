@@ -286,7 +286,7 @@ fun ListEmployeeInfo(
             horizontalArrangement = Arrangement.Start
         ) {
             Text(
-                text = if (employee.nickname.isNotBlank()) (employee.nickname + " " + employee.lastName)
+                text = if (employee.nickname.isNotBlank()) ("${employee.firstName} \"${employee.nickname}\" ${employee.lastName}")
                 else (employee.firstName + " " + employee.lastName),
                 style = TextStyle(fontSize = 20.sp),
                 maxLines = 1,
