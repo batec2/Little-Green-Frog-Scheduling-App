@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,8 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissValue
@@ -51,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
@@ -67,9 +63,9 @@ import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
+import com.example.f23hopper.ui.icons.rememberRedo
 import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -177,7 +173,7 @@ fun EmployeeListScreen(
 fun EmployeeListItem(
     employees: List<Employee>,
     deleteItem: (Employee) -> Unit,
-    navigateToEdit: (Employee) -> Unit,
+    onEmployeeClick: (Employee) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
     var confirmDelete by remember {
@@ -215,31 +211,35 @@ fun EmployeeListItem(
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceEvenly
-                        ){
+                        ) {
                             Column(
                                 modifier = Modifier.weight(.25f)
-                            ){
-                                Icon(modifier = Modifier
-                                    .clickable
-                                    {
-                                        coroutineScope.launch {
-                                            dismissState.reset()
-                                        }
-                                    },
-                                    imageVector = Icons.Filled.Refresh,
-                                    contentDescription = "Undo")
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .clickable
+                                        {
+                                            coroutineScope.launch {
+                                                dismissState.reset()
+                                            }
+                                        },
+                                    imageVector = rememberRedo(), // mirrored undo
+                                    contentDescription = "Undo"
+                                )
                             }
-                            Column (
+                            Column(
                                 modifier = Modifier.weight(.25f)
-                            ){
-                                Icon(modifier = Modifier
-                                    .weight(.25f)
-                                    .clickable
-                                    {
-                                        deleteItem(employee)
-                                    },
+                            ) {
+                                Icon(
+                                    modifier = Modifier
+                                        .weight(.25f)
+                                        .clickable
+                                        {
+                                            deleteItem(employee)
+                                        },
                                     imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete")
+                                    contentDescription = "Delete"
+                                )
                             }
 
                         }
@@ -251,7 +251,7 @@ fun EmployeeListItem(
                             .fillMaxWidth()
                             .clip(shape = RoundedCornerShape(2.dp))
                             .clickable {
-                                navigateToEdit(employee)
+                                onEmployeeClick(employee)
                             }
                             .border(
                                 2.dp,
@@ -351,7 +351,8 @@ fun ListScheduleInfo(
             week.forEach { week ->
                 Text(
                     text = if (week.first == ShiftType.DAY ||
-                        week.first == ShiftType.FULL) week.second else "",
+                        week.first == ShiftType.FULL
+                    ) week.second else "",
                     color = colorScheme.onSecondaryContainer
                 )
             }
@@ -373,7 +374,8 @@ fun ListScheduleInfo(
             week.forEach { week ->
                 Text(
                     text = if (week.first == ShiftType.NIGHT ||
-                        week.first == ShiftType.FULL) week.second else " ",
+                        week.first == ShiftType.FULL
+                    ) week.second else " ",
                     color = colorScheme.onSecondaryContainer
                 )
             }

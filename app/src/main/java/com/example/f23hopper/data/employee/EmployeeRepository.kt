@@ -40,7 +40,21 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
     }
 
     fun getEmployeesByDayAndShiftType(day: DayOfWeek, shiftType: ShiftType): Flow<List<Employee>> {
-        val query = SimpleSQLiteQuery("SELECT * FROM employees WHERE ${day.name.lowercase()} = ?", arrayOf(shiftType.name))
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
+            arrayOf(shiftType.name)
+        )
+        return employeeDao.getEmployeesByDayAndShiftType(query)
+    }
+
+    fun getEmployeesByDayAndShiftType(
+        day: kotlinx.datetime.DayOfWeek,
+        shiftType: ShiftType
+    ): Flow<List<Employee>> {
+        val query = SimpleSQLiteQuery(
+            "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
+            arrayOf(shiftType.name)
+        )
         return employeeDao.getEmployeesByDayAndShiftType(query)
     }
 }
