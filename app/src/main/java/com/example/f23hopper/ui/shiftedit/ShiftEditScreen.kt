@@ -42,6 +42,8 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.maxShifts
+import com.example.f23hopper.ui.icons.rememberLock
+import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
@@ -199,7 +201,7 @@ fun CanOpenIcon() {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.KeyboardArrowUp,
+            imageVector = rememberLockOpen(),
             contentDescription = "Can Open",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
@@ -220,7 +222,7 @@ fun CanCloseIcon() {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
-            imageVector = Icons.Default.KeyboardArrowDown,
+            imageVector = rememberLock(),
             contentDescription = "Can Close",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
