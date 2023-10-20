@@ -25,7 +25,7 @@ interface EmployeeDao {
     @Query("SELECT * FROM employees WHERE employeeId = :id")
     fun getItem(id: Int): Flow<Employee>
 
-    @Query("SELECT * FROM employees")
+    @Query("SELECT * FROM employees ORDER BY employees.lastName")
     fun getAllEmployees(): Flow<List<Employee>>
 
     @Query("SELECT * FROM employees Where saturday = \"FULL\" or sunday = \"FULL\"")
