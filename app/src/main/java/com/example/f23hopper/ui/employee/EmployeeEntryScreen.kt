@@ -1,8 +1,6 @@
 package com.example.f23hopper.ui.employee
 
 //import com.example.f23hopper.utils.StatusBarColorUpdateEffect
-import android.icu.text.CaseMap.Title
-import android.widget.ToggleButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -177,7 +172,7 @@ fun EmployeeInfo(
 
     val fields = listOf(
         FieldDetail(
-            label = "First Name",
+            label = "First Name*",
             value = employeeDetails.firstName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
@@ -185,7 +180,7 @@ fun EmployeeInfo(
             errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
-            label = "Last Name",
+            label = "Last Name*",
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
@@ -201,7 +196,7 @@ fun EmployeeInfo(
             errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
-            label = "Email",
+            label = "Email*",
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
@@ -210,7 +205,7 @@ fun EmployeeInfo(
         ),
 
         FieldDetail(
-            label = "Phone Number",
+            label = "Phone Number*",
             formatter = ::formatPhoneNumber,
             value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
