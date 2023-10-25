@@ -231,7 +231,7 @@ private fun Day(
 }
 
 //TODO: Add valid day checking
-//fun isValidDay()
+fun isValidDay(): Boolean = true
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
