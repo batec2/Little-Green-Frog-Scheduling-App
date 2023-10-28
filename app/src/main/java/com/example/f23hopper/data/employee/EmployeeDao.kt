@@ -22,19 +22,28 @@ interface EmployeeDao {
     @Delete
     suspend fun delete(employee: Employee)
 
+    @Query("UPDATE employees Set active = :value WHERE employeeId = :id")
+    suspend fun updateActive(id: Long,value: Int)
+
     @Query("SELECT * FROM employees WHERE employeeId = :id")
     fun getItem(id: Int): Flow<Employee>
 
-    @Query("SELECT * FROM employees ORDER BY employees.lastName")
+    @Query("SELECT * FROM employees WHERE active = 1 ORDER BY employees.lastName")
     fun getAllEmployees(): Flow<List<Employee>>
 
-    @Query("SELECT * FROM employees Where saturday = \"FULL\" or sunday = \"FULL\"")
+    @Query("SELECT * FROM employees WHERE active = 0 ORDER BY employees.lastName")
+    fun getInactiveEmployees(): Flow<List<Employee>>
+
+    @Query("SELECT * FROM employees Where active = 1 AND " +
+            "saturday = \"FULL\" or sunday = \"FULL\" ORDER BY employees.lastName" )
     fun getCanWorkWeekends(): Flow<List<Employee>>
 
-    @Query("SELECT * FROM employees Where canClose = 1")
+    @Query("SELECT * FROM employees Where active = 1 AND" +
+            " canClose = 1 ORDER BY employees.lastName")
     fun getCanClose(): Flow<List<Employee>>
 
-    @Query("SELECT * FROM employees Where canOpen = 1")
+    @Query("SELECT * FROM employees Where active = 1 AND " +
+            "canOpen = 1 ORDER BY employees.lastName")
     fun getCanOpen(): Flow<List<Employee>>
 
     @RawQuery(observedEntities = [Employee::class])

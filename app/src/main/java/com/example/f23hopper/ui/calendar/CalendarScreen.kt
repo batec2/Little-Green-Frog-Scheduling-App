@@ -46,7 +46,7 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
-import com.example.f23hopper.utils.InvalidDayIcon
+import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect

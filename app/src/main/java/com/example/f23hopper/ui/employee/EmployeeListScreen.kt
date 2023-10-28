@@ -20,9 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -123,10 +127,10 @@ fun EmployeeListScreen(
             ) {
                 EmployeeListItem(
                     employees,
-                    deleteItem =
+                    deactivateItem =
                     {
                         coroutineScope.launch {
-                            sharedViewModel.deleteEmployee(it)
+                            sharedViewModel.deactivateEmployee(it,it.active)
                         }
                     },
                 ) { navigateToEdit ->
@@ -143,7 +147,7 @@ fun EmployeeListScreen(
 @Composable
 fun EmployeeListItem(
     employees: List<Employee>,
-    deleteItem: (Employee) -> Unit,
+    deactivateItem: (Employee) -> Unit,
     onEmployeeClick: (Employee) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -155,12 +159,19 @@ fun EmployeeListItem(
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(items = employees, key = { employee -> employee.employeeId }) { employee ->
+            val dismissState = DismissState(
+                initialValue = DismissValue.Default,
+                confirmValueChange = {
+                true
+            })
+            /*
             val dismissState = rememberDismissState(
                 confirmValueChange = {
                     true
                 },
-                //positionalThreshold =
             )
+             */
+                //positionalThreshold =
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
@@ -168,8 +179,8 @@ fun EmployeeListItem(
                     val color by animateColorAsState(
                         targetValue = when (dismissState.targetValue) {
                             DismissValue.Default -> colorScheme.onPrimary
-                            DismissValue.DismissedToStart -> colorScheme.errorContainer
-                            DismissValue.DismissedToEnd -> colorScheme.errorContainer
+                            DismissValue.DismissedToStart -> colorScheme.tertiary
+                            DismissValue.DismissedToEnd -> colorScheme.tertiary
                         }, label = ""
                     )
                     Box(
@@ -206,10 +217,12 @@ fun EmployeeListItem(
                                         .weight(.25f)
                                         .clickable
                                         {
-                                            deleteItem(employee)
+                                            deactivateItem(employee)
                                         },
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete"
+                                    imageVector =
+                                    if (employee.active)Icons.Filled.Clear
+                                    else Icons.Filled.Refresh ,
+                                    contentDescription = "Deactivate and Reactivate"
                                 )
                             }
 
@@ -368,7 +381,8 @@ fun FilterDialogue(
                 "All Employees",
                 "Can Open",
                 "Can Close",
-                "Can Work Weekend"
+                "Can Work Weekend",
+                "Inactive"
             )
 
         selections.forEach { item ->
