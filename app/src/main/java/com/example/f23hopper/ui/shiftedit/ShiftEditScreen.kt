@@ -349,43 +349,46 @@ fun EmployeeList(
 
     employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
         val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
+        val displayName = employee.nickname.ifEmpty {
+            "${employee.firstName.take(3)} ${employee.lastName}"
+        }
 
         Row(
             modifier = Modifier
                 .clickable { onEmployeeClick(employee) }
                 .fillMaxWidth()
-                .padding(vertical = 8.dp),
+                .padding(vertical = 8.dp, horizontal = 40.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.Start
-            ) {
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-
-                    Text(
-                        text = "${employee.firstName} ${employee.lastName} - Shifts: $shiftsThisWeek ",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    if (employee.canOpen && shiftType != ShiftType.NIGHT) {
-                        CanOpenIcon()
-                    }
-
-                    if (employee.canClose && shiftType != ShiftType.DAY) {
-                        CanCloseIcon()
-                    }
-                }
-            }
-
-            Icon(
-                imageVector = Icons.Default.Add,
-                contentDescription = "Add ${employee.firstName} ${employee.lastName}",
-                modifier = Modifier.size(24.dp)
+            Text(
+                text = displayName,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.weight(1f)
             )
+
+            Text(
+                text = "Shifts: $shiftsThisWeek",
+                style = MaterialTheme.typography.bodyLarge
+            )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                if (employee.canOpen && shiftType != ShiftType.NIGHT) {
+                    CanOpenIcon()
+                }
+
+                if (employee.canClose && shiftType != ShiftType.DAY) {
+                    CanCloseIcon()
+                }
+
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add $displayName",
+                    modifier = Modifier.size(24.dp)
+                )
+            }
         }
     }
 }
