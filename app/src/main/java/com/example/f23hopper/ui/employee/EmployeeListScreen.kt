@@ -123,10 +123,10 @@ fun EmployeeListScreen(
             ) {
                 EmployeeListItem(
                     employees,
-                    deleteItem =
+                    deactivateItem =
                     {
                         coroutineScope.launch {
-                            sharedViewModel.deleteEmployee(it)
+                            sharedViewModel.deactivateEmployee(it)
                         }
                     },
                 ) { navigateToEdit ->
@@ -143,7 +143,7 @@ fun EmployeeListScreen(
 @Composable
 fun EmployeeListItem(
     employees: List<Employee>,
-    deleteItem: (Employee) -> Unit,
+    deactivateItem: (Employee) -> Unit,
     onEmployeeClick: (Employee) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -168,8 +168,8 @@ fun EmployeeListItem(
                     val color by animateColorAsState(
                         targetValue = when (dismissState.targetValue) {
                             DismissValue.Default -> colorScheme.onPrimary
-                            DismissValue.DismissedToStart -> colorScheme.errorContainer
-                            DismissValue.DismissedToEnd -> colorScheme.errorContainer
+                            DismissValue.DismissedToStart -> colorScheme.tertiary
+                            DismissValue.DismissedToEnd -> colorScheme.tertiary
                         }, label = ""
                     )
                     Box(
@@ -206,7 +206,10 @@ fun EmployeeListItem(
                                         .weight(.25f)
                                         .clickable
                                         {
-                                            deleteItem(employee)
+                                            deactivateItem(employee)
+                                            coroutineScope.launch {
+                                                dismissState.reset()
+                                            }
                                         },
                                     imageVector = Icons.Filled.Delete,
                                     contentDescription = "Delete"
@@ -368,7 +371,8 @@ fun FilterDialogue(
                 "All Employees",
                 "Can Open",
                 "Can Close",
-                "Can Work Weekend"
+                "Can Work Weekend",
+                "Inactive"
             )
 
         selections.forEach { item ->

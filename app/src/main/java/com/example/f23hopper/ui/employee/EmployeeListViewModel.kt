@@ -1,15 +1,12 @@
 package com.example.f23hopper.ui.employee
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,8 +25,9 @@ class EmployeeListViewModel @Inject constructor (
             )
     }
 
-    suspend fun deleteEmployee(employee: Employee){
-        employeeRepository.deleteEmployee(employee)
+    suspend fun deactivateEmployee(employee: Employee){
+        println("deactive ${employee.firstName} ${employee.active}")
+        employeeRepository.deactivateEmployee(employee)
     }
 
     fun filterEmployee(filter: String){
@@ -38,6 +36,7 @@ class EmployeeListViewModel @Inject constructor (
             "Can Open" -> employeeRepository.getCanOpen().asLiveData()
             "Can Close" -> employeeRepository.getCanClose().asLiveData()
             "Can Work Weekend" -> employeeRepository.getCanWorkWeekends().asLiveData()
+            "Inactive" -> employeeRepository.getInactiveEmployees().asLiveData()
             else -> employeeRepository.getAllEmployees().asLiveData()
         }
     }

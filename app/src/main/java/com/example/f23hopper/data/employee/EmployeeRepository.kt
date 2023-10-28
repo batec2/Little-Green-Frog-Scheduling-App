@@ -11,6 +11,10 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         return employeeDao.getAllEmployees()
     }
 
+    fun getInactiveEmployees(): Flow<List<Employee>> {
+        return employeeDao.getInactiveEmployees()
+    }
+
     fun getCanWorkWeekends(): Flow<List<Employee>> {
         return employeeDao.getCanWorkWeekends()
     }
@@ -31,8 +35,8 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         employeeDao.update(employee)
     }
 
-    suspend fun deleteEmployee(employee: Employee) {
-        employeeDao.delete(employee)
+    suspend fun deactivateEmployee(employee: Employee) {
+        employeeDao.updateActive(employee.employeeId)
     }
 
     fun getEmployeeById(id: Int): Flow<Employee> {

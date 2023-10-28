@@ -41,7 +41,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.DAY,
             thursday = ShiftType.DAY,
             friday = ShiftType.DAY,
-            saturday = ShiftType.DAY
+            saturday = ShiftType.DAY,
+            active = true
         )
         val employee2 = Employee(
             firstName = "Jane",
@@ -57,7 +58,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.NIGHT,
             thursday = ShiftType.NIGHT,
             friday = ShiftType.NIGHT,
-            saturday = ShiftType.NIGHT
+            saturday = ShiftType.NIGHT,
+            active = true
         )
 
 
@@ -75,7 +77,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.DAY,
             thursday = ShiftType.DAY,
             friday = ShiftType.DAY,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee4 = Employee(
@@ -92,7 +95,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.NIGHT,
             thursday = ShiftType.NIGHT,
             friday = ShiftType.NIGHT,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee5 = Employee(
@@ -109,7 +113,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee6 = Employee(
@@ -126,7 +131,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.CANT_WORK,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee7 = Employee(
@@ -143,7 +149,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.CANT_WORK,
             thursday = ShiftType.CANT_WORK,
             friday = ShiftType.CANT_WORK,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee8 = Employee(
@@ -160,7 +167,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.DAY,
             thursday = ShiftType.FULL,
             friday = ShiftType.DAY,
-            saturday = ShiftType.FULL
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val employee9 = Employee(
@@ -177,7 +185,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.CANT_WORK
+            saturday = ShiftType.CANT_WORK,
+            active = true
         )
 
         val employee10 = Employee(
@@ -194,7 +203,8 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             wednesday = ShiftType.FULL,
             thursday = ShiftType.FULL,
             friday = ShiftType.FULL,
-            saturday = ShiftType.CANT_WORK
+            saturday = ShiftType.CANT_WORK,
+            active = true
         )
 
 
