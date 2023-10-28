@@ -145,6 +145,7 @@ fun Calendar(
                     state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                 }
             },
+            onExportClick = {} // TODO: Logic for export/csv library
         )
         HorizontalCalendar(
             modifier = Modifier.wrapContentWidth(),
