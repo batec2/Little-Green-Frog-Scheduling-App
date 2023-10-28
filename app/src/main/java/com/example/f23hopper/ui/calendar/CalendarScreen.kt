@@ -193,6 +193,12 @@ private fun Day(
     context: DayContext,
     onClick: (CalendarDay) -> Unit = {},
 ) {
+    val dayBackgroundColor = when {
+        context.isSpecialDay -> CustomColor.specialDay
+        // Todo: Look into a better color for dark off-month days.
+        context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.Gray else MaterialTheme.colorScheme.tertiaryContainer
+        else -> itemBackgroundColor
+    }
     Box( // Square days!!
         modifier = Modifier
             .aspectRatio(1f)
@@ -201,7 +207,7 @@ private fun Day(
                 color = if (context.isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(if (context.isSpecialDay) CustomColor.specialDay else itemBackgroundColor)
+            .background(dayBackgroundColor)
             .clickable(
                 enabled = true,/*day.position == DayPosition.MonthDate,*/
                 onClick = { onClick(context.day) })
@@ -235,7 +241,6 @@ private fun Day(
         ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
-
 
 
 @Composable

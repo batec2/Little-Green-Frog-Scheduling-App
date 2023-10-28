@@ -57,7 +57,8 @@ class EmployeeDaoTest {
             wednesday = ShiftType.DAY,
             thursday = ShiftType.DAY,
             friday = ShiftType.DAY,
-            saturday = ShiftType.DAY
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         dao.insert(employee)
@@ -78,13 +79,14 @@ class EmployeeDaoTest {
             phoneNumber = "1234567890",
             canOpen = true,
             canClose = false,
-            sunday = ShiftType.DAY,
+            sunday = ShiftType.FULL,
             monday = ShiftType.DAY,
             tuesday = ShiftType.DAY,
             wednesday = ShiftType.DAY,
             thursday = ShiftType.DAY,
             friday = ShiftType.DAY,
-            saturday = ShiftType.DAY
+            saturday = ShiftType.FULL,
+            active = true
         )
         val employee2 = Employee(
             firstName = "Jane",
@@ -94,13 +96,14 @@ class EmployeeDaoTest {
             phoneNumber = "0987654321",
             canOpen = false,
             canClose = true,
-            sunday = ShiftType.NIGHT,
+            sunday = ShiftType.FULL,
             monday = ShiftType.NIGHT,
             tuesday = ShiftType.NIGHT,
             wednesday = ShiftType.NIGHT,
             thursday = ShiftType.NIGHT,
             friday = ShiftType.NIGHT,
-            saturday = ShiftType.NIGHT
+            saturday = ShiftType.FULL,
+            active = true
         )
 
         val repo = EmployeeRepository(dao)

@@ -35,8 +35,8 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         employeeDao.update(employee)
     }
 
-    suspend fun deactivateEmployee(employee: Employee,value: Int) {
-        employeeDao.updateActive(employee.employeeId,value)
+    suspend fun deactivateEmployee(employee: Employee, value: Int) {
+        employeeDao.updateActive(employee.employeeId, value)
     }
 
     fun getEmployeeById(id: Int): Flow<Employee> {
@@ -44,10 +44,17 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
     }
 
     fun getEmployeesByDayAndShiftType(day: DayOfWeek, shiftType: ShiftType): Flow<List<Employee>> {
-        val query = SimpleSQLiteQuery(
-            "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
-            arrayOf(shiftType.name)
-        )
+        val query = when (shiftType) {
+            ShiftType.DAY, ShiftType.NIGHT -> SimpleSQLiteQuery(
+                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?",
+                arrayOf(shiftType.name, ShiftType.FULL.name)
+            )
+
+            else -> SimpleSQLiteQuery(
+                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
+                arrayOf(shiftType.name)
+            )
+        }
         return employeeDao.getEmployeesByDayAndShiftType(query)
     }
 
@@ -55,10 +62,18 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         day: kotlinx.datetime.DayOfWeek,
         shiftType: ShiftType
     ): Flow<List<Employee>> {
-        val query = SimpleSQLiteQuery(
-            "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
-            arrayOf(shiftType.name)
-        )
+        val query = when (shiftType) {
+            ShiftType.DAY, ShiftType.NIGHT -> SimpleSQLiteQuery(
+                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?",
+                arrayOf(shiftType.name, ShiftType.FULL.name)
+            )
+
+            else -> SimpleSQLiteQuery(
+                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
+                arrayOf(shiftType.name)
+            )
+        }
         return employeeDao.getEmployeesByDayAndShiftType(query)
     }
 }
+

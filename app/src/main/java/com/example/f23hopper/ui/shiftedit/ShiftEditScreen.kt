@@ -107,39 +107,43 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                     // logic for cancel here, currently just goes back.
                     navController.popBackStack()
                 }
-                .size(30.dp),
+                .size(30.dp)
         )
 
-        Spacer(modifier = Modifier.weight(54 / 100f))
-
-        val date = context.date
-
-        // Date
-        Text(
-            text = "${
-                date.month.getDisplayName(
-                    TextStyle.FULL,
-                    Locale.getDefault()
-                )
-            } ${date.dayOfMonth} ${date.year}",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(4f)
-        )
-
-        InvalidDayIcon(
-            context.shiftsOnDay,
-            context.date.toJavaLocalDate(),
-            context.isSpecialDay,
+        Box(
             modifier = Modifier
-                .padding(2.dp)
-                .size(30.dp, 30.dp),
-            showDialogueOnClick = true
+                .weight(1f)
+                .align(Alignment.CenterVertically)
+        ) {
+            val date = context.date
 
-        )
+            // Date
+            Text(
+                text = "${
+                    date.month.getDisplayName(
+                        TextStyle.FULL,
+                        Locale.getDefault()
+                    )
+                } ${date.dayOfMonth} ${date.year}",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
+            InvalidDayIcon(
+                context.shiftsOnDay,
+                context.date.toJavaLocalDate(),
+                context.isSpecialDay,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(30.dp, 30.dp),
+                showDialogueOnClick = true
+            )
+        }
 
+        // empty space to ensure center alignment of the text
+        Spacer(modifier = Modifier.size(30.dp))
     }
 }
 
