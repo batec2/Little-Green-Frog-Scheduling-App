@@ -21,5 +21,6 @@ data class Employee(
     var wednesday: ShiftType,
     var thursday: ShiftType,
     var friday: ShiftType,
-    var saturday: ShiftType
+    var saturday: ShiftType,
+    var active: Boolean
 )

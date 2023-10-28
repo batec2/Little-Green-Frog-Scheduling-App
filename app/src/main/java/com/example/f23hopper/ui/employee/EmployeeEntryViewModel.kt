@@ -63,7 +63,8 @@ data class EmployeeDetails(
     var wednesday: ShiftType = ShiftType.CANT_WORK,
     var thursday: ShiftType = ShiftType.CANT_WORK,
     var friday: ShiftType = ShiftType.CANT_WORK,
-    var saturday: ShiftType = ShiftType.CANT_WORK
+    var saturday: ShiftType = ShiftType.CANT_WORK,
+    var active: Boolean = true
 )
 
 /**
@@ -84,7 +85,8 @@ fun EmployeeDetails.toEmployee(): Employee = Employee(
     wednesday = wednesday,
     thursday = thursday,
     friday = friday,
-    saturday = saturday
+    saturday = saturday,
+    active = active
 )
 
 
@@ -111,7 +113,8 @@ fun Employee.toEmployeeDetails(): EmployeeDetails = EmployeeDetails(
     wednesday = wednesday,
     thursday = thursday,
     friday = friday,
-    saturday = saturday
+    saturday = saturday,
+    active = active
 )
 
 fun determineShiftType(
