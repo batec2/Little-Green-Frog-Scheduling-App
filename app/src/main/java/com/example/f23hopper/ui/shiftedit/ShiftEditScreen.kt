@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
@@ -67,7 +68,7 @@ fun ShiftEditScreen(
     val shiftsFlow: Flow<List<Shift>> = viewModel.getShiftsForDay(clickedDay)
     val shifts by shiftsFlow.collectAsState(initial = emptyList())
     val groupedShifts = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
-
+    val test = listOf("Test1","Test2","Test3","Test4","Test5")
     var isSpecialDay by remember { mutableStateOf(false) } // check the table to be sure
     LaunchedEffect(clickedDay) {
         isSpecialDay = viewModel.isSpecialDay(clickedDay)
@@ -75,6 +76,12 @@ fun ShiftEditScreen(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         DateHeader(clickedDay, navController)
+        LazyColumn{items(items = test){text->
+            Row(){
+                Text(text = text)
+            }
+
+        } }
         DisplayShifts(
             ShiftContext(
                 viewModel,
