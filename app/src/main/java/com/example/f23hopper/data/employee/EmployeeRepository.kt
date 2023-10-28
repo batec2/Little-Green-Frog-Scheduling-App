@@ -64,12 +64,12 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
     ): Flow<List<Employee>> {
         val query = when (shiftType) {
             ShiftType.DAY, ShiftType.NIGHT -> SimpleSQLiteQuery(
-                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?",
+                "SELECT * FROM employees WHERE active = 1 AND ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?",
                 arrayOf(shiftType.name, ShiftType.FULL.name)
             )
 
             else -> SimpleSQLiteQuery(
-                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
+                "SELECT * FROM employees WHERE active = 1 AND ${day.name.lowercase()} = ?",
                 arrayOf(shiftType.name)
             )
         }

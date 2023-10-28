@@ -45,7 +45,7 @@ class CalendarViewModel @Inject constructor(
     }
 
     private fun fetchRawShifts(): Flow<List<Shift>> {
-        return scheduleRepo.getShiftsByDateRange(startDate, endDate)
+        return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
     }
 
     private fun parseShifts(rawShifts: Flow<List<Shift>>): StateFlow<List<Shift>> {

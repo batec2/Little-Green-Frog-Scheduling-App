@@ -8,6 +8,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 data class Employee(
     @PrimaryKey(autoGenerate = true)
     var employeeId: Long = 0,
+    var active: Boolean,
     val firstName: String,
     val lastName: String,
     val nickname: String,
@@ -22,5 +23,4 @@ data class Employee(
     var thursday: ShiftType,
     var friday: ShiftType,
     var saturday: ShiftType,
-    var active: Boolean
 )

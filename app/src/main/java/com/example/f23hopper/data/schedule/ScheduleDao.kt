@@ -23,21 +23,50 @@ interface ScheduleDao {
     fun getAllSchedules(): Flow<List<Schedule>>
 
     @Transaction
-    @Query("SELECT * FROM schedules WHERE employeeId = :employeeId")
-    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Shift>>
+    @Query(
+        """
+    SELECT schedules.*, employees.* 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE schedules.employeeId = :employeeId 
+    """
+    )
+    fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Schedule>>
 
     @Transaction
-    @Query("SELECT * FROM schedules WHERE strftime('%Y-%m', date) = :monthYear")
-    fun getSchedulesWithEmployeesForMonth(monthYear: String): Flow<List<Shift>>
+    @Query(
+        """
+    SELECT schedules.*, employees.* 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE strftime('%Y-%m', date) = :monthYear AND employees.active = 1
+    """
+    )
+    fun getActiveShiftsForMonth(monthYear: String): Flow<List<Shift>>
 
 
     @Transaction
-    @Query("SELECT * FROM schedules WHERE schedules.date BETWEEN :startDate AND :endDate")
-    fun getShiftByDateRange(
+    @Query(
+        """
+    SELECT * 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE schedules.date BETWEEN :startDate AND :endDate AND employees.active = 1
+    """
+    )
+    fun getActiveShiftByDateRange(
         startDate: Date, endDate: Date
     ): Flow<List<Shift>>
 
-    @Query("SELECT * FROM schedules WHERE schedules.date = :date")
+    @Transaction
+    @Query(
+        """
+    SELECT * 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE schedules.date = :date AND employees.active = 1
+    """
+    )
     fun getShiftByDate(date: Date): Flow<List<Shift>>
 
     @Query(" SELECT * FROM schedules WHERE schedules.date = :date")
