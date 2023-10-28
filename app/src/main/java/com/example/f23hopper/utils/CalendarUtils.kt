@@ -22,12 +22,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -51,6 +56,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.getShiftColor
 import com.example.f23hopper.ui.calendar.isWeekday
 import com.example.f23hopper.ui.calendar.maxShifts
+import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberSunny
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
@@ -97,74 +103,118 @@ fun ShiftIcon(shiftType: ShiftType) {
 }
 
 
-data class DayValidationResult(val isValid: Boolean, val error: DayValidationError? = null)
+data class DayValidationResult(
+    val isValid: Boolean,
+    val errors: List<DayValidationError> = emptyList()
+)
 
 fun dateValidation(
     shifts: Map<ShiftType, List<Shift>>,
     date: java.time.LocalDate,
     isSpecialDay: Boolean
 ): DayValidationResult {
+    val errors = mutableListOf<DayValidationError>()
+
     if (shifts.isEmpty()) {
-        return DayValidationResult(isValid = false, error = DayValidationError.NO_SHIFTS)
+        errors.add(DayValidationError.NO_SHIFTS)
     }
 
-    // If the date is a weekday, ensure both DAY and NIGHT shifts are present
     if (date.isWeekday()) {
         if (shifts[ShiftType.DAY] == null) {
-            return DayValidationResult(
-                isValid = false,
-                error = DayValidationError.MISSING_DAY_SHIFT
-            )
+            errors.add(DayValidationError.MISSING_DAY_SHIFT)
         }
         if (shifts[ShiftType.NIGHT] == null) {
-            return DayValidationResult(
-                isValid = false,
-                error = DayValidationError.MISSING_NIGHT_SHIFT
-            )
+            errors.add(DayValidationError.MISSING_NIGHT_SHIFT)
         }
     }
 
-    // Check if there are enough shifts per day
     if (!shifts.all { it.value.size == maxShifts(isSpecialDay) }) {
-        return DayValidationResult(isValid = false, error = DayValidationError.INSUFFICIENT_SHIFTS)
+        errors.add(DayValidationError.INSUFFICIENT_SHIFTS)
     }
 
-
-    // Check if there are enough shifts per day
-    if (!shifts.all { it.value.size == maxShifts(isSpecialDay) }) {
-        return DayValidationResult(isValid = false, error = DayValidationError.INSUFFICIENT_SHIFTS)
-    }
-
-    // Check if opener present on day shift
     shifts[ShiftType.DAY]?.let { dayShifts ->
         if (dayShifts.none { it.employee.canOpen }) {
-            return DayValidationResult(isValid = false, error = DayValidationError.NO_DAY_OPENER)
+            errors.add(DayValidationError.NO_DAY_OPENER)
         }
     }
 
-    // Check if closer present on night shift
     shifts[ShiftType.NIGHT]?.let { nightShifts ->
         if (nightShifts.none { it.employee.canClose }) {
-            return DayValidationResult(isValid = false, error = DayValidationError.NO_NIGHT_CLOSER)
+            errors.add(DayValidationError.NO_NIGHT_CLOSER)
         }
     }
 
-    // Check for FULL shifts
     shifts[ShiftType.FULL]?.let { fullShifts ->
         val canOpenEmployee = fullShifts.find { it.employee.canOpen }
         val canCloseEmployee = fullShifts.find { it.employee.canClose }
-
         val hasBoth = fullShifts.any { it.employee.canOpen && it.employee.canClose }
-
         if (!hasBoth && (canOpenEmployee == null || canCloseEmployee == null || canOpenEmployee.employee.employeeId == canCloseEmployee.employee.employeeId)) {
-            return DayValidationResult(
-                isValid = false,
-                error = DayValidationError.NO_FULL_SHIFT_OPENER_CLOSER
-            )
+            errors.add(DayValidationError.NO_FULL_SHIFT_OPENER_CLOSER)
         }
     }
 
-    return DayValidationResult(isValid = true)
+    return if (errors.isEmpty()) {
+        DayValidationResult(isValid = true)
+    } else {
+        DayValidationResult(isValid = false, errors = errors)
+    }
+}
+
+
+@Composable
+fun InvalidDayIcon(
+    shifts: Map<ShiftType, List<Shift>>,
+    date: java.time.LocalDate,
+    isSpecialDay: Boolean,
+    modifier: Modifier = Modifier,
+    showDialogueOnClick: Boolean = false
+) {
+    val dayValidation = dateValidation(shifts, date, isSpecialDay)
+    var showDialog by remember { mutableStateOf(false) }
+
+    if (showDialog) {
+        ShowErrorDialog(
+            errors = dayValidation.errors,
+            onDismiss = { showDialog = false }
+        )
+    }
+
+    if (!dayValidation.isValid) {
+        Icon(
+            imageVector = rememberError(),
+            tint = MaterialTheme.colorScheme.error,
+            contentDescription = dayValidation.errors.joinToString(", "),
+            modifier = modifier.then(
+                if (showDialogueOnClick) {
+                    Modifier.clickable(onClick = { showDialog = true })
+                } else {
+                    Modifier
+                }
+            )
+        )
+    }
+}
+
+@Composable
+fun ShowErrorDialog(errors: List<DayValidationError>, onDismiss: () -> Unit) {
+    if (errors.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            title = { Text(text = "Day Invalid:") },
+            text = {
+                Column {
+                    errors.forEach { error ->
+                        Text(text = "- " + error.displayMessage)
+                    }
+                }
+            },
+            confirmButton = {
+                Button(onClick = onDismiss) {
+                    Text("Close")
+                }
+            }
+        )
+    }
 }
 
 @Composable

@@ -49,11 +49,13 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.maxShifts
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
+import com.example.f23hopper.utils.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.toJavaLocalDate
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -73,22 +75,22 @@ fun ShiftEditScreen(
         isSpecialDay = viewModel.isSpecialDay(clickedDay)
     }
 
-    Column(modifier = Modifier.fillMaxWidth()) {
-        DateHeader(clickedDay, navController)
-        DisplayShifts(
-            ShiftContext(
-                viewModel,
-                groupedShifts = groupedShifts,
-                date = clickedDay,
-                isSpecialDay = isSpecialDay
-            )
+    var context =
+        ShiftContext(
+            viewModel,
+            shiftsOnDay = groupedShifts,
+            date = clickedDay,
+            isSpecialDay = isSpecialDay
         )
+    Column(modifier = Modifier.fillMaxWidth()) {
+        DateHeader(context, navController)
+        DisplayShifts(context)
     }
 }
 
 
 @Composable
-fun DateHeader(date: LocalDate, navController: NavController) {
+fun DateHeader(context: ShiftContext, navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -96,7 +98,7 @@ fun DateHeader(date: LocalDate, navController: NavController) {
             .padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        // Cancel button
+        // Back button
         Icon(
             imageVector = Icons.Default.ArrowBack,
             contentDescription = "Back",
@@ -110,6 +112,8 @@ fun DateHeader(date: LocalDate, navController: NavController) {
 
         Spacer(modifier = Modifier.weight(54 / 100f))
 
+        val date = context.date
+
         // Date
         Text(
             text = "${
@@ -121,6 +125,17 @@ fun DateHeader(date: LocalDate, navController: NavController) {
             style = MaterialTheme.typography.headlineSmall,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(4f)
+        )
+
+        InvalidDayIcon(
+            context.shiftsOnDay,
+            context.date.toJavaLocalDate(),
+            context.isSpecialDay,
+            modifier = Modifier
+                .padding(2.dp)
+                .size(30.dp, 30.dp),
+            showDialogueOnClick = true
+
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -156,7 +171,7 @@ private fun LazyListScope.addShiftTypeSection(
     stickyHeader {
         ShiftTypeHeader(shiftType = shiftType, shiftCount = rowCount, context = context)
     }
-    val shifts = context.groupedShifts[shiftType] ?: emptyList()
+    val shifts = context.shiftsOnDay[shiftType] ?: emptyList()
     for (i in 0 until rowCount) {
         if (i < shifts.size) {
             item { FilledShiftRow(context.viewModel, shifts[i]) }
@@ -232,7 +247,7 @@ fun ShiftTypeHeader(shiftType: ShiftType, shiftCount: Int, context: ShiftContext
             ShiftIcon(shiftType)
             ShiftCircles(
                 maxShifts = maxShifts(context.isSpecialDay),
-                shiftCount = context.groupedShifts[shiftType]?.size ?: 0,
+                shiftCount = context.shiftsOnDay[shiftType]?.size ?: 0,
                 shiftType = shiftType
             )
             Text(text = shiftLabel, style = MaterialTheme.typography.titleLarge)
