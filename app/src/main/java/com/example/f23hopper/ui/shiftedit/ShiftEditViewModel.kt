@@ -63,3 +63,10 @@ class ShiftEditViewModel @Inject constructor(
 
 
 }
+
+data class ShiftContext(
+    val viewModel: ShiftEditViewModel,
+    val date: LocalDate,
+    val groupedShifts: Map<ShiftType, List<Shift>>,
+    val isSpecialDay: Boolean
+)

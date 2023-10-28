@@ -26,12 +26,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,6 +50,7 @@ import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import com.example.f23hopper.utils.dateValidation
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
 import com.kizitonwose.calendar.compose.HorizontalCalendar
@@ -70,36 +71,41 @@ import java.time.ZoneId
 @Composable
 fun CalendarScreen(navigateToShiftView: (String) -> Unit) {
 //    val coroutineScope = rememberCoroutineScope()
-    val clickedDay = remember { mutableStateOf<LocalDate?>(null) }
+    var selection by rememberSaveable { mutableStateOf<CalendarDay?>(null) }
 
     val viewModel = hiltViewModel<CalendarViewModel>()
     val shifts by viewModel.parsedShifts.collectAsState(initial = emptyList())
     val specialDays by viewModel.parsedDays.collectAsState(initial = emptyList())
 
-    Calendar(shifts, specialDays, navigateToShiftView)
+    Calendar(shifts, specialDays, navigateToShiftView, viewModel, selection) {
+        selection = it
+    }
 }
 
 @Composable
 fun Calendar(
     shifts: List<Shift>,
     specialDays: List<SpecialDay>,
-    navigateToShiftView: (String) -> Unit
+    navigateToShiftView: (String) -> Unit,
+    viewModel: CalendarViewModel,
+    selection: CalendarDay?,
+    onSelectionChanged: (CalendarDay?) -> Unit
 ) {
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(100) }
     val endMonth = remember { currentMonth.plusMonths(100) }
-    var selection by remember { mutableStateOf<CalendarDay?>(null) }
 
+//    var selection = selection
     val shiftsOnSelectedDate = if (selection?.date != null) {
-        shifts.filter { it.schedule.date.toString() == selection?.date.toString() }
-    } else emptyList()
+        shifts.filter { it.schedule.date.toString() == selection.date.toString() }
+            .groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+    } else emptyMap()
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-    val colorsForDots = getColorDateMap(shiftsByDay)
     StatusBarColorUpdateEffect(toolbarColor)
     Column(
         modifier = Modifier
@@ -116,14 +122,14 @@ fun Calendar(
         val coroutineScope = rememberCoroutineScope()
         val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
 
-        LaunchedEffect(visibleMonth) {
-            selection = null
-        }
+//        LaunchedEffect(visibleMonth) {
+//            selection = null
+//        }
 
         SimpleCalendarTitle(
             modifier = Modifier
                 .background(toolbarColor)
-                .padding(horizontal = 8.dp, vertical = 12.dp),
+                .padding(horizontal = 8.dp, vertical = 0.dp),
             currentMonth = visibleMonth.yearMonth,
             goToPrevious = {
                 coroutineScope.launch {
@@ -140,19 +146,18 @@ fun Calendar(
             modifier = Modifier.wrapContentWidth(),
             state = state,
             dayContent = { day ->
-
-                val dotColors = (colorsForDots[day.date] ?: emptyList())
-                val groupedColors = dotColors.groupBy { it }
                 val isSpecialDay = specialDaysByDay[day.date] != null
-                Day(
-                    day = day,
-                    isSelected = selection == day,
-                    groupedColors = groupedColors,
+                val context = DayContext(
+                    viewModel = viewModel, day = day,
+                    shiftsOnDay = shiftsByDay[day.date]?.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+                        .orEmpty(),
                     isSpecialDay = isSpecialDay,
-                    // TODO: Pass in shifts on selection
-//                    shiftsOnSelectedDate = shiftsOnSelectedDate
+                    isSelected = selection == day
+                )
+                Day(
+                    context,
                 ) { clicked ->
-                    selection = clicked
+                    onSelectionChanged(clicked)
 //                    navigateToDayView(clicked.date.toString())
                 }
             },
@@ -175,63 +180,70 @@ fun Calendar(
     }
 }
 
+
+data class DayContext(
+    val viewModel: CalendarViewModel,
+    val day: CalendarDay,
+    val shiftsOnDay: Map<ShiftType, List<Shift>>,
+    val isSpecialDay: Boolean,
+    val isSelected: Boolean,
+)
+
 @Composable
 private fun Day(
-    day: CalendarDay,
-    isSelected: Boolean = false,
-    groupedColors: Map<Color, List<Color>>,
-    isSpecialDay: Boolean,
+    context: DayContext,
     onClick: (CalendarDay) -> Unit = {},
 ) {
     Box( // Square days!!
         modifier = Modifier
             .aspectRatio(1f)
             .border(
-                width = if (isSelected) 1.dp else 0.dp,
-                color = if (isSelected) selectedItemColor else Color.Transparent
+                width = if (context.isSelected) 1.dp else 0.dp,
+                color = if (context.isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(if (isSpecialDay) CustomColor.specialDay else itemBackgroundColor)
+            .background(if (context.isSpecialDay) CustomColor.specialDay else itemBackgroundColor)
             .clickable(
                 enabled = true,/*day.position == DayPosition.MonthDate,*/
-                onClick = { onClick(day) })
+                onClick = { onClick(context.day) })
     ) {
-        val textColor = when (day.position) {
+        val textColor = when (context.day.position) {
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
 
 
-        val minDots = groupedColors.entries.minOfOrNull { it.value.size } ?: 0
-        // This condition should be changed. Lets get the shifts themselves and run them through shift checking logic
-        // this is the IF_VALID_DAY check
-        if (minDots < maxShifts(isSpecialDay)) {
-            Icon(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(2.dp)
-                    .size(15.dp, 15.dp),
-                imageVector = rememberError(),
-                tint = MaterialTheme.colorScheme.error,
-                contentDescription = "Day is incomplete"
-            )
-        }
+        InvalidDayIcon(context, Modifier.align(Alignment.TopEnd))
 
         Text(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = 3.dp, end = 4.dp),
-            text = day.date.dayOfMonth.toString(),
+            text = context.day.date.dayOfMonth.toString(),
             color = textColor,
             fontSize = 12.sp
         )
 
+        val groupedColors = generateGroupedColors(context.shiftsOnDay)
         ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
-//TODO: Add valid day checking
-fun isValidDay(): Boolean = true
+@Composable
+fun InvalidDayIcon(context: DayContext, modifier: Modifier) {
+    val dayValidation = dateValidation(context.shiftsOnDay, context.day.date, context.isSpecialDay)
+    if (!dayValidation.isValid) {
+        Icon(
+            modifier = modifier
+                .padding(2.dp)
+                .size(15.dp, 15.dp),
+            imageVector = rememberError(),
+            tint = MaterialTheme.colorScheme.error,
+            contentDescription = dayValidation.error.toString()
+        )
+    }
+}
+
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
@@ -278,7 +290,7 @@ private fun WeekDays(modifier: Modifier) {
 
 @Composable
 fun ShiftDetailsForDay(
-    shifts: List<Shift>,
+    shifts: Map<ShiftType, List<Shift>>,
     date: LocalDate,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit
@@ -286,7 +298,7 @@ fun ShiftDetailsForDay(
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        DateBox(date = date)
+        DateBox(date = date, navigateToShiftView = navigateToShiftView)
         ShiftContent(
             date = date,
             shifts = shifts,
@@ -297,25 +309,34 @@ fun ShiftDetailsForDay(
 }
 
 @Composable
-fun DateBox(date: LocalDate) {
+fun DateBox(
+    date: LocalDate,
+    navigateToShiftView: (String) -> Unit,
+) {
     Box(
         modifier = Modifier
-            .width(120.dp)
-            .height(2 * 56.dp)
-            .background(pageBackgroundColor),
+            .width(80.dp)
+            .height(2 * 55.dp)
+            .background(pageBackgroundColor)
+            .clickable {
+                navigateToShiftView(date.toString())
+            },
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = date.dayOfWeek.name.take(3).uppercase()) // Day of week abbreviated
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(text = date.dayOfMonth.toString()) // Day of the month
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .background(Color.Black)
-            )
+            EditShiftButton {
+                navigateToShiftView(date.toString())
+            }
+//            Text(text = date.dayOfWeek.name.take(3).uppercase()) // Day of week abbreviated
+//            Spacer(modifier = Modifier.height(4.dp))
+//            Text(text = date.dayOfMonth.toString()) // Day of the month
+//            Spacer(
+//                modifier = Modifier
+//                    .height(1.dp)
+//                    .background(Color.Black)
+//            )
         }
     }
 }
@@ -323,7 +344,7 @@ fun DateBox(date: LocalDate) {
 @Composable
 fun ShiftContent(
     date: LocalDate,
-    shifts: List<Shift>,
+    shifts: Map<ShiftType, List<Shift>>,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit
 ) {
@@ -333,14 +354,13 @@ fun ShiftContent(
             .background(pageBackgroundColor)
     ) {
         // dots in each shift type
-        val shiftsByType = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
 
         // Build 2 rows if weekday, 1 row if weekend
         if (date.isWeekday()) {
 
             ShiftRow(
                 shiftType = ShiftType.DAY,
-                shiftsForType = shiftsByType[ShiftType.DAY].orEmpty(),
+                shiftsForType = shifts[ShiftType.DAY].orEmpty(),
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
@@ -354,7 +374,7 @@ fun ShiftContent(
             )
             ShiftRow(
                 shiftType = ShiftType.NIGHT,
-                shiftsForType = shiftsByType[ShiftType.NIGHT].orEmpty(),
+                shiftsForType = shifts[ShiftType.NIGHT].orEmpty(),
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
@@ -363,7 +383,7 @@ fun ShiftContent(
         } else {
             ShiftRow(
                 shiftType = ShiftType.FULL,
-                shiftsForType = shiftsByType[ShiftType.FULL].orEmpty(),
+                shiftsForType = shifts[ShiftType.FULL].orEmpty(),
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
@@ -428,6 +448,7 @@ fun getColorDateMap(eventsByDay: Map<LocalDate, List<Shift>>): Map<LocalDate, Li
     }
 }
 
+
 @Composable
 fun getShiftColor(shiftType: ShiftType): Color {
     val isDarkTheme = isSystemInDarkTheme()
@@ -438,6 +459,20 @@ fun getShiftColor(shiftType: ShiftType): Color {
         ShiftType.FULL -> MaterialTheme.colorScheme.secondary
         else -> Color.Transparent
     }
+}
+
+@Composable
+fun generateGroupedColors(shiftsOnDay: Map<ShiftType, List<Shift>>): Map<Color, List<Color>> {
+    // Map all shifts to their corresponding colors
+
+    val shiftTypeToColor = shiftsOnDay.keys.associateWith { getShiftColor(it) }
+    val allColors = shiftsOnDay.flatMap { entry ->
+        val colorForShiftType = shiftTypeToColor[entry.key] ?: Color.Transparent
+        entry.value.map { colorForShiftType }
+    }
+
+    // Group these colors
+    return allColors.groupBy { it }
 }
 
 val pageBackgroundColor: Color @Composable get() = MaterialTheme.colorScheme.background
