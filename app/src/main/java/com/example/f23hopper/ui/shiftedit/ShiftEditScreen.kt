@@ -86,12 +86,6 @@ fun ShiftEditScreen(
     }
 }
 
-data class ShiftContext(
-    val viewModel: ShiftEditViewModel,
-    val date: LocalDate,
-    val groupedShifts: Map<ShiftType, List<Shift>>,
-    val isSpecialDay: Boolean
-)
 
 @Composable
 fun DateHeader(date: LocalDate, navController: NavController) {
