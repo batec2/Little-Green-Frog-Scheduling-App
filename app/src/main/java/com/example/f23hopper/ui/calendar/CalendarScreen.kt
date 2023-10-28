@@ -46,11 +46,10 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
-import com.example.f23hopper.ui.icons.rememberError
+import com.example.f23hopper.utils.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
-import com.example.f23hopper.utils.dateValidation
 import com.example.f23hopper.utils.displayText
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
 import com.kizitonwose.calendar.compose.HorizontalCalendar
@@ -213,7 +212,15 @@ private fun Day(
         }
 
 
-        InvalidDayIcon(context, Modifier.align(Alignment.TopEnd))
+        InvalidDayIcon(
+            context.shiftsOnDay,
+            context.day.date,
+            context.isSpecialDay,
+            Modifier
+                .align(Alignment.TopEnd)
+                .padding(2.dp)
+                .size(15.dp, 15.dp)
+        )
 
         Text(
             modifier = Modifier
@@ -229,20 +236,6 @@ private fun Day(
     }
 }
 
-@Composable
-fun InvalidDayIcon(context: DayContext, modifier: Modifier) {
-    val dayValidation = dateValidation(context.shiftsOnDay, context.day.date, context.isSpecialDay)
-    if (!dayValidation.isValid) {
-        Icon(
-            modifier = modifier
-                .padding(2.dp)
-                .size(15.dp, 15.dp),
-            imageVector = rememberError(),
-            tint = MaterialTheme.colorScheme.error,
-            contentDescription = dayValidation.error.toString()
-        )
-    }
-}
 
 
 @Composable
