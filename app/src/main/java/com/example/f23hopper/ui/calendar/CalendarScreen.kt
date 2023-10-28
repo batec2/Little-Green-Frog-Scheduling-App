@@ -192,7 +192,9 @@ private fun Day(
             )
             .padding(1.dp)
             .background(if (isSpecialDay) CustomColor.specialDay else itemBackgroundColor)
-            .clickable(enabled = day.position == DayPosition.MonthDate, onClick = { onClick(day) })
+            .clickable(
+                enabled = true,/*day.position == DayPosition.MonthDate,*/
+                onClick = { onClick(day) })
     ) {
         val textColor = when (day.position) {
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
@@ -229,7 +231,7 @@ private fun Day(
 }
 
 //TODO: Add valid day checking
-//fun isValidDay()
+fun isValidDay(): Boolean = true
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {

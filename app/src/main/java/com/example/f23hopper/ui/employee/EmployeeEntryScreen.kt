@@ -1,8 +1,6 @@
 package com.example.f23hopper.ui.employee
 
 //import com.example.f23hopper.utils.StatusBarColorUpdateEffect
-import android.icu.text.CaseMap.Title
-import android.widget.ToggleButton
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,9 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,7 +28,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -71,7 +66,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EmployeeEntryScreen(
-    navigateToEmployeeList:() -> Unit
+    navigateToEmployeeList: () -> Unit
 ) {
     StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     val coroutineScope = rememberCoroutineScope()
@@ -100,7 +95,7 @@ fun EmployeeEntryBody(
 ) {
 
 //    StatusBarColorUpdateEffect(toolbarColor)
-    Scaffold (
+    Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -123,17 +118,18 @@ fun EmployeeEntryBody(
                         modifier = Modifier,
                         shape = RoundedCornerShape(10.dp),
                         onClick = {
-                                    onSaveClick()
-                                    navigateToEmployeeList()
-                                  },
-                        enabled = employeeUiState.isEmployeeValid) {
+                            onSaveClick()
+                            navigateToEmployeeList()
+                        },
+                        enabled = employeeUiState.isEmployeeValid
+                    ) {
                         Text(text = "Done")
                     }
                 },
                 modifier = Modifier.height(50.dp),
             )
         }
-    ){ innerPadding ->
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -157,6 +153,18 @@ fun EmployeeEntryBody(
     }
 }
 
+
+data class FieldDetail(
+    val label: String,
+    val value: String,
+    val modifier: Modifier,
+    val onValueChange: (String) -> Unit,
+    val validate: (String) -> Boolean,
+    val errorMessage: String,
+    val formatter: ((String) -> String)? = null // Optional formatter function
+)
+
+
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeInfo(
@@ -177,31 +185,31 @@ fun EmployeeInfo(
 
     val fields = listOf(
         FieldDetail(
-            label = "First Name",
+            label = "First Name*",
             value = employeeDetails.firstName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
-            errorMessage = "Only letters and hyphens are allowed"
+            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
+            errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
-            label = "Last Name",
+            label = "Last Name*",
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
-            errorMessage = "Only letters and hyphens are allowed"
+            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
+            errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
             label = "Nickname",
             value = employeeDetails.nickname,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(nickname = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-]+$")) },
-            errorMessage = "Only letters and hyphens are allowed"
+            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
+            errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
-            label = "Email",
+            label = "Email*",
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
@@ -210,7 +218,7 @@ fun EmployeeInfo(
         ),
 
         FieldDetail(
-            label = "Phone Number",
+            label = "Phone Number*",
             formatter = ::formatPhoneNumber,
             value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
@@ -222,16 +230,6 @@ fun EmployeeInfo(
 
     fields.forEach { field -> ValidatedOutlinedTextField(field) }
 }
-
-data class FieldDetail(
-    val label: String,
-    val value: String,
-    val modifier: Modifier,
-    val onValueChange: (String) -> Unit,
-    val validate: (String) -> Boolean,
-    val errorMessage: String,
-    val formatter: ((String) -> String)? = null // Optional formatter function
-)
 
 
 @Composable
@@ -351,7 +349,7 @@ fun ScheduleSelector(
 
 @Composable
 fun DaySelector(
-    shiftStatus:ShiftType,
+    shiftStatus: ShiftType,
     dayOfWeek: DayOfWeek,
     onSelectionChange: (ShiftType) -> Unit
 ) {
@@ -361,10 +359,10 @@ fun DaySelector(
         mutableStateOf(shiftStatus == ShiftType.FULL)
     }
     var dayShift by remember {
-        mutableStateOf(shiftStatus == ShiftType.DAY||shiftStatus == ShiftType.FULL)
+        mutableStateOf(shiftStatus == ShiftType.DAY || shiftStatus == ShiftType.FULL)
     }
     var nightShift by remember {
-        mutableStateOf(shiftStatus == ShiftType.NIGHT||shiftStatus == ShiftType.FULL)
+        mutableStateOf(shiftStatus == ShiftType.NIGHT || shiftStatus == ShiftType.FULL)
     }
 
     val currentShiftType = determineShiftType(isWeekend, shiftSelected, dayShift, nightShift)
@@ -374,9 +372,9 @@ fun DaySelector(
         DayOfWeekTextBox(dayOfWeek, currentShiftType)
 
         if (isWeekend) {
-            WeekendButtonRow(shiftStatus=shiftStatus) { shiftSelected = it }
+            WeekendButtonRow(shiftStatus = shiftStatus) { shiftSelected = it }
         } else {
-            WeekdayButtonRow(dayShift, nightShift, shiftStatus=shiftStatus) { day, night ->
+            WeekdayButtonRow(dayShift, nightShift, shiftStatus = shiftStatus) { day, night ->
                 dayShift = day
                 nightShift = night
             }
@@ -395,7 +393,7 @@ fun WeekendButtonRow(
             "Day",
             onButtonChange = onShiftSelectedChanged,
             modifier = Modifier.padding(end = 26.dp),
-            status = shiftStatus==ShiftType.FULL
+            status = shiftStatus == ShiftType.FULL
         )
     }
 }
@@ -417,12 +415,13 @@ fun WeekdayButtonRow(
             "Day",
             onButtonChange = { onDayNightShiftChanged(it, nightShift) },
             modifier = Modifier.padding(end = 8.dp),
-            status = shiftStatus==ShiftType.FULL||shiftStatus==ShiftType.DAY
+            status = shiftStatus == ShiftType.FULL || shiftStatus == ShiftType.DAY
 
         )
-        DayButton("Night",
+        DayButton(
+            "Night",
             onButtonChange = { onDayNightShiftChanged(dayShift, it) },
-            status = shiftStatus==ShiftType.FULL||shiftStatus==ShiftType.NIGHT
+            status = shiftStatus == ShiftType.FULL || shiftStatus == ShiftType.NIGHT
         )
     }
 }
@@ -447,7 +446,7 @@ fun DayButton(
     icon: String,
     onButtonChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    status:Boolean
+    status: Boolean
 ) {
     var checked by remember { mutableStateOf(status) }
     val buttonColor = when {
@@ -482,30 +481,30 @@ fun DayButton(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DayFilter(){
-    val openDialog = remember{ mutableStateOf(true) }
-    val week = listOf("S", "M", "T", "W", "R", "F", "S")
+fun DayFilter() {
+    val openDialog = remember { mutableStateOf(true) }
+    val week = listOf("M", "T", "W", "R", "F", "S", "U")
     Dialog(onDismissRequest = { /*TODO*/ }) {
         Column {
             Row {
-            Text(text = "here")
+                Text(text = "here")
             }
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ){
-                week.forEach{day->
-                    Button(modifier = Modifier.size(30.dp),onClick = { /*TODO*/ }) {
+            ) {
+                week.forEach { day ->
+                    Button(modifier = Modifier.size(30.dp), onClick = { /*TODO*/ }) {
                         Text(text = day, color = colorScheme.primary)
                     }
                 }
             }
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ){
-                week.forEach{day->
-                    Button(modifier = Modifier.size(30.dp),onClick = { /*TODO*/ }) {
+            ) {
+                week.forEach { day ->
+                    Button(modifier = Modifier.size(30.dp), onClick = { /*TODO*/ }) {
                         Text(text = day, color = Color.White)
                     }
                 }

@@ -172,7 +172,7 @@ private fun LazyListScope.addShiftTypeSection(
     val shifts = context.groupedShifts[shiftType] ?: emptyList()
     for (i in 0 until rowCount) {
         if (i < shifts.size) {
-            item { FilledShiftRow(context.viewModel, shifts[i], context.date) }
+            item { FilledShiftRow(context.viewModel, shifts[i]) }
 
         } else {
             item { EmptyShiftRow(context.viewModel, shiftType, context.date) }
@@ -264,8 +264,7 @@ fun ShiftTypeHeader(shiftType: ShiftType, shiftCount: Int, context: ShiftContext
 @Composable
 fun FilledShiftRow(
     viewModel: ShiftEditViewModel,
-    shift: Shift,
-    date: LocalDate/*, onClick: () -> Unit*/
+    shift: Shift
 ) {
     Row(
         modifier = Modifier
