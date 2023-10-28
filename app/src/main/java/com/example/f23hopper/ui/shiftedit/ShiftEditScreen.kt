@@ -5,7 +5,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,8 +26,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -191,43 +188,6 @@ private fun LazyListScope.addShiftTypeSection(
 }
 
 
-@Composable
-fun EmployeeDropdown(
-    modifier: Modifier,
-    employees: List<Employee>,
-    onEmployeeSelected: (Employee) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(true) }
-    val interactionSource = remember { MutableInteractionSource() }
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = {
-            expanded = false
-            onDismiss()
-        },
-        modifier = modifier
-    ) {
-        employees.forEach { employee ->
-            DropdownMenuItem(
-                interactionSource = interactionSource,
-                onClick = {
-                    onEmployeeSelected(employee)
-                    expanded = false
-                },
-
-                text = {
-                    Text(
-                        text = "${employee.firstName} ${employee.lastName}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            )
-        }
-    }
-}
-
 
 @Composable
 fun ShiftTypeHeader(shiftType: ShiftType, context: ShiftContext) {
@@ -387,7 +347,7 @@ fun EmployeeList(
     val shiftsThisWeekMap by viewModel.getShiftCountsForWeek(date)
         .collectAsState(initial = emptyMap())
 
-    employees.forEach { employee ->
+    employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
         val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
 
         Row(
