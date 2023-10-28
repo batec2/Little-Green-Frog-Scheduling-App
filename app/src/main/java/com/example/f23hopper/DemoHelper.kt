@@ -28,6 +28,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 
         // Populate Employees
         val employee1 = Employee(
+            employeeId = 1,
             firstName = "John",
             lastName = "Doe",
             nickname = "",
@@ -45,6 +46,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
             active = true
         )
         val employee2 = Employee(
+            employeeId = 2,
             firstName = "Jane",
             lastName = "Doe",
             nickname = "",
@@ -64,6 +66,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 
 
         val employee3 = Employee(
+            employeeId = 3,
             firstName = "John",
             lastName = "Smith",
             nickname = "JoJo",
@@ -82,6 +85,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee4 = Employee(
+            employeeId = 4,
             firstName = "Charlie",
             lastName = "Brown",
             nickname = "",
@@ -100,6 +104,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee5 = Employee(
+            employeeId = 5,
             firstName = "Bob",
             lastName = "Builder",
             nickname = "",
@@ -118,6 +123,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee6 = Employee(
+            employeeId = 6,
             firstName = "Steve",
             lastName = "Crafter",
             nickname = "",
@@ -136,6 +142,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee7 = Employee(
+            employeeId = 7,
             firstName = "AJ",
             lastName = "Bruningham",
             nickname = "",
@@ -154,6 +161,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee8 = Employee(
+            employeeId = 8,
             firstName = "Victoria",
             lastName = "Secretur",
             nickname = "Vicky",
@@ -172,6 +180,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee9 = Employee(
+            employeeId = 9,
             firstName = "Jason",
             lastName = "Todd",
             nickname = "Red",
@@ -190,6 +199,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         )
 
         val employee10 = Employee(
+            employeeId = 10,
             firstName = "Jason",
             lastName = "Bourne",
             nickname = "",

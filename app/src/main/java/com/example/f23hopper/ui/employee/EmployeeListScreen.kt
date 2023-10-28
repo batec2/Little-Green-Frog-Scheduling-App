@@ -20,9 +20,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -36,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -126,7 +130,7 @@ fun EmployeeListScreen(
                     deactivateItem =
                     {
                         coroutineScope.launch {
-                            sharedViewModel.deactivateEmployee(it)
+                            sharedViewModel.deactivateEmployee(it,it.active)
                         }
                     },
                 ) { navigateToEdit ->
@@ -155,12 +159,19 @@ fun EmployeeListItem(
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(items = employees, key = { employee -> employee.employeeId }) { employee ->
+            val dismissState = DismissState(
+                initialValue = DismissValue.Default,
+                confirmValueChange = {
+                true
+            })
+            /*
             val dismissState = rememberDismissState(
                 confirmValueChange = {
                     true
                 },
-                //positionalThreshold =
             )
+             */
+                //positionalThreshold =
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
@@ -207,12 +218,11 @@ fun EmployeeListItem(
                                         .clickable
                                         {
                                             deactivateItem(employee)
-                                            coroutineScope.launch {
-                                                dismissState.reset()
-                                            }
                                         },
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete"
+                                    imageVector =
+                                    if (employee.active)Icons.Filled.Clear
+                                    else Icons.Filled.Refresh ,
+                                    contentDescription = "Deactivate and Reactivate"
                                 )
                             }
 

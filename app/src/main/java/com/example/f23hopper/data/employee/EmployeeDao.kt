@@ -22,8 +22,8 @@ interface EmployeeDao {
     @Delete
     suspend fun delete(employee: Employee)
 
-    @Query("UPDATE employees Set active = 0 WHERE employeeId = :id")
-    suspend fun updateActive(id: Long)
+    @Query("UPDATE employees Set active = :value WHERE employeeId = :id")
+    suspend fun updateActive(id: Long,value: Int)
 
     @Query("SELECT * FROM employees WHERE employeeId = :id")
     fun getItem(id: Int): Flow<Employee>

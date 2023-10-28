@@ -25,9 +25,9 @@ class EmployeeListViewModel @Inject constructor (
             )
     }
 
-    suspend fun deactivateEmployee(employee: Employee){
-        println("deactive ${employee.firstName} ${employee.active}")
-        employeeRepository.deactivateEmployee(employee)
+    suspend fun deactivateEmployee(employee: Employee,value: Boolean){
+        var active:Int = if(value) 0 else 1
+        employeeRepository.deactivateEmployee(employee,active)
     }
 
     fun filterEmployee(filter: String){

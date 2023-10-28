@@ -35,8 +35,8 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         employeeDao.update(employee)
     }
 
-    suspend fun deactivateEmployee(employee: Employee) {
-        employeeDao.updateActive(employee.employeeId)
+    suspend fun deactivateEmployee(employee: Employee,value: Int) {
+        employeeDao.updateActive(employee.employeeId,value)
     }
 
     fun getEmployeeById(id: Int): Flow<Employee> {
