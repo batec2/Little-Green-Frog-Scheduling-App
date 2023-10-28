@@ -49,7 +49,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.maxShifts
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
-import com.example.f23hopper.utils.InvalidDayIcon
+import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
@@ -75,7 +75,7 @@ fun ShiftEditScreen(
         isSpecialDay = viewModel.isSpecialDay(clickedDay)
     }
 
-    var context =
+    val context =
         ShiftContext(
             viewModel,
             shiftsOnDay = groupedShifts,
@@ -107,39 +107,43 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                     // logic for cancel here, currently just goes back.
                     navController.popBackStack()
                 }
-                .size(30.dp),
+                .size(30.dp)
         )
 
-        Spacer(modifier = Modifier.weight(54 / 100f))
-
-        val date = context.date
-
-        // Date
-        Text(
-            text = "${
-                date.month.getDisplayName(
-                    TextStyle.FULL,
-                    Locale.getDefault()
-                )
-            } ${date.dayOfMonth} ${date.year}",
-            style = MaterialTheme.typography.headlineSmall,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.weight(4f)
-        )
-
-        InvalidDayIcon(
-            context.shiftsOnDay,
-            context.date.toJavaLocalDate(),
-            context.isSpecialDay,
+        Box(
             modifier = Modifier
-                .padding(2.dp)
-                .size(30.dp, 30.dp),
-            showDialogueOnClick = true
+                .weight(1f)
+                .align(Alignment.CenterVertically)
+        ) {
+            val date = context.date
 
-        )
+            // Date
+            Text(
+                text = "${
+                    date.month.getDisplayName(
+                        TextStyle.FULL,
+                        Locale.getDefault()
+                    )
+                } ${date.dayOfMonth} ${date.year}",
+                style = MaterialTheme.typography.headlineSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.align(Alignment.Center)
+            )
 
-        Spacer(modifier = Modifier.weight(1f))
+            InvalidDayIcon(
+                context.shiftsOnDay,
+                context.date.toJavaLocalDate(),
+                context.isSpecialDay,
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(30.dp, 30.dp),
+                showDialogueOnClick = true
+            )
+        }
 
+        // empty space to ensure center alignment of the text
+        Spacer(modifier = Modifier.size(30.dp))
     }
 }
 
@@ -169,7 +173,7 @@ private fun LazyListScope.addShiftTypeSection(
     rowCount: Int,
 ) {
     stickyHeader {
-        ShiftTypeHeader(shiftType = shiftType, shiftCount = rowCount, context = context)
+        ShiftTypeHeader(shiftType = shiftType, context = context)
     }
     val shifts = context.shiftsOnDay[shiftType] ?: emptyList()
     for (i in 0 until rowCount) {
@@ -185,7 +189,7 @@ private fun LazyListScope.addShiftTypeSection(
 
 @Composable
 fun EmployeeDropdown(
-    anchor: Modifier,
+    modifier: Modifier,
     employees: List<Employee>,
     onEmployeeSelected: (Employee) -> Unit,
     onDismiss: () -> Unit
@@ -199,7 +203,7 @@ fun EmployeeDropdown(
             expanded = false
             onDismiss()
         },
-        modifier = anchor
+        modifier = modifier
     ) {
         employees.forEach { employee ->
             DropdownMenuItem(
@@ -222,7 +226,7 @@ fun EmployeeDropdown(
 
 
 @Composable
-fun ShiftTypeHeader(shiftType: ShiftType, shiftCount: Int, context: ShiftContext) {
+fun ShiftTypeHeader(shiftType: ShiftType, context: ShiftContext) {
     val shiftLabel = when (shiftType) {
         ShiftType.DAY -> "Day Shift"
         ShiftType.NIGHT -> "Night Shift"
@@ -351,7 +355,7 @@ fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: Loc
 
         if (showDropdown) {
             EmployeeDropdown(
-                anchor = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.BottomCenter),
                 employees = employees,
                 onEmployeeSelected = { employee ->
                     viewModel.addEmployeeToShift(employee, shiftType, date)

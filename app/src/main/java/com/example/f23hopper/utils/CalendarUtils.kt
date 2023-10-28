@@ -22,17 +22,12 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,13 +45,8 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.f23hopper.data.DayValidationError
-import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.getShiftColor
-import com.example.f23hopper.ui.calendar.isWeekday
-import com.example.f23hopper.ui.calendar.maxShifts
-import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberSunny
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
@@ -67,9 +57,7 @@ import com.kizitonwose.calendar.core.Week
 import com.kizitonwose.calendar.core.yearMonth
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.datetime.LocalDate
 import java.lang.ref.WeakReference
-import java.sql.Date
 import java.time.DayOfWeek
 import java.time.Month
 import java.time.YearMonth
@@ -103,119 +91,6 @@ fun ShiftIcon(shiftType: ShiftType) {
 }
 
 
-data class DayValidationResult(
-    val isValid: Boolean,
-    val errors: List<DayValidationError> = emptyList()
-)
-
-fun dateValidation(
-    shifts: Map<ShiftType, List<Shift>>,
-    date: java.time.LocalDate,
-    isSpecialDay: Boolean
-): DayValidationResult {
-    val errors = mutableListOf<DayValidationError>()
-
-    if (shifts.isEmpty()) {
-        errors.add(DayValidationError.NO_SHIFTS)
-    }
-
-    if (date.isWeekday()) {
-        if (shifts[ShiftType.DAY] == null) {
-            errors.add(DayValidationError.MISSING_DAY_SHIFT)
-        }
-        if (shifts[ShiftType.NIGHT] == null) {
-            errors.add(DayValidationError.MISSING_NIGHT_SHIFT)
-        }
-    }
-
-    if (!shifts.all { it.value.size == maxShifts(isSpecialDay) }) {
-        errors.add(DayValidationError.INSUFFICIENT_SHIFTS)
-    }
-
-    shifts[ShiftType.DAY]?.let { dayShifts ->
-        if (dayShifts.none { it.employee.canOpen }) {
-            errors.add(DayValidationError.NO_DAY_OPENER)
-        }
-    }
-
-    shifts[ShiftType.NIGHT]?.let { nightShifts ->
-        if (nightShifts.none { it.employee.canClose }) {
-            errors.add(DayValidationError.NO_NIGHT_CLOSER)
-        }
-    }
-
-    shifts[ShiftType.FULL]?.let { fullShifts ->
-        val canOpenEmployee = fullShifts.find { it.employee.canOpen }
-        val canCloseEmployee = fullShifts.find { it.employee.canClose }
-        val hasBoth = fullShifts.any { it.employee.canOpen && it.employee.canClose }
-        if (!hasBoth && (canOpenEmployee == null || canCloseEmployee == null || canOpenEmployee.employee.employeeId == canCloseEmployee.employee.employeeId)) {
-            errors.add(DayValidationError.NO_FULL_SHIFT_OPENER_CLOSER)
-        }
-    }
-
-    return if (errors.isEmpty()) {
-        DayValidationResult(isValid = true)
-    } else {
-        DayValidationResult(isValid = false, errors = errors)
-    }
-}
-
-
-@Composable
-fun InvalidDayIcon(
-    shifts: Map<ShiftType, List<Shift>>,
-    date: java.time.LocalDate,
-    isSpecialDay: Boolean,
-    modifier: Modifier = Modifier,
-    showDialogueOnClick: Boolean = false
-) {
-    val dayValidation = dateValidation(shifts, date, isSpecialDay)
-    var showDialog by remember { mutableStateOf(false) }
-
-    if (showDialog) {
-        ShowErrorDialog(
-            errors = dayValidation.errors,
-            onDismiss = { showDialog = false }
-        )
-    }
-
-    if (!dayValidation.isValid) {
-        Icon(
-            imageVector = rememberError(),
-            tint = MaterialTheme.colorScheme.error,
-            contentDescription = dayValidation.errors.joinToString(", "),
-            modifier = modifier.then(
-                if (showDialogueOnClick) {
-                    Modifier.clickable(onClick = { showDialog = true })
-                } else {
-                    Modifier
-                }
-            )
-        )
-    }
-}
-
-@Composable
-fun ShowErrorDialog(errors: List<DayValidationError>, onDismiss: () -> Unit) {
-    if (errors.isNotEmpty()) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text(text = "Day Invalid:") },
-            text = {
-                Column {
-                    errors.forEach { error ->
-                        Text(text = "- " + error.displayMessage)
-                    }
-                }
-            },
-            confirmButton = {
-                Button(onClick = onDismiss) {
-                    Text("Close")
-                }
-            }
-        )
-    }
-}
 
 @Composable
 fun ShiftCircles(maxShifts: Int, shiftCount: Int, shiftType: ShiftType) {
@@ -244,17 +119,11 @@ fun ShiftCircles(maxShifts: Int, shiftCount: Int, shiftType: ShiftType) {
     }
 }
 
-fun java.time.LocalDate.toSqlDate(): Date =
-    Date.valueOf(this.toString())
-
-fun Date.toKotlinxLocalDate(): LocalDate =
-    LocalDate.parse(this.toString())
-
-fun java.util.Date.toKotlinxLocalDate(): LocalDate =
-    LocalDate.parse(this.toString())
-
-fun java.time.LocalDate.toKotlinxLocalDate(): LocalDate =
-    LocalDate.parse(this.toString())
+fun DayOfWeek.displayText(uppercase: Boolean = false): String {
+    return getDisplayName(TextStyle.SHORT, Locale.ENGLISH).let { value ->
+        if (uppercase) value.uppercase(Locale.ENGLISH) else value
+    }
+}
 
 @Composable
 fun StatusBarColorUpdateEffect(color: Color) {
@@ -401,11 +270,6 @@ fun Month.displayText(short: Boolean = true): String {
     return getDisplayName(style, Locale.ENGLISH)
 }
 
-fun DayOfWeek.displayText(uppercase: Boolean = false): String {
-    return getDisplayName(TextStyle.SHORT, Locale.ENGLISH).let { value ->
-        if (uppercase) value.uppercase(Locale.ENGLISH) else value
-    }
-}
 
 fun Context.findActivity(): Activity {
     var context = this
@@ -464,5 +328,5 @@ class StatusBarColorLifecycleObserver(
         }
      */
 
-    override fun onDestroy(owner: LifecycleOwner) = activity.clear()
+//    override fun onDestroy(owner: LifecycleOwner) = activity.clear()
 }

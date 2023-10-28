@@ -38,10 +38,13 @@ class ShiftEditViewModel @Inject constructor(
             getShiftsForDay(date)
         ) { allEligible, alreadyScheduled ->
             allEligible.filter { emp ->
-                alreadyScheduled.none { shift -> shift.employee.employeeId == emp.employeeId }
+                alreadyScheduled.none { shift ->
+                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftTypeId == shiftType.ordinal
+                }
             }
         }
     }
+
 
     fun addEmployeeToShift(employee: Employee, shiftType: ShiftType, date: LocalDate) {
         val newSchedule =

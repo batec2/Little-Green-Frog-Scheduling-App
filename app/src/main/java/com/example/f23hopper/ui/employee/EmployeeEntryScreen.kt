@@ -189,23 +189,23 @@ fun EmployeeInfo(
             value = employeeDetails.firstName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
-            errorMessage = "Only letters, spaces, and hyphens are allowed"
+            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
+            errorMessage = "Only letters, spaces, and '-. are allowed"
         ),
         FieldDetail(
             label = "Last Name*",
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
-            errorMessage = "Only letters, spaces, and hyphens are allowed"
+            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
+            errorMessage = "Only letters, spaces, and ('-.) are allowed"
         ),
         FieldDetail(
             label = "Nickname",
             value = employeeDetails.nickname,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(nickname = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z- ]+$")) },
+            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
             errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(

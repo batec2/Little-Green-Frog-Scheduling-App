@@ -10,5 +10,5 @@ data class Shift(
         parentColumn = "employeeId",
         entityColumn = "employeeId"
     )
-    val employee: Employee
+    val employee: Employee,
 )
