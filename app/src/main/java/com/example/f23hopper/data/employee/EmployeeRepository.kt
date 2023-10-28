@@ -11,6 +11,10 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         return employeeDao.getAllEmployees()
     }
 
+    fun getAllActiveEmployees(): Flow<List<Employee>> {
+        return employeeDao.getAllActiveEmployees()
+    }
+
     fun getInactiveEmployees(): Flow<List<Employee>> {
         return employeeDao.getInactiveEmployees()
     }

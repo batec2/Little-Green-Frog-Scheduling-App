@@ -1,9 +1,10 @@
 package com.example.f23hopper.ui.shiftedit
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,9 +23,9 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material3.Divider
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -187,43 +188,6 @@ private fun LazyListScope.addShiftTypeSection(
 }
 
 
-@Composable
-fun EmployeeDropdown(
-    modifier: Modifier,
-    employees: List<Employee>,
-    onEmployeeSelected: (Employee) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var expanded by remember { mutableStateOf(true) }
-    val interactionSource = remember { MutableInteractionSource() }
-
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = {
-            expanded = false
-            onDismiss()
-        },
-        modifier = modifier
-    ) {
-        employees.forEach { employee ->
-            DropdownMenuItem(
-                interactionSource = interactionSource,
-                onClick = {
-                    onEmployeeSelected(employee)
-                    expanded = false
-                },
-
-                text = {
-                    Text(
-                        text = "${employee.firstName} ${employee.lastName}",
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                }
-            )
-        }
-    }
-}
-
 
 @Composable
 fun ShiftTypeHeader(shiftType: ShiftType, context: ShiftContext) {
@@ -309,19 +273,19 @@ fun EmployeeText(shift: Shift) {
         text = "${shift.employee.firstName} ${shift.employee.lastName}",
         style = MaterialTheme.typography.headlineSmall
     )
-    //  Display appropriate canOpen/canClose tags when appropriate
+    //  Display appropriate canOpen/canClose tags
     if (shift.employee.canOpen && shift.schedule.shiftTypeId != ShiftType.NIGHT.ordinal) {
-        CanOpenIcon()
+        CanOpenIcon(text = true)
     }
 
-    if (shift.employee.canClose) {
-        CanCloseIcon()
+    if (shift.employee.canClose && shift.schedule.shiftTypeId != ShiftType.DAY.ordinal) {
+        CanCloseIcon(text = true)
     }
 }
 
 @Composable
 fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: LocalDate) {
-    var showDropdown by remember { mutableStateOf(false) }
+    var showEmployeeList by remember { mutableStateOf(false) }
     val employeesFlow = viewModel.getEligibleEmployeesForShift(date, shiftType)
     val employees by employeesFlow.collectAsState(initial = emptyList())
 
@@ -330,48 +294,104 @@ fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: Loc
             .fillMaxWidth()
             .padding(16.dp)
     ) {
+        Column {
+            Row(
+                modifier = Modifier
+                    .clickable { showEmployeeList = !showEmployeeList }
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AccountBox,
+                    contentDescription = "Shift Icon",
+                    modifier = Modifier.size(30.dp)
+                )
+                Text(
+                    text = "Add Employee",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = Color.LightGray
+                )
+                Icon(
+                    imageVector = if (showEmployeeList) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight,
+                    contentDescription = "Add Employee",
+                    modifier = Modifier.size(30.dp)
+                )
+            }
+
+            // Animate the list moving down
+            AnimatedVisibility(visible = showEmployeeList) {
+                Column(modifier = Modifier.animateContentSize()) {
+                    EmployeeList(
+                        date = date.toJavaLocalDate(),
+                        employees = employees,
+                        shiftType = shiftType,
+                        viewModel = viewModel
+                    ) { employee ->
+                        viewModel.addEmployeeToShift(employee, shiftType, date)
+                        showEmployeeList = false
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EmployeeList(
+    date: java.time.LocalDate,
+    employees: List<Employee>,
+    shiftType: ShiftType,
+    viewModel: ShiftEditViewModel,
+    onEmployeeClick: (Employee) -> Unit,
+) {
+    val shiftsThisWeekMap by viewModel.getShiftCountsForWeek(date)
+        .collectAsState(initial = emptyMap())
+
+    employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
+        val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
+
         Row(
             modifier = Modifier
-                .clickable { showDropdown = !showDropdown }
-                .fillMaxWidth(),
+                .clickable { onEmployeeClick(employee) }
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Icon(
-                imageVector = Icons.Default.AccountBox,
-                contentDescription = "Shift Icon",
-                modifier = Modifier.size(30.dp)
-            )
-            Text(
-                text = "Add Employee",
-                style = MaterialTheme.typography.headlineSmall,
-                color = Color.LightGray
-            )
+            Column(
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.Start
+            ) {
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+
+                    Text(
+                        text = "${employee.firstName} ${employee.lastName} - Shifts: $shiftsThisWeek ",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    if (employee.canOpen && shiftType != ShiftType.NIGHT) {
+                        CanOpenIcon()
+                    }
+
+                    if (employee.canClose && shiftType != ShiftType.DAY) {
+                        CanCloseIcon()
+                    }
+                }
+            }
+
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = "Add Employee",
-                modifier = Modifier.size(30.dp)
-            )
-        }
-
-        if (showDropdown) {
-            EmployeeDropdown(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                employees = employees,
-                onEmployeeSelected = { employee ->
-                    viewModel.addEmployeeToShift(employee, shiftType, date)
-                    showDropdown = false
-                },
-                onDismiss = {
-                    showDropdown = false
-                }
+                contentDescription = "Add ${employee.firstName} ${employee.lastName}",
+                modifier = Modifier.size(24.dp)
             )
         }
     }
 }
 
-
 @Composable
-fun CanOpenIcon() {
+fun CanOpenIcon(text: Boolean = false) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -382,17 +402,19 @@ fun CanOpenIcon() {
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
-        Text(
-            text = "Can Open",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        if (text) {
+            Text(
+                text = "Can Open",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                )
             )
-        )
+        }
     }
 }
 
 @Composable
-fun CanCloseIcon() {
+fun CanCloseIcon(text: Boolean = false) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(4.dp)
@@ -403,12 +425,14 @@ fun CanCloseIcon() {
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
-        Text(
-            text = "Can Close",
-            style = MaterialTheme.typography.bodyMedium.copy(
-                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+        if (text) {
+            Text(
+                text = "Can Close",
+                style = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
+                )
             )
-        )
+        }
     }
 }
 

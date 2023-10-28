@@ -9,12 +9,16 @@ import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import java.time.DayOfWeek
+import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,6 +35,24 @@ class ShiftEditViewModel @Inject constructor(
         return specialDayRepo.isDateInTable(date.toSqlDate())
     }
 
+
+    private fun getWeekRangeForDate(date: java.time.LocalDate): Pair<java.time.LocalDate, java.time.LocalDate> {
+        val startOfWeek = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY))
+        val endOfWeek = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
+        return Pair(startOfWeek, endOfWeek)
+    }
+
+    fun getShiftCountsForWeek(dateInWeek: java.time.LocalDate): Flow<Map<Long, Int>> {
+        val (startOfWeek, endOfWeek) = getWeekRangeForDate(dateInWeek)
+        return scheduleRepo.getActiveShiftsByDateRange(
+            startOfWeek.toSqlDate(),
+            endOfWeek.toSqlDate()
+        )
+            .map { shifts ->
+                shifts.groupBy { it.employee.employeeId }
+                    .mapValues { (_, shifts) -> shifts.size }
+            }
+    }
 
     fun getEligibleEmployeesForShift(date: LocalDate, shiftType: ShiftType): Flow<List<Employee>> {
         return combine(

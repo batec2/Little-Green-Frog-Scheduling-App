@@ -13,7 +13,7 @@ import javax.inject.Inject
 class EmployeeListViewModel @Inject constructor (
     private val employeeRepository: EmployeeRepository
 ) : ViewModel() {
-    var employees by mutableStateOf( employeeRepository.getAllEmployees().asLiveData() )
+    var employees by mutableStateOf(employeeRepository.getAllActiveEmployees().asLiveData())
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
@@ -32,12 +32,12 @@ class EmployeeListViewModel @Inject constructor (
 
     fun filterEmployee(filter: String){
         employees = when(filter) {
-            "All Employees" -> employeeRepository.getAllEmployees().asLiveData()
+            "All Employees" -> employeeRepository.getAllActiveEmployees().asLiveData()
             "Can Open" -> employeeRepository.getCanOpen().asLiveData()
             "Can Close" -> employeeRepository.getCanClose().asLiveData()
             "Can Work Weekend" -> employeeRepository.getCanWorkWeekends().asLiveData()
             "Inactive" -> employeeRepository.getInactiveEmployees().asLiveData()
-            else -> employeeRepository.getAllEmployees().asLiveData()
+            else -> employeeRepository.getAllActiveEmployees().asLiveData()
         }
     }
 
