@@ -1,5 +1,8 @@
+@file:OptIn(ExperimentalFoundationApi::class)
+
 package com.example.f23hopper.ui.calendar
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,6 +20,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
@@ -62,6 +66,7 @@ import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
@@ -165,17 +170,32 @@ fun Calendar(
             },
         )
 //        Divider(color = itemBackgroundColor)
-        if (selection != null) {  // Conditionally render based on selection
-            Divider(color = itemBackgroundColor)
-            val isSpecialDay = specialDaysByDay[selection?.date!!] != null
-            ShiftDetailsForDay(
-                shiftsOnSelectedDate,
-                selection?.date!!,
-                isSpecialDay = isSpecialDay,
-                navigateToShiftView
-            )
+        if(selection != null){
+            HorizontalPager(pageCount = 2) {page->
+                if(page==0){
+                    Divider(color = itemBackgroundColor)
+                    val isSpecialDay = specialDaysByDay[selection?.date!!] != null
+                    ShiftDetailsForDay(
+                        shiftsOnSelectedDate,
+                        selection?.date!!,
+                        isSpecialDay = isSpecialDay,
+                        navigateToShiftView
+                    )
+                }
+                else{
+                    Row (
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
 
+                    ){
+                        Text(text = "PUT STUFF HERE")
+                    }
+                }
+            }
         }
+
+
     }
 }
 
@@ -355,29 +375,28 @@ fun ShiftContent(
 
         // Build 2 rows if weekday, 1 row if weekend
         if (date.isWeekday()) {
-
-            ShiftRow(
-                shiftType = ShiftType.DAY,
-                shiftsForType = shifts[ShiftType.DAY].orEmpty(),
-                date = date,
-                navigateToShiftView = navigateToShiftView,
-                modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
-                maxShifts = maxShifts(isSpecialDay)
-            )
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.outline)
-            )
-            ShiftRow(
-                shiftType = ShiftType.NIGHT,
-                shiftsForType = shifts[ShiftType.NIGHT].orEmpty(),
-                date = date,
-                navigateToShiftView = navigateToShiftView,
-                modifier = Modifier.weight(1f / maxShiftRows(date)),
-                maxShifts = maxShifts(isSpecialDay)
-            )
+                ShiftRow(
+                    shiftType = ShiftType.DAY,
+                    shiftsForType = shifts[ShiftType.DAY].orEmpty(),
+                    date = date,
+                    navigateToShiftView = navigateToShiftView,
+                    modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
+                    maxShifts = maxShifts(isSpecialDay)
+                )
+                Spacer(
+                    modifier = Modifier
+                        .height(1.dp)
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.outline)
+                )
+                ShiftRow(
+                    shiftType = ShiftType.NIGHT,
+                    shiftsForType = shifts[ShiftType.NIGHT].orEmpty(),
+                    date = date,
+                    navigateToShiftView = navigateToShiftView,
+                    modifier = Modifier.weight(1f / maxShiftRows(date)),
+                    maxShifts = maxShifts(isSpecialDay)
+                )
         } else {
             ShiftRow(
                 shiftType = ShiftType.FULL,
@@ -389,8 +408,8 @@ fun ShiftContent(
             )
 
         }
-
     }
+
 }
 
 
