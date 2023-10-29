@@ -2,7 +2,6 @@
 
 package com.example.f23hopper.ui.calendar
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -540,11 +539,3 @@ fun LocalDate.isWeekday() =
 
 fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
 fun maxShiftRows(date: LocalDate) = if (date.isWeekday()) 2 else 1
-
-
-// Move shifts into a different class
-// Communication between Calendar Screen and new class
-
-
-
-
