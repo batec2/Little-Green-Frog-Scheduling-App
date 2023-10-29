@@ -270,7 +270,7 @@ fun FilledShiftRow(
 @Composable
 fun EmployeeText(shift: Shift) {
     Text(
-        text = "${shift.employee.firstName} ${shift.employee.lastName}",
+        text = getEmployeeDisplayNameLong(shift.employee),
         style = MaterialTheme.typography.headlineSmall
     )
     //  Display appropriate canOpen/canClose tags
@@ -336,6 +336,26 @@ fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: Loc
     }
 }
 
+
+fun getEmployeeDisplayNameLong(employee: Employee): String {
+    val displayName = employee.nickname.ifEmpty {
+        "${employee.firstName} ${employee.lastName}"
+    }
+    val truncatedName = if (displayName.length > 20) {
+        "${displayName.take(20)}..."
+    } else {
+        displayName
+    }
+    return truncatedName
+}
+
+fun getEmployeeDisplayNameShort(employee: Employee): String {
+    val displayName = employee.nickname.ifEmpty {
+        "${employee.firstName.take(1)} ${employee.lastName}"
+    }
+    return displayName
+}
+
 @Composable
 fun EmployeeList(
     date: java.time.LocalDate,
@@ -349,9 +369,7 @@ fun EmployeeList(
 
     employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
         val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
-        val displayName = employee.nickname.ifEmpty {
-            "${employee.firstName.take(3)} ${employee.lastName}"
-        }
+        val displayName = getEmployeeDisplayNameLong(employee)
 
         Row(
             modifier = Modifier
