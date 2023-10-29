@@ -149,7 +149,7 @@ fun Calendar(
                     state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                 }
             },
-            onExportClick = {} // TODO: Logic for export/csv library
+            onExportClick = { viewModel.formatShiftsToCsv(shifts, currentMonth) }
         )
         HorizontalCalendar(
             modifier = Modifier.wrapContentWidth(),
