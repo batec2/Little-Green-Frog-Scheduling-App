@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
+import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.sql.Date
 import java.time.LocalDate
+import java.time.YearMonth
 import javax.inject.Inject
 
 @HiltViewModel
@@ -67,4 +70,22 @@ class CalendarViewModel @Inject constructor(
             .flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
+
+    fun formatShiftsToCsv(shifts: List<Shift>, curMonth: YearMonth): String {
+        val header = "Date,Shift Type,Employee Name\n"
+        val filteredShifts = shifts.filter { shift ->
+            val scheduleDate = shift.schedule.date.toKotlinxLocalDate()
+            scheduleDate.year == curMonth.year && scheduleDate.month == curMonth.month
+        }
+        val rows = filteredShifts.groupBy { it.schedule.date }
+            .toList()
+            .sortedBy { it.first }
+            .joinToString("\n") { (_, groupedShifts) ->
+                groupedShifts.joinToString("\n") { shift ->
+                    "${shift.schedule.date},${ShiftType.values()[shift.schedule.shiftTypeId]},${shift.employee.firstName} ${shift.employee.lastName}"
+                }
+            }
+        return header + rows
+    }
+
 }

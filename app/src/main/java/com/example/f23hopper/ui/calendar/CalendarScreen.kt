@@ -2,6 +2,7 @@
 
 package com.example.f23hopper.ui.calendar
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -149,7 +150,7 @@ fun Calendar(
                     state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
                 }
             },
-            onExportClick = {} // TODO: Logic for export/csv library
+            onExportClick = { viewModel.formatShiftsToCsv(shifts, currentMonth) }
         )
         HorizontalCalendar(
             modifier = Modifier.wrapContentWidth(),
@@ -539,3 +540,11 @@ fun LocalDate.isWeekday() =
 
 fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
 fun maxShiftRows(date: LocalDate) = if (date.isWeekday()) 2 else 1
+
+
+// Move shifts into a different class
+// Communication between Calendar Screen and new class
+
+
+
+
