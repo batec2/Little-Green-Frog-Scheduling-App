@@ -37,7 +37,9 @@ import com.example.f23hopper.ui.components.BottomNavigationBar
 import com.example.f23hopper.ui.nav.AppNavHost
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
@@ -50,6 +52,11 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        GlobalScope.launch {
+            // NOTE: This will wipe the DB and then populate it with dummy fields.
+            // Remove this in PROD
+            activateDemoDatabase(db)
+        }
         setContent {
             F23HopperTheme {
                 SplashScreenTransition()
