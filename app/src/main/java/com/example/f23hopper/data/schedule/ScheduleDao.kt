@@ -69,6 +69,9 @@ interface ScheduleDao {
     )
     fun getShiftByDate(date: Date): Flow<List<Shift>>
 
+    @Query(" SELECT * FROM schedules WHERE schedules.date = :date AND employeeId = :employeeId")
+    fun getSchedulesByEmployee(date: Date, employeeId: Int): Flow<List<Schedule>>
+
     @Query(" SELECT * FROM schedules WHERE schedules.date = :date")
     fun getSchedulesByDate(date: Date): Flow<List<Schedule>>
 
