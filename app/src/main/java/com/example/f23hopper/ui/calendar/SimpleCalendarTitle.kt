@@ -62,9 +62,10 @@ fun SimpleCalendarTitle(
             )
             IconButton(
                 onClick = onExportClick,
+                modifier = Modifier.align(Alignment.CenterEnd)
             ) {
                 Icon(
-                    painter = rememberVectorPainter(image = Icons.Filled.Share),
+                    Icons.Filled.Share,
                     contentDescription = "Export to CSV"
                 )
             }
