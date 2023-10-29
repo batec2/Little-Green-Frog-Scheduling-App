@@ -79,6 +79,20 @@ fun SplashScreenTransition() {
 
 @Composable
 fun FullScreenSplash() {
+
+    val systemUiController = rememberSystemUiController()
+    val isDarkTheme = isSystemInDarkTheme()
+    val colorScheme = MaterialTheme.colorScheme
+    SideEffect {
+        systemUiController.setNavigationBarColor(
+            color = colorScheme.surface,
+            darkIcons = !isDarkTheme
+        )
+        systemUiController.setSystemBarsColor(
+            color = colorScheme.surface,
+            darkIcons = !isDarkTheme
+        )
+    }
     Box(
         modifier = Modifier
             .fillMaxSize()
