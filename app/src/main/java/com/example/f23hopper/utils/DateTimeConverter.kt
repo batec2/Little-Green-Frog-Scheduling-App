@@ -20,6 +20,9 @@ class DateTypeConverter {
 
 }
 
+fun java.time.LocalDate.isWeekday() =
+    !(this.dayOfWeek == DayOfWeek.SATURDAY || this.dayOfWeek == DayOfWeek.SUNDAY)
+
 fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
 
 fun LocalDate.isWeekday(): Boolean =

@@ -48,13 +48,13 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.ui.calendar.maxShifts
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
+import com.example.f23hopper.utils.maxShifts
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate

@@ -25,9 +25,9 @@ import androidx.compose.ui.unit.sp
 import com.example.f23hopper.data.DayValidationError
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.ui.calendar.isWeekday
-import com.example.f23hopper.ui.calendar.maxShifts
 import com.example.f23hopper.ui.icons.rememberError
+import com.example.f23hopper.utils.isWeekday
+import com.example.f23hopper.utils.maxShifts
 
 data class DayValidationResult(
     val isValid: Boolean,
