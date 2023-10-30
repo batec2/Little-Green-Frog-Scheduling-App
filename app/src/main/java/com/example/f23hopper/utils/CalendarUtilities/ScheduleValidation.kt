@@ -285,7 +285,7 @@ fun AbsentEmployeeIcon(
         Icon(
             imageVector = rememberError(),
             tint = MaterialTheme.colorScheme.error,
-            contentDescription = "Employees absent for the month",
+            contentDescription = "Employees Needing Shifts",
             modifier = modifier
                 .padding(start = 10.dp)
                 .then(
@@ -307,7 +307,7 @@ fun ShowEmployeeAbsenceDialog(
     if (absentEmployees.isNotEmpty()) {
         AlertDialog(
             onDismissRequest = onDismiss,
-            title = { Text(text = "Absent Employees:") },
+            title = { Text(text = "Missing Shifts:") },
             text = {
                 Box(modifier = Modifier.padding(0.dp)) {
                     AbsentEmployeePager(
