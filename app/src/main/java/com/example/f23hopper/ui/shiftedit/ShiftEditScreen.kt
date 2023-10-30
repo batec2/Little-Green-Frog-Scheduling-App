@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.shiftedit
 
+import InvalidDayIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -50,7 +51,6 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
-import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday

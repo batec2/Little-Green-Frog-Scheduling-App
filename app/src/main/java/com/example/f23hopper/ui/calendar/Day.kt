@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.calendar
 
+import InvalidDayIcon
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,7 +25,6 @@ import androidx.compose.ui.unit.sp
 import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 

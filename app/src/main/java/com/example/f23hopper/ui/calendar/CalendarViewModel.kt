@@ -2,6 +2,8 @@ package com.example.f23hopper.ui.calendar
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -25,16 +27,18 @@ import javax.inject.Inject
 @HiltViewModel
 class CalendarViewModel @Inject constructor(
     private val scheduleRepo: ScheduleRepository,
+    private val employeeRepository: EmployeeRepository,
     private val specialDayRepo: SpecialDayRepository
 ) : ViewModel() {
-
 
 
     private val startDate: Date = getStartDate()
     private val endDate: Date = getEndDate()
 
-    val parsedShifts: StateFlow<List<Shift>> by lazy { parseShifts(fetchRawShifts()) }
-    val parsedDays: StateFlow<List<SpecialDay>> by lazy { parseSpecialDays(fetchRawSpecialDays()) }
+    val shifts: StateFlow<List<Shift>> by lazy { parseShifts(fetchRawShifts()) }
+    val employees: StateFlow<List<Employee>> by lazy { parseEmployees(fetchAllEmployees()) }
+    val days: StateFlow<List<SpecialDay>> by lazy { parseSpecialDays(fetchRawSpecialDays()) }
+
 
     private fun getStartDate(): Date {
         val currentDate = LocalDate.now()
@@ -60,6 +64,19 @@ class CalendarViewModel @Inject constructor(
 
     private fun fetchRawSpecialDays(): Flow<List<SpecialDay>> {
         return specialDayRepo.getSpecialDays()
+    }
+
+    private fun fetchAllEmployees(): Flow<List<Employee>> {
+        return employeeRepository.getAllEmployees()
+    }
+
+    private fun parseEmployees(
+        rawEmployees: Flow<List<Employee>>
+    ): StateFlow<List<Employee>> {
+        return rawEmployees
+            .map { employees -> employees.sortedBy { it.lastName } }
+            .flowOn(Dispatchers.Default)
+            .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
     private fun parseSpecialDays(

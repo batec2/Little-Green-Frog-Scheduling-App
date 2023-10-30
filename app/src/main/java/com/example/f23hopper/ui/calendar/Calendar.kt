@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
@@ -32,6 +33,7 @@ import java.time.ZoneId
 @Composable
 fun Calendar(
     shifts: List<Shift>,
+    employees: List<Employee>,
     specialDays: List<SpecialDay>,
     navigateToShiftView: (String) -> Unit,
     viewModel: CalendarViewModel,
@@ -40,19 +42,20 @@ fun Calendar(
 ) {
     val context = LocalContext.current
     val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(100) }
-    val endMonth = remember { currentMonth.plusMonths(100) }
-
-    val shiftsOnSelectedDate = if (selection?.date != null) {
-        shifts.filter { it.schedule.date.toString() == selection.date.toString() }
-            .groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
-    } else emptyMap()
+    val startMonth = remember { currentMonth.minusMonths(10) }
+    val endMonth = remember { currentMonth.plusMonths(10) }
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
+
+    val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
+        shiftsByDay[selectedDate]?.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+    } ?: emptyMap()
+
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+
     StatusBarColorUpdateEffect(toolbarColor)
 
     Column(
@@ -70,7 +73,10 @@ fun Calendar(
         val coroutineScope = rememberCoroutineScope()
         val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
 
+
         CalendarTitle(
+            employees = employees,
+            shifts = shifts,
             modifier = Modifier
                 .background(toolbarColor)
                 .padding(horizontal = 8.dp, vertical = 0.dp),
@@ -81,12 +87,10 @@ fun Calendar(
                 }
             },
             goToNext = {
-                coroutineScope.launch {
-                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth)
-                }
+                coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth) }
             },
             onExportClick = {
-//                viewModel.shareCsv(context, shifts, visibleMonth.yearMonth)
+//                           Log.d("emps:",viewModel.EmpsAsStrings()) */
             }
         )
 
@@ -110,22 +114,6 @@ fun Calendar(
     }
 }
 
-@Composable
-fun CalendarTitle(
-    modifier: Modifier = Modifier,
-    currentMonth: YearMonth,
-    goToPrevious: () -> Unit,
-    goToNext: () -> Unit,
-    onExportClick: () -> Unit
-) {
-    SimpleCalendarTitle(
-        modifier = modifier,
-        currentMonth = currentMonth,
-        goToPrevious = goToPrevious,
-        goToNext = goToNext,
-        onExportClick = onExportClick
-    )
-}
 
 @Composable
 fun CalendarBody(

@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.calendar
 
+import AbsentEmployeeIcon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -27,13 +28,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.utils.displayText
 import java.time.YearMonth
 
 @Composable
-fun SimpleCalendarTitle(
+fun CalendarTitle(
     modifier: Modifier,
     currentMonth: YearMonth,
+    shifts: List<Shift> = emptyList(),
+    employees: List<Employee> = emptyList(),
     goToPrevious: () -> Unit,
     goToNext: () -> Unit,
     onExportClick: () -> Unit
@@ -47,11 +52,11 @@ fun SimpleCalendarTitle(
             contentDescription = "Previous",
             onClick = goToPrevious,
         )
-        // TODO: Fix weird icon behaviour; ensure title is centered
         Box(
             modifier = Modifier
                 .weight(1f)
         ) {
+            AbsentEmployeeIcon(shifts = shifts, month = currentMonth, allEmployees = employees)
             Text(
                 text = currentMonth.displayText(),
                 fontSize = 22.sp,
