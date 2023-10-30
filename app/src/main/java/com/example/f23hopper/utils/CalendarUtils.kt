@@ -59,6 +59,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import java.lang.ref.WeakReference
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.Month
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -124,6 +125,9 @@ fun DayOfWeek.displayText(uppercase: Boolean = false): String {
         if (uppercase) value.uppercase(Locale.ENGLISH) else value
     }
 }
+
+fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
+fun maxShiftRows(date: LocalDate) = if (date.isWeekday()) 2 else 1
 
 @Composable
 fun StatusBarColorUpdateEffect(color: Color) {
