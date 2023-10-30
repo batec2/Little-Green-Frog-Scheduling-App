@@ -13,7 +13,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
-import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -50,7 +49,7 @@ fun Calendar(
 
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
-        shiftsByDay[selectedDate]?.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+        shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
     } ?: emptyMap()
 
     val specialDaysByDay =
@@ -132,7 +131,7 @@ fun CalendarBody(
             val isSpecialDay = specialDaysByDay[day.date] != null
             val context = DayContext(
                 viewModel = viewModel, day = day,
-                shiftsOnDay = shiftsByDay[day.date]?.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+                shiftsOnDay = shiftsByDay[day.date]?.groupBy { it.schedule.shiftType }
                     .orEmpty(),
                 isSpecialDay = isSpecialDay,
                 isSelected = selection == day

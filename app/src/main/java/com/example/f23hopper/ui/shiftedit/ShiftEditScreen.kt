@@ -70,7 +70,7 @@ fun ShiftEditScreen(
 ) {
     val shiftsFlow: Flow<List<Shift>> = viewModel.getShiftsForDay(clickedDay)
     val shifts by shiftsFlow.collectAsState(initial = emptyList())
-    val groupedShifts = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+    val groupedShifts = shifts.groupBy { it.schedule.shiftType }
 
     var isSpecialDay by remember { mutableStateOf(false) } // check the table to be sure
     LaunchedEffect(clickedDay) {
@@ -274,11 +274,11 @@ fun EmployeeText(shift: Shift) {
         style = MaterialTheme.typography.headlineSmall
     )
     //  Display appropriate canOpen/canClose tags
-    if (shift.employee.canOpen && shift.schedule.shiftTypeId != ShiftType.NIGHT.ordinal) {
+    if (shift.employee.canOpen && shift.schedule.shiftType != ShiftType.NIGHT) {
         CanOpenIcon(text = true)
     }
 
-    if (shift.employee.canClose && shift.schedule.shiftTypeId != ShiftType.DAY.ordinal) {
+    if (shift.employee.canClose && shift.schedule.shiftType != ShiftType.DAY) {
         CanCloseIcon(text = true)
     }
 }

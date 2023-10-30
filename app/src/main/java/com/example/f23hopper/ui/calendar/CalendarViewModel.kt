@@ -6,7 +6,6 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
-import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
@@ -57,7 +56,7 @@ class CalendarViewModel @Inject constructor(
 
     private fun parseShifts(rawShifts: Flow<List<Shift>>): StateFlow<List<Shift>> {
         return rawShifts
-            .map { shifts -> shifts.sortedBy { it.schedule.shiftTypeId } }
+            .map { shifts -> shifts.sortedBy { it.schedule.shiftType } }
             .flowOn(Dispatchers.Default)
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
@@ -99,7 +98,7 @@ class CalendarViewModel @Inject constructor(
             .sortedBy { it.first }
             .joinToString("\n") { (_, groupedShifts) ->
                 groupedShifts.joinToString("\n") { shift ->
-                    "${shift.schedule.date},${ShiftType.values()[shift.schedule.shiftTypeId]},${shift.employee.firstName} ${shift.employee.lastName}"
+                    "${shift.schedule.date},${shift.schedule.shiftType},${shift.employee.firstName} ${shift.employee.lastName}"
                 }
             }
         return header + rows
