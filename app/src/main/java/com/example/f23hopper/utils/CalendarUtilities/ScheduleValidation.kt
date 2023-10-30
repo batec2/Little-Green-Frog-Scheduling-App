@@ -209,30 +209,6 @@ fun ShowErrorDialog(errors: List<DayValidationError>, onDismiss: () -> Unit) {
     }
 }
 
-fun getWeekOfMonth(startDay: Int, month: YearMonth): WeekOfMonth {
-    val firstDayOfWeek = month.atDay(1).dayOfWeek.value
-    val weekNumber =
-        if (firstDayOfWeek == 7 && startDay <= 7) {  // If the month starts on Sunday and we're looking at the first week
-            1
-        } else if (firstDayOfWeek == 7) {
-            (startDay + 6) / 7
-        } else {
-            (startDay + firstDayOfWeek - 2) / 7 + 1
-        }
-
-    return when (weekNumber) {
-        1 -> WeekOfMonth.WEEK1
-        2 -> WeekOfMonth.WEEK2
-        3 -> WeekOfMonth.WEEK3
-        4 -> WeekOfMonth.WEEK4
-        else -> WeekOfMonth.WEEK5
-    }
-}
-
-enum class WeekOfMonth {
-    WEEK1, WEEK2, WEEK3, WEEK4, WEEK5
-}
-
 
 fun validateMonthForEmployeeAbsence(
     shifts: List<Shift>,
