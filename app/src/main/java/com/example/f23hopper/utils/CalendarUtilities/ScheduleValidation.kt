@@ -38,8 +38,10 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
+import com.example.f23hopper.utils.CalendarUtilities.toShortMonthAndDay
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShifts
+import java.time.LocalDate
 import java.time.YearMonth
 
 data class DayValidationResult(
@@ -231,75 +233,58 @@ enum class WeekOfMonth {
     WEEK1, WEEK2, WEEK3, WEEK4, WEEK5
 }
 
-fun validateEmployeesForWeek(
-    shifts: List<Shift>,
-    startDay: Int,
-    endDay: Int,
-    allEmployees: List<Employee>,
-    month: YearMonth
-): Map<WeekOfMonth, List<Employee>> {
-    val absentEmployees = allEmployees.toMutableList()
-
-    // Determine starting and ending months (in case a week crosses over both)
-    val startDayMonth = if (startDay < 1) month.minusMonths(1) else month
-    val endDayMonth = if (endDay > month.lengthOfMonth()) month.plusMonths(1) else month
-    val startDate =
-        startDayMonth.atDay(if (startDay < 1) month.lengthOfMonth() + startDay else startDay)
-    val endDate =
-        endDayMonth.atDay(if (endDay > month.lengthOfMonth()) endDay - month.lengthOfMonth() else endDay)
-
-    // Filter shifts and by week, then remove employees present in the week, leaving absent employees
-    shifts.filter { it.schedule.date.toJavaLocalDate() in startDate..endDate }
-        .forEach { shift ->
-            absentEmployees.remove(shift.employee)
-        }
-
-    val weekOfMonth = getWeekOfMonth(startDay, month)
-
-    return mapOf(weekOfMonth to absentEmployees)
-}
-
 
 fun validateMonthForEmployeeAbsence(
     shifts: List<Shift>,
     month: YearMonth,
     allEmployees: List<Employee>
-): Map<WeekOfMonth, List<Employee>> {
-    val result = mutableMapOf<WeekOfMonth, List<Employee>>()
+): Map<LocalDate, List<Employee>> {
+    val result = mutableMapOf<LocalDate, List<Employee>>()
 
-    // determine the day of the week for the first day of the month.
-    // e.g. if the month starts on a Wednesday, `firstDayOfWeek` would be 3.
-    // Monday = 1, Tuesday = 2, ..., Sunday = 7.
-    val firstDayOfWeek = month.atDay(1).dayOfWeek.value
+    // convert the start day to LocalDate
+    val firstDateOfMonth = month.atDay(1)
+    val firstDayOfWeek = firstDateOfMonth.dayOfWeek.value
 
-    // calculate the start day of the first week based on the first day of the month.
-    // modulo operation makes it so Sunday is treated as day 0.
-    // e.g.: if the month starts on a Tuesday (2), `startDay` will be -1.
-    // this means the first week starts 2 days  before the month starts (previous Sunday).
-    // (day -1..day 0..day 1 (start of month) )
-    var startDay = 1 - (firstDayOfWeek % 7)
+    // calculate the start date of the first week based on the first day of the month.
+    // if the first day is a Sunday, start on that day, otherwise go back to the previous Sunday.
+    var startDate = firstDateOfMonth.minusDays((firstDayOfWeek % 7).toLong())
 
     // keep iterating until we cover all days of the month.
-    while (startDay <= month.lengthOfMonth()) {
-        // calc the end day for the current week being processed.
-        val endDay = startDay + 6
+    while (startDate.isBefore(month.atEndOfMonth().plusDays(1))) {
+        val endDate = startDate.plusDays(6)
 
         // validate employees for the current week and add the result to the map.
         result.putAll(
             validateEmployeesForWeek(
                 shifts,
-                startDay,
-                endDay,
-                allEmployees,
-                month = month
+                startDate,
+                endDate,
+                allEmployees
             )
         )
 
-        // Move to the next week.
-        startDay += 7
+        // move to the next week.
+        startDate = startDate.plusDays(7)
     }
 
     return result
+}
+
+fun validateEmployeesForWeek(
+    shifts: List<Shift>,
+    startDate: LocalDate,
+    endDate: LocalDate,
+    allEmployees: List<Employee>
+): Map<LocalDate, List<Employee>> {
+    val absentEmployees = allEmployees.toMutableList()
+
+    // filter shifts by week, then remove employees present in the week, leaving absent employees
+    shifts.filter { it.schedule.date.toJavaLocalDate() in startDate..endDate }
+        .forEach { shift ->
+            absentEmployees.remove(shift.employee)
+        }
+
+    return mapOf(startDate to absentEmployees)
 }
 
 @Composable
@@ -340,7 +325,7 @@ fun AbsentEmployeeIcon(
 
 @Composable
 fun ShowEmployeeAbsenceDialog(
-    absentEmployees: Map<WeekOfMonth, List<Employee>>,
+    absentEmployees: Map<LocalDate, List<Employee>>,
     onDismiss: () -> Unit
 ) {
     if (absentEmployees.isNotEmpty()) {
@@ -371,7 +356,7 @@ fun ShowEmployeeAbsenceDialog(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun AbsentEmployeePager(
-    absentEmployees: Map<WeekOfMonth, List<Employee>>
+    absentEmployees: Map<LocalDate, List<Employee>>
 ) {
     // no need to show weeks with absent employees
     val filteredAbsentEmployees = absentEmployees.filterValues { it.isNotEmpty() }
@@ -384,13 +369,18 @@ fun AbsentEmployeePager(
     val pagerState = rememberPagerState(initialPage = 0)
     Column(modifier = Modifier.height(estimatedHeight)) {
 
-        HorizontalPager(pageCount = filteredAbsentEmployees.size, state = pagerState) { page ->
-            val week = filteredAbsentEmployees.keys.toList()[page]
-            val employeesForWeek = filteredAbsentEmployees[week]
+        HorizontalPager(pageCount = absentEmployees.size, state = pagerState) { page ->
+            val weekStartDate = absentEmployees.keys.sorted()[page]
+            val weekEndDate = weekStartDate.plusDays(6)
+
+            val displayText =
+                "${weekStartDate.toShortMonthAndDay()} - ${weekEndDate.toShortMonthAndDay()}"
+
+            val employeesForWeek = absentEmployees[weekStartDate]
 
             Column(modifier = Modifier.padding(4.dp), verticalArrangement = Arrangement.Top) {
                 Text(
-                    text = "$week:",
+                    text = displayText,
                     fontWeight = FontWeight.Bold,
                     fontSize = 20.sp,
                     modifier = Modifier.align(CenterHorizontally)
