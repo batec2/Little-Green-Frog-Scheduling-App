@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.shiftedit
 
+import InvalidDayIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -50,7 +51,6 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
-import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
@@ -70,7 +70,7 @@ fun ShiftEditScreen(
 ) {
     val shiftsFlow: Flow<List<Shift>> = viewModel.getShiftsForDay(clickedDay)
     val shifts by shiftsFlow.collectAsState(initial = emptyList())
-    val groupedShifts = shifts.groupBy { ShiftType.values()[it.schedule.shiftTypeId] }
+    val groupedShifts = shifts.groupBy { it.schedule.shiftType }
 
     var isSpecialDay by remember { mutableStateOf(false) } // check the table to be sure
     LaunchedEffect(clickedDay) {
@@ -274,11 +274,11 @@ fun EmployeeText(shift: Shift) {
         style = MaterialTheme.typography.headlineSmall
     )
     //  Display appropriate canOpen/canClose tags
-    if (shift.employee.canOpen && shift.schedule.shiftTypeId != ShiftType.NIGHT.ordinal) {
+    if (shift.employee.canOpen && shift.schedule.shiftType != ShiftType.NIGHT) {
         CanOpenIcon(text = true)
     }
 
-    if (shift.employee.canClose && shift.schedule.shiftTypeId != ShiftType.DAY.ordinal) {
+    if (shift.employee.canClose && shift.schedule.shiftType != ShiftType.DAY) {
         CanCloseIcon(text = true)
     }
 }

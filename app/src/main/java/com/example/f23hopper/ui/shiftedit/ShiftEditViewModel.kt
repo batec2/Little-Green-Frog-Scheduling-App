@@ -61,7 +61,7 @@ class ShiftEditViewModel @Inject constructor(
         ) { allEligible, alreadyScheduled ->
             allEligible.filter { emp ->
                 alreadyScheduled.none { shift ->
-                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftTypeId == shiftType.ordinal
+                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftType == shiftType
                 }
             }
         }
@@ -72,7 +72,7 @@ class ShiftEditViewModel @Inject constructor(
         val newSchedule =
             Schedule(
                 date = date.toSqlDate(),
-                shiftTypeId = shiftType.ordinal,
+                shiftType = shiftType,
                 employeeId = employee.employeeId
             )
         viewModelScope.launch {

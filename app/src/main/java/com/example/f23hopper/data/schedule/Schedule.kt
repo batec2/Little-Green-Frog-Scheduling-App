@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.shifttype.ShiftType
 import java.sql.Date
 
 @Entity(
@@ -22,5 +23,5 @@ data class Schedule(
     val id: Long = 0,
     val date: Date,
     val employeeId: Long,
-    val shiftTypeId: Int
+    val shiftType: ShiftType
 )

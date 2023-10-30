@@ -33,12 +33,18 @@ fun CalendarScreen(navigateToShiftView: (String) -> Unit) {
     var selection by rememberSaveable { mutableStateOf<CalendarDay?>(null) }
 
     val viewModel = hiltViewModel<CalendarViewModel>()
-    val shifts by viewModel.parsedShifts.collectAsState(initial = emptyList())
-    val specialDays by viewModel.parsedDays.collectAsState(initial = emptyList())
+    val shifts by viewModel.shifts.collectAsState(initial = emptyList())
+    val employees by viewModel.employees.collectAsState(initial = emptyList())
+    val specialDays by viewModel.days.collectAsState(initial = emptyList())
 
-    Calendar(shifts, specialDays, navigateToShiftView, viewModel, selection) {
-        selection = it
-    }
+    Calendar(
+        shifts = shifts,
+        employees = employees,
+        specialDays = specialDays,
+        navigateToShiftView,
+        viewModel = viewModel,
+        selection = selection,
+        onSelectionChanged = { selection = it })
 }
 
 
