@@ -325,13 +325,15 @@ fun AbsentEmployeeIcon(
             imageVector = rememberError(),
             tint = MaterialTheme.colorScheme.error,
             contentDescription = "Employees absent for the month",
-            modifier = modifier.then(
-                if (showDialogueOnClick) {
-                    Modifier.clickable(onClick = { showDialog = true })
-                } else {
-                    Modifier
-                }
-            )
+            modifier = modifier
+                .padding(start = 10.dp)
+                .then(
+                    if (showDialogueOnClick) {
+                        Modifier.clickable(onClick = { showDialog = true })
+                    } else {
+                        Modifier
+                    }
+                )
         )
     }
 }
