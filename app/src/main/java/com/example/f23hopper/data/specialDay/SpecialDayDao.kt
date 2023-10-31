@@ -19,6 +19,13 @@ interface SpecialDayDao {
     @Query("SELECT * FROM specialdays")
     fun getSpecialDays(): Flow<List<SpecialDay>>
 
+    @Query("SELECT * FROM specialdays WHERE date = :date")
+    fun getSpecialDay(date: Date): SpecialDay?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM specialdays WHERE date = :date)")
+    fun observeIsSpecialDay(date: Date): Flow<Boolean>
+
+
     @Query("DELETE FROM specialdays")
     suspend fun deleteAllSpecialDays()
 

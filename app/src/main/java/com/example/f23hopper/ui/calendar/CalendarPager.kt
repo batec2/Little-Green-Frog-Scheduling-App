@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -49,7 +50,8 @@ fun CalendarPager(
     selection: CalendarDay?,
     shiftsOnSelectedDate: Map<ShiftType, List<Shift>>,
     specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
-    navigateToShiftView: (String) -> Unit
+    navigateToShiftView: (String) -> Unit,
+    toggleSpecialDay: suspend () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -63,9 +65,10 @@ fun CalendarPager(
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
                     ShiftDetailsForPagerDay(
                         shiftsOnSelectedDate,
-                        selection?.date!!,
+                        selection.date,
                         isSpecialDay = isSpecialDay,
-                        navigateToShiftView
+                        navigateToShiftView,
+                        toggleSpecialDay,
                     )
                 } else {
                     Row(
@@ -116,50 +119,62 @@ fun ShiftDetailsForPagerDay(
     shifts: Map<ShiftType, List<Shift>>,
     date: LocalDate,
     isSpecialDay: Boolean = false,
-    navigateToShiftView: (String) -> Unit
+    navigateToShiftView: (String) -> Unit,
+    toggleSpecialDay: suspend () -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
     ) {
-        DateBox(date = date, navigateToShiftView = navigateToShiftView)
         ShiftContent(
             date = date,
             shifts = shifts,
             isSpecialDay = isSpecialDay,
-            navigateToShiftView = navigateToShiftView
+            navigateToShiftView = navigateToShiftView,
+            modifier = Modifier.weight(0.8f) // 80% of the total width
+        )
+        Divider(
+            color = Color.Gray, modifier = Modifier
+                .width(1.dp)
+                .fillMaxHeight()
+        )
+        CalendarPagerActionBox(
+            date = date,
+            isSpecialDay = isSpecialDay,
+            navigateToShiftView = navigateToShiftView,
+            toggleSpecialDay = toggleSpecialDay,
+            modifier = Modifier.weight(0.1f) // 80% of the total width
         )
     }
 }
 
 @Composable
-fun DateBox(
+fun CalendarPagerActionBox(
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
+    toggleSpecialDay: suspend () -> Unit,
+    isSpecialDay: Boolean,
+    modifier: Modifier,
 ) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .width(80.dp)
             .height(2 * 55.dp)
             .background(pageBackgroundColor)
             .clickable {
                 navigateToShiftView(date.toString())
-            },
-        contentAlignment = Alignment.Center
+            }, contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            EditShiftButton {
+            EditShiftButton(onClick = {
+
                 navigateToShiftView(date.toString())
-            }
-//            Text(text = date.dayOfWeek.name.take(3).uppercase()) // Day of week abbreviated
-//            Spacer(modifier = Modifier.height(4.dp))
-//            Text(text = date.dayOfMonth.toString()) // Day of the month
-//            Spacer(
-//                modifier = Modifier
-//                    .height(1.dp)
-//                    .background(Color.Black)
-//            )
+            })
+            ToggleSpecialDayButton(
+                toggleSpecialDay = { toggleSpecialDay() },
+                isSpecialDay = isSpecialDay
+            )
         }
     }
 }
@@ -169,10 +184,11 @@ fun ShiftContent(
     date: LocalDate,
     shifts: Map<ShiftType, List<Shift>>,
     isSpecialDay: Boolean = false,
-    navigateToShiftView: (String) -> Unit
+    navigateToShiftView: (String) -> Unit,
+    modifier: Modifier
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .background(pageBackgroundColor)
     ) {
@@ -234,28 +250,33 @@ fun ShiftRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        ShiftIcon(shiftType)
-        ShiftCircles(maxShifts, shiftsForType.size, shiftType)
-        ShiftCompletionText(shiftsForType, shiftType, maxShifts)
-        EditShiftButton {
-            navigateToShiftView(date.toString())
-        }
+        ShiftIcon(shiftType, Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
+        ShiftCircles(maxShifts, shiftsForType.size, shiftType, Modifier.weight(1f))
+        Spacer(modifier = Modifier.width(8.dp))
+        ShiftCompletionText(shiftsForType, shiftType, maxShifts, Modifier.weight(3f))
+        Spacer(modifier = Modifier.width(8.dp))
     }
 }
 
 
 @Composable
-fun ShiftCompletionText(shiftsForType: List<Shift>, shiftType: ShiftType, maxShifts: Int) {
+fun ShiftCompletionText(
+    shiftsForType: List<Shift>,
+    shiftType: ShiftType,
+    maxShifts: Int,
+    modifier: Modifier = Modifier
+) {
     Text(
         text = if (shiftsForType.size >= maxShifts) "$shiftType Shift Covered" else "Incomplete",
-        color = MaterialTheme.colorScheme.onSecondaryContainer
+        color = MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = modifier
     )
 }
 
 @Composable
-fun EditShiftButton(navigateToShiftView: () -> Unit) {
-    IconButton(onClick = navigateToShiftView) {
+fun EditShiftButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    IconButton(onClick = onClick, modifier = modifier) {
         Icon(imageVector = Icons.Default.Create, contentDescription = "Add Employee")
     }
 }
-

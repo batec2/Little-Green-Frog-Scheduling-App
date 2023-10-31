@@ -59,8 +59,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
-import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
-import com.example.f23hopper.ui.icons.rememberWbSunny
+import com.example.f23hopper.ui.icons.dayShiftIcon
+import com.example.f23hopper.ui.icons.fullShiftIcon
+import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
@@ -390,7 +391,7 @@ fun WeekendButtonRow(
     Row(modifier = Modifier.fillMaxWidth()) {
         Spacer(modifier = Modifier.weight(1.8f))
         DayButton(
-            "Day",
+            "Full",
             onButtonChange = onShiftSelectedChanged,
             modifier = Modifier.padding(end = 26.dp),
             status = shiftStatus == ShiftType.FULL
@@ -450,8 +451,7 @@ fun DayButton(
 ) {
     var checked by remember { mutableStateOf(status) }
     val buttonColor = when {
-        icon == "Day" && checked -> colorScheme.primary
-        icon == "Night" && checked -> colorScheme.primary
+        checked -> colorScheme.primary
         else -> Color.LightGray
     }
 
@@ -465,13 +465,19 @@ fun DayButton(
     ) {
         when (icon) {
             "Day" -> Icon(
-                imageVector = rememberWbSunny(),
+                imageVector = dayShiftIcon(),
                 contentDescription = "Sun",
                 tint = buttonColor
             )
 
+            "Full" -> Icon(
+                imageVector = fullShiftIcon(),
+                contentDescription = "Sun/Moon",
+                tint = buttonColor
+            )
+
             "Night" -> Icon(
-                imageVector = rememberPartlyCloudyNight(),
+                imageVector = nightShiftIcon(),
                 contentDescription = "Moon",
                 tint = buttonColor
             )

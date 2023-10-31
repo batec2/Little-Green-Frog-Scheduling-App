@@ -65,6 +65,12 @@ class CalendarViewModel @Inject constructor(
         return specialDayRepo.getSpecialDays()
     }
 
+    suspend fun toggleSpecialDay(date: Date?) {
+        if (date != null) {
+            specialDayRepo.toggleSpecialDay(date)
+        }
+    }
+
     private fun fetchAllEmployees(): Flow<List<Employee>> {
         return employeeRepository.getAllEmployees()
     }
