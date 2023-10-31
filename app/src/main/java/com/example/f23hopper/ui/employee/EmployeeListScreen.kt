@@ -21,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.DismissDirection
@@ -37,9 +36,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -59,12 +56,12 @@ import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
+import com.example.f23hopper.ui.icons.dayShiftIcon
+import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
-import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
 import com.example.f23hopper.ui.icons.rememberRedo
-import com.example.f23hopper.ui.icons.rememberWbSunny
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
@@ -328,7 +325,7 @@ fun ListScheduleInfo(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Icon(
-                imageVector = rememberWbSunny(),
+                imageVector = dayShiftIcon(),
                 modifier = Modifier.size(20.dp),
                 contentDescription = "Day Shift"
             )
@@ -351,7 +348,7 @@ fun ListScheduleInfo(
             horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Icon(
-                imageVector = rememberPartlyCloudyNight(),
+                imageVector = nightShiftIcon(),
                 modifier = Modifier.size(20.dp),
                 contentDescription = "Night Shift"
             )

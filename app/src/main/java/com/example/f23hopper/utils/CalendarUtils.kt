@@ -35,6 +35,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -47,8 +48,9 @@ import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.getShiftColor
-import com.example.f23hopper.ui.icons.rememberPartlyCloudyNight
-import com.example.f23hopper.ui.icons.rememberSunny
+import com.example.f23hopper.ui.icons.dayShiftIcon
+import com.example.f23hopper.ui.icons.fullShiftIcon
+import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
@@ -82,13 +84,23 @@ fun Modifier.clickable(
     )
 }
 
+
+@Composable
+fun getShiftIcon(shiftType: ShiftType): ImageVector {
+    return when (shiftType) {
+        ShiftType.NIGHT -> nightShiftIcon()
+        ShiftType.DAY -> dayShiftIcon()
+        else -> fullShiftIcon()
+    }
+}
+
 @Composable
 fun ShiftIcon(shiftType: ShiftType, modifier: Modifier = Modifier) {
     Icon(
-        imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
+        imageVector = getShiftIcon(shiftType = shiftType),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSecondaryContainer,
-        modifier = modifier
+        modifier = modifier.size(40.dp, 40.dp)
     )
 }
 
