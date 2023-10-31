@@ -31,7 +31,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,12 +48,14 @@ import com.example.compose.CustomColor
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.calendar.ToggleSpecialDayButton
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShifts
+import com.example.f23hopper.utils.toSqlDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
@@ -72,10 +73,8 @@ fun ShiftEditScreen(
     val shifts by shiftsFlow.collectAsState(initial = emptyList())
     val groupedShifts = shifts.groupBy { it.schedule.shiftType }
 
-    var isSpecialDay by remember { mutableStateOf(false) } // check the table to be sure
-    LaunchedEffect(clickedDay) {
-        isSpecialDay = viewModel.isSpecialDay(clickedDay)
-    }
+    val isSpecialDayFlow: Flow<Boolean> = viewModel.isSpecialDayFlow(clickedDay)
+    val isSpecialDay by isSpecialDayFlow.collectAsState(initial = false)
 
     val context =
         ShiftContext(
@@ -137,13 +136,21 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                 context.date.toJavaLocalDate(),
                 context.isSpecialDay,
                 modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(2.dp)
+                    .padding(start = 18.dp)
                     .size(30.dp, 30.dp),
                 showDialogueOnClick = true
             )
-        }
+            ToggleSpecialDayButton(
+                toggleSpecialDay = { context.viewModel.toggleSpecialDay(context.date.toSqlDate()) },
+                context.isSpecialDay,
 
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(2.dp)
+                    .size(30.dp, 30.dp),
+            )
+
+        }
         // empty space to ensure center alignment of the text
         Spacer(modifier = Modifier.size(30.dp))
     }

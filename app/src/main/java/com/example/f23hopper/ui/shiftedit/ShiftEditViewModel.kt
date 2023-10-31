@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import java.sql.Date
 import java.time.DayOfWeek
 import java.time.temporal.TemporalAdjusters
 import javax.inject.Inject
@@ -31,8 +32,8 @@ class ShiftEditViewModel @Inject constructor(
         return scheduleRepo.getShiftsByDate(date.toSqlDate())
     }
 
-    suspend fun isSpecialDay(date: LocalDate): Boolean {
-        return specialDayRepo.isDateInTable(date.toSqlDate())
+    fun isSpecialDayFlow(date: LocalDate): Flow<Boolean> {
+        return specialDayRepo.observeIsSpecialDay(date.toSqlDate())
     }
 
 
@@ -86,8 +87,14 @@ class ShiftEditViewModel @Inject constructor(
         }
     }
 
+    suspend fun toggleSpecialDay(date: Date?) {
+        if (date != null) {
+            specialDayRepo.toggleSpecialDay(date)
+        }
+    }
 
 }
+
 
 data class ShiftContext(
     val viewModel: ShiftEditViewModel,

@@ -83,20 +83,25 @@ fun Modifier.clickable(
 }
 
 @Composable
-fun ShiftIcon(shiftType: ShiftType) {
+fun ShiftIcon(shiftType: ShiftType, modifier: Modifier = Modifier) {
     Icon(
         imageVector = if (shiftType == ShiftType.NIGHT) rememberPartlyCloudyNight() else rememberSunny(),
         contentDescription = null,
         tint = MaterialTheme.colorScheme.onSecondaryContainer,
+        modifier = modifier
     )
 }
 
 
-
 @Composable
-fun ShiftCircles(maxShifts: Int, shiftCount: Int, shiftType: ShiftType) {
+fun ShiftCircles(
+    maxShifts: Int,
+    shiftCount: Int,
+    shiftType: ShiftType,
+    modifier: Modifier = Modifier
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
 //            .weight(0.1f)
             .padding(start = 4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,

@@ -26,6 +26,28 @@ class SpecialDayRepository(private val specialDayDao: SpecialDayDao) {
         return specialDayDao.getSpecialDays()
     }
 
+    suspend fun toggleSpecialDay(date: Date) {
+        val specialDay = specialDayDao.getSpecialDay(date)
+        if (specialDay != null)
+            specialDayDao.delete(specialDay)
+        else
+            insert(date)
+    }
+
+    suspend fun deleteWithDate(date: Date) {
+        val specialDay = specialDayDao.getSpecialDay(date)
+        if (specialDay != null)
+            specialDayDao.delete(specialDay)
+    }
+
+
+    fun observeIsSpecialDay(date: Date): Flow<Boolean> {
+        return specialDayDao.observeIsSpecialDay(date)
+    }
+
+    fun getSpecialDay(date: Date) = specialDayDao.getSpecialDay(date)
+
+
     suspend fun deleteAllSchedules() {
         return specialDayDao.deleteAllSpecialDays()
     }

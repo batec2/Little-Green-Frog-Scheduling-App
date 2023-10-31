@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
 import com.kizitonwose.calendar.compose.CalendarState
@@ -108,7 +109,8 @@ fun Calendar(
             selection = selection,
             shiftsOnSelectedDate = shiftsOnSelectedDate,
             specialDaysByDay = specialDaysByDay,
-            navigateToShiftView = navigateToShiftView
+            navigateToShiftView = navigateToShiftView,
+            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) }
         )
     }
 }
