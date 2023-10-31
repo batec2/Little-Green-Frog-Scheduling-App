@@ -20,12 +20,12 @@ import androidx.compose.ui.unit.dp
 import com.example.f23hopper.R
 
 @Composable
-fun fullShiftIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.full_shift)
+fun fullShiftIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.fullshift)
 
 @Composable
 fun FullShiftIcon(modifier: Modifier = Modifier, tint: Color = Color.Black, size: Dp = 40.dp) {
     Icon(
-        painter = painterResource(id = R.drawable.full_shift),
+        painter = painterResource(id = R.drawable.fullshift),
         contentDescription = "Full Shift Icon",
         modifier = modifier.size(size, size),
         tint = tint
