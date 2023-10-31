@@ -118,7 +118,7 @@ class CalendarViewModel @Inject constructor(
         val sendIntent: Intent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_STREAM, uri)
-            type = "text/csv"
+            type = "text/*"
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
