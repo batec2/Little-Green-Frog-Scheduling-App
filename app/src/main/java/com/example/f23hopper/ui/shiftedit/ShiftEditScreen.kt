@@ -141,8 +141,9 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                 showDialogueOnClick = true
             )
             ToggleSpecialDayButton(
+                shiftsOnDay = context.shiftsOnDay,
                 toggleSpecialDay = { context.viewModel.toggleSpecialDay(context.date.toSqlDate()) },
-                context.isSpecialDay,
+                isSpecialDay = context.isSpecialDay,
 
                 modifier = Modifier
                     .align(Alignment.TopEnd)

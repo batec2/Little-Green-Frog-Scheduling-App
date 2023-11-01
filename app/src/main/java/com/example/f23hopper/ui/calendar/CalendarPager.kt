@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,9 +39,6 @@ import com.example.f23hopper.R
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
-import com.example.f23hopper.utils.ShiftCircles
-import com.example.f23hopper.utils.ShiftIcon
-import com.example.f23hopper.utils.clickable
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -71,7 +67,7 @@ fun CalendarPager(
                     //Divider(color = itemBackgroundColor)
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
                     ShiftDetailsForPagerDay(
-                        shiftsOnSelectedDate,
+                        shiftsOnSelectedDay = shiftsOnSelectedDate,
                         selection.date,
                         isSpecialDay = isSpecialDay,
                         navigateToShiftView,
@@ -124,7 +120,7 @@ fun CalendarPager(
 
 @Composable
 fun ShiftDetailsForPagerDay(
-    shifts: Map<ShiftType, List<Shift>>,
+    shiftsOnSelectedDay: Map<ShiftType, List<Shift>>,
     date: LocalDate,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
@@ -136,7 +132,7 @@ fun ShiftDetailsForPagerDay(
     ) {
         ShiftContent(
             date = date,
-            shifts = shifts,
+            shifts = shiftsOnSelectedDay,
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             modifier = Modifier.weight(0.8f), // 80% of the total width
@@ -152,7 +148,8 @@ fun ShiftDetailsForPagerDay(
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = toggleSpecialDay,
-            modifier = Modifier.weight(0.1f), // 80% of the total width
+            shiftsOnDay = shiftsOnSelectedDay,
+            modifier = Modifier.weight(0.1f) // 80% of the total width
         )
     }
 }
@@ -164,6 +161,7 @@ fun CalendarPagerActionBox(
     toggleSpecialDay: suspend () -> Unit,
     isSpecialDay: Boolean,
     modifier: Modifier,
+    shiftsOnDay: Map<ShiftType, List<Shift>>,
 ) {
     Box(
         modifier = modifier
@@ -183,7 +181,8 @@ fun CalendarPagerActionBox(
             })
             ToggleSpecialDayButton(
                 toggleSpecialDay = { toggleSpecialDay() },
-                isSpecialDay = isSpecialDay
+                isSpecialDay = isSpecialDay,
+                shiftsOnDay = shiftsOnDay,
             )
         }
     }
@@ -282,7 +281,7 @@ fun ShiftRow(
                             //image for night shift go to res/drawable/ to change image
                             painterResource(id = R.drawable.img_3)
                         },
-                        contentScale=ContentScale.FillBounds
+                        contentScale = ContentScale.FillBounds
                     )
                     .clickable {
                         viewModel.setEmployeeShifts(shift)
