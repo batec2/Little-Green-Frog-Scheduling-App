@@ -57,7 +57,8 @@ fun CalendarPager(
     shiftsOnSelectedDate: Map<ShiftType, List<Shift>>,
     specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
     navigateToShiftView: (String) -> Unit,
-    toggleSpecialDay: suspend () -> Unit
+    toggleSpecialDay: suspend () -> Unit,
+    viewModel: CalendarViewModel
 ) {
     Column(
         modifier = modifier
@@ -75,6 +76,7 @@ fun CalendarPager(
                         isSpecialDay = isSpecialDay,
                         navigateToShiftView,
                         toggleSpecialDay,
+                        viewModel = viewModel
                     )
                 } else {
                     Row(
@@ -126,7 +128,8 @@ fun ShiftDetailsForPagerDay(
     date: LocalDate,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
-    toggleSpecialDay: suspend () -> Unit
+    toggleSpecialDay: suspend () -> Unit,
+    viewModel: CalendarViewModel
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -136,7 +139,8 @@ fun ShiftDetailsForPagerDay(
             shifts = shifts,
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
-            modifier = Modifier.weight(0.8f) // 80% of the total width
+            modifier = Modifier.weight(0.8f), // 80% of the total width
+            viewModel = viewModel
         )
         Divider(
             color = Color.Gray, modifier = Modifier
@@ -148,7 +152,7 @@ fun ShiftDetailsForPagerDay(
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = toggleSpecialDay,
-            modifier = Modifier.weight(0.1f) // 80% of the total width
+            modifier = Modifier.weight(0.1f), // 80% of the total width
         )
     }
 }
@@ -191,7 +195,8 @@ fun ShiftContent(
     shifts: Map<ShiftType, List<Shift>>,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    viewModel: CalendarViewModel
 ) {
     Row(
         modifier = modifier
@@ -208,7 +213,8 @@ fun ShiftContent(
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
-                maxShifts = maxShifts(isSpecialDay)
+                maxShifts = maxShifts(isSpecialDay),
+                viewModel = viewModel
             )
             /*
             Spacer(
@@ -224,7 +230,8 @@ fun ShiftContent(
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                maxShifts = maxShifts(isSpecialDay)
+                maxShifts = maxShifts(isSpecialDay),
+                viewModel = viewModel
             )
         } else {
             ShiftRow(
@@ -233,7 +240,8 @@ fun ShiftContent(
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                maxShifts = maxShifts(isSpecialDay)
+                maxShifts = maxShifts(isSpecialDay),
+                viewModel = viewModel
             )
 
         }
@@ -249,7 +257,8 @@ fun ShiftRow(
     shiftsForType: List<Shift>,
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CalendarViewModel
 ) {
     Column(
         modifier = modifier
@@ -276,6 +285,7 @@ fun ShiftRow(
                         contentScale=ContentScale.FillBounds
                     )
                     .clickable {
+                        viewModel.setEmployeeShifts(shift)
                         println(shift.employee.toString())
                     },
                 horizontalArrangement = Arrangement.Center,

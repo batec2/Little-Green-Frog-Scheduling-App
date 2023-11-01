@@ -110,7 +110,8 @@ fun Calendar(
             shiftsOnSelectedDate = shiftsOnSelectedDate,
             specialDaysByDay = specialDaysByDay,
             navigateToShiftView = navigateToShiftView,
-            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) }
+            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
+            viewModel = viewModel
         )
     }
 }
