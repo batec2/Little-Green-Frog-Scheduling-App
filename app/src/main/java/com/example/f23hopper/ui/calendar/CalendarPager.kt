@@ -266,9 +266,11 @@ fun ShiftRow(
                     //.background(MaterialTheme.colorScheme.secondaryContainer)
                     .paint(
                         if(shiftType.equals(ShiftType.NIGHT)){
+                            //image for night shift go to res/drawable/ to change image
                             painterResource(id = R.drawable.img_2)
                         }
                         else{
+                            //image for night shift go to res/drawable/ to change image
                             painterResource(id = R.drawable.img_3)
                         },
                         contentScale=ContentScale.FillBounds
