@@ -29,14 +29,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.example.f23hopper.R
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
+import com.example.f23hopper.utils.clickable
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -61,7 +67,7 @@ fun CalendarPager(
         HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.weight(1f)) { page ->
             if (page == 0) {
                 if (selection != null) {
-                    Divider(color = itemBackgroundColor)
+                    //Divider(color = itemBackgroundColor)
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
                     ShiftDetailsForPagerDay(
                         shiftsOnSelectedDate,
@@ -187,7 +193,7 @@ fun ShiftContent(
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier
 ) {
-    Column(
+    Row(
         modifier = modifier
             .fillMaxWidth()
             .background(pageBackgroundColor)
@@ -204,12 +210,14 @@ fun ShiftContent(
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
                 maxShifts = maxShifts(isSpecialDay)
             )
+            /*
             Spacer(
                 modifier = Modifier
                     .height(1.dp)
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.outline)
             )
+             */
             ShiftRow(
                 shiftType = ShiftType.NIGHT,
                 shiftsForType = shifts[ShiftType.NIGHT].orEmpty(),
@@ -243,19 +251,63 @@ fun ShiftRow(
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
+    Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.SpaceAround
     ) {
+        shiftsForType.forEach{shift->
+            Row(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(2.dp)
+                    //.background(MaterialTheme.colorScheme.secondaryContainer)
+                    .paint(
+                        if(shiftType.equals(ShiftType.NIGHT)){
+                            painterResource(id = R.drawable.img_2)
+                        }
+                        else{
+                            painterResource(id = R.drawable.img_3)
+                        },
+                        contentScale=ContentScale.FillBounds
+                    )
+                    .clickable {
+                        println(shift.employee.toString())
+                    },
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ){
+                Text(text = shift.employee.firstName+" "+shift.employee.lastName,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis)
+            }
+        }
+        if(shiftsForType.size<maxShifts){
+            for(i in 1..(maxShifts-shiftsForType.size)){
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(2.dp)
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .clickable {
+                            println("empty")
+                            navigateToShiftView(date.toString())
+                        },
+                ){
+                    //empty row
+                }
+            }
+        }
+        /*
         ShiftIcon(shiftType, Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
         ShiftCircles(maxShifts, shiftsForType.size, shiftType, Modifier.weight(1f))
         Spacer(modifier = Modifier.width(8.dp))
         ShiftCompletionText(shiftsForType, shiftType, maxShifts, Modifier.weight(3f))
         Spacer(modifier = Modifier.width(8.dp))
+         */
     }
 }
 
