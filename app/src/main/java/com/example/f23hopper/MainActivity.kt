@@ -106,7 +106,7 @@ fun FullScreenSplash() {
             .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Image(
-            painter = painterResource(id = R.drawable.ic_launcher_foreground),
+            painter = painterResource(id = R.drawable.f23hoppericon),
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
