@@ -454,7 +454,6 @@ fun DayButton(
         checked -> colorScheme.primary
         else -> Color.LightGray
     }
-
     IconToggleButton(
         modifier = modifier,
         checked = checked,

@@ -44,6 +44,19 @@ interface ScheduleDao {
     )
     fun getActiveShiftsForMonth(monthYear: String): Flow<List<Shift>>
 
+    @Transaction
+    @Query(
+        """
+    SELECT schedules.*, employees.* 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE strftime('%Y-%m', date) = :monthYear 
+    AND employees.active = 1 
+    AND employees.employeeId = :employeeId
+    """
+    )
+    fun getActiveShiftsForEmployee(monthYear: String,employeeId: Int): Flow<List<Shift>>
+
 
     @Transaction
     @Query(
