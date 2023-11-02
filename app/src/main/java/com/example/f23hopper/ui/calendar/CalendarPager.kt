@@ -3,6 +3,7 @@ package com.example.f23hopper.ui.calendar
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,10 +26,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,7 +40,6 @@ import com.example.f23hopper.R
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
-import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -289,10 +285,13 @@ fun ShiftRow(
                     .paint(
                         if (shiftType.equals(ShiftType.NIGHT)) {
                             //image for night shift go to res/drawable/ to change image
-                            painterResource(id = R.drawable.img_2)
+                            if (isSystemInDarkTheme()) painterResource (id = R.drawable.night_theme_night_tmp)//dark mode
+                            else painterResource (id = R.drawable.day_theme_night_tmp)//light mode
+
                         } else {
-                            //image for night shift go to res/drawable/ to change image
-                            painterResource(id = R.drawable.img_3)
+                            //image for day shift go to res/drawable/ to change image
+                            if (isSystemInDarkTheme()) painterResource (id = R.drawable.night_theme_day_tmp)//dark mode
+                            else painterResource (id = R.drawable.day_theme_day_tmp)//light mode
                         },
                         contentScale = ContentScale.FillBounds
                     )
