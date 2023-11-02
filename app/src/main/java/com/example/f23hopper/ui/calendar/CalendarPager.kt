@@ -21,12 +21,16 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Create
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,14 +38,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
+import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.getShiftIcon
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
 import com.kizitonwose.calendar.core.CalendarDay
+import kotlinx.coroutines.flow.filter
 import java.time.LocalDate
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -55,14 +62,19 @@ fun CalendarPager(
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
     employee: (Long) -> Unit,//passes employeeId to Calendar
+    employees: List<Long>,
+    employeeList: List<Employee>,
+    clearList:()->Unit
 ) {
     Column(
         modifier = modifier
     ) {
         //        Divider(color = itemBackgroundColor)
+        //List of current selected employees
         val pagerState = rememberPagerState(initialPage = 0)
         HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.weight(1f)) { page ->
-            if (page == 0) {
+            when(page) {
+                0->//shows employees scheduled to work on current day
                 if (selection != null) {
                     //Divider(color = itemBackgroundColor)
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
@@ -85,16 +97,42 @@ fun CalendarPager(
                         Text(text = "Select Day")
                     }
                 }
-            } else if (page == 1) {
+                1->//Shows employees selected for the employee shift view
                 Row(
                     modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
 
                 ) {
-                    Text(text = "PUT STUFF HERE")
+                    if(employees.isEmpty()){
+                        Text(text = "No Employees Selected for Shift View")
+                    }
+                    else{
+                        //Checks if employee id is in the list of selected employees for shift view
+                        employeeList.forEach{item ->
+                            if(employees.contains(item.employeeId)){
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .padding(2.dp)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ){
+                                    Text(text = item.firstName)
+                                }
+                            }
+                        }
+                        //Clears list of employees for shift view
+                        //Temporary replace later
+                        Button(onClick = (clearList)) {
+                            Text(text = "Clear")
+                        }
+                    }
                 }
             }
+
         }
         Row(
             Modifier
@@ -115,6 +153,18 @@ fun CalendarPager(
                         .size(5.dp)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SelectedEmployeesForPager(
+    selected: List<Employee>
+){
+    selected.forEach{item ->
+        println("this happening")
+        Box{
+            Text(text = item.firstName)
         }
     }
 }

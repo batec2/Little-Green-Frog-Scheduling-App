@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -54,23 +55,21 @@ fun Calendar(
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
+    //Holds employee id for shift highlighting
+    val employee = remember { mutableStateListOf<Long>() }
+    /*all shifts dates for the current montt for employees selected for shift view*/
+    val employeeShifts = shifts.filter { shift -> employee.contains(shift.employee.employeeId)}
+                .map { it.schedule.date.toJavaLocalDate() }
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
-    } ?: emptyMap()
+        } ?: emptyMap()
 
     shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
-    //Holds employee id for shift highlighting
-    val employee = remember { mutableLongStateOf(-1) }
-
-    val employeeShifts = shifts.filter { shift -> shift.employee.employeeId == employee.longValue}
-                .map { it.schedule.date.toJavaLocalDate() }
-
-    println("THIS:"+employee.longValue)
 
     StatusBarColorUpdateEffect(toolbarColor)
 
@@ -116,7 +115,13 @@ fun Calendar(
             shiftsByDay = shiftsByDay,
             specialDaysByDay = specialDaysByDay,
             selection = selection,
-            onSelectionChanged = onSelectionChanged,
+            onSelectionChanged =
+            {
+                onSelectionChanged(it)
+                //clears current selection if new day is selected
+                //employee.longValue = -1
+            }
+            ,
             viewModel = viewModel,
             employeeShift = employeeShifts
         )
@@ -129,9 +134,17 @@ fun Calendar(
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
             viewModel = viewModel,
-            //Checks if the selected employee is the same as the current then clear selection
-            employee = { if (employee.longValue == it) employee.longValue = -1
-                        else employee.longValue = it }
+            //Employee selected limit is 6, if employee already in list it gets removed
+            //else if the list is less than 6 entries then it gets added
+            employee = { if (employee.contains(it)) employee.remove(it)
+                        else if(employee.size<=6) employee.add(it) },
+            employees = employee,
+            employeeList = employees,
+            clearList = {
+                //selected.clear()
+                //Clears list of employee ids for shiftview
+                employee.clear()
+            }
         )
     }
 }
