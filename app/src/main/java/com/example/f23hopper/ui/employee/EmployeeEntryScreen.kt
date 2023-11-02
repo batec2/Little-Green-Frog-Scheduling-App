@@ -1,6 +1,7 @@
 package com.example.f23hopper.ui.employee
 
 //import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,7 +27,6 @@ import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -62,6 +63,8 @@ import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
+import com.example.f23hopper.ui.icons.rememberLock
+import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
@@ -283,33 +286,67 @@ fun OpenCloseCertificationSelector(
 ) {
     var checkedOpen by remember { mutableStateOf(employeeDetails.canOpen) }
     var checkedClose by remember { mutableStateOf(employeeDetails.canClose) }
+
+    // Define the primary color and the off color
+    val primaryColor = colorScheme.primary
+    val offColor = Color.Gray
+
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = "Opening", fontSize = 20.sp)
-        Spacer(modifier = Modifier.padding(start = 5.dp))
-        Switch(
+        // Opening Certification Button
+        CertificationButton(
+            text = "Can Open",
             checked = checkedOpen,
-            onCheckedChange = {
-                checkedOpen = it
-                onCertValueChange(employeeDetails.copy(canOpen = it))
+            onCheckedChange = { newValue ->
+                checkedOpen = newValue
+                onCertValueChange(employeeDetails.copy(canOpen = newValue))
             },
-        )
-        Spacer(modifier = Modifier.padding(start = 5.dp))
-        Text(text = "Closing", fontSize = 20.sp)
-        Spacer(modifier = Modifier.padding(start = 5.dp))
-        Switch(
-            checked = checkedClose,
-            onCheckedChange = {
-                checkedClose = it
-                onCertValueChange(employeeDetails.copy(canClose = it))
-            },
+            primaryColor = primaryColor,
+            offColor = offColor,
+            icon = rememberLockOpen(),
         )
 
+        Spacer(modifier = Modifier.size(15.dp))
+
+        // Closing Certification Button
+        CertificationButton(
+            text = "Can Close",
+            checked = checkedClose,
+            onCheckedChange = { newValue ->
+                checkedClose = newValue
+                onCertValueChange(employeeDetails.copy(canClose = newValue))
+            },
+            primaryColor = primaryColor,
+            offColor = offColor,
+            icon = rememberLock(),
+        )
     }
 }
 
+@Composable
+fun CertificationButton(
+    text: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    primaryColor: Color,
+    offColor: Color,
+    icon: ImageVector,
+) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(text = text, fontSize = 20.sp)
+        Spacer(modifier = Modifier.size(5.dp))
+        Icon(
+            imageVector = icon,
+            contentDescription = text,
+            tint = if (checked) primaryColor else offColor,
+            modifier = Modifier
+                .size(40.dp) // Increase icon size
+                .clickable { onCheckedChange(!checked) }
+        )
+    }
+}
 
 @Composable
 fun ScheduleSelector(

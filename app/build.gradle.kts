@@ -4,6 +4,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp") version "1.9.10-1.0.13"
+    id("org.jetbrains.kotlinx.dataframe") version "0.11.1"
 }
 
 android {
@@ -46,10 +47,19 @@ android {
     }
     packaging {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes.add("/META-INF/(AL2.0|LGPL2.1)")
+            pickFirsts.add("META-INF/ASL-2.0.txt")
+            pickFirsts.add("META-INF/*")
+            pickFirsts.add("draftv3/*")
+            pickFirsts.add("draftv4/*")
+            pickFirsts.add("arrow-git.properties")
+
+            pickFirsts.add("META-INF/kotlin-jupyter-libraries/libraries.json")
         }
     }
-
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
+    }
 }
 
 // Allow references to generated code
@@ -58,6 +68,7 @@ dependencies {
 
     debugImplementation("com.squareup.leakcanary:leakcanary-android:2.12")
     implementation("androidx.core:core-ktx:1.9.0")
+    implementation("org.jetbrains.kotlinx:dataframe:0.11.1")
 
     implementation("androidx.fragment:fragment-ktx:1.6.1")
     implementation("androidx.activity:activity-ktx:1.7.2")
