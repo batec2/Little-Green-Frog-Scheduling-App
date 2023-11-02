@@ -52,7 +52,8 @@ class ScheduleDaoTest {
                 wednesday = ShiftType.DAY,
                 thursday = ShiftType.DAY,
                 friday = ShiftType.DAY,
-                saturday = ShiftType.DAY
+                saturday = ShiftType.DAY,
+                active = true,
             )
 
             val employee2 = Employee(
@@ -69,7 +70,8 @@ class ScheduleDaoTest {
                 wednesday = ShiftType.NIGHT,
                 thursday = ShiftType.NIGHT,
                 friday = ShiftType.NIGHT,
-                saturday = ShiftType.NIGHT
+                saturday = ShiftType.NIGHT,
+                active = true,
             )
             employeeDao.insert(employee)
             employeeDao.insert(employee2)
@@ -89,13 +91,13 @@ class ScheduleDaoTest {
         val schedule = Schedule(
             date = Date.valueOf("2023-10-01"),
             employeeId = 1,
-            shiftTypeId = 1
+            shiftType = ShiftType.DAY
         )
 
         val generatedId = scheduleDao.insert(schedule)
 
         val retrievedSchedule = scheduleDao.getScheduleById(generatedId.toInt()).first()
-        assertTrue(retrievedSchedule == schedule.copy(id = generatedId.toInt()))
+        assertTrue(retrievedSchedule == schedule.copy(id = generatedId))
     }
 
     @Test
@@ -104,13 +106,13 @@ class ScheduleDaoTest {
         val schedule = Schedule(
             date = Date.valueOf("2023-10-01"),
             employeeId = 1,
-            shiftTypeId = 1
+            shiftType = ShiftType.DAY
         )
 
         val generatedId = scheduleDao.insert(schedule)
 
         val updatedSchedule = schedule.copy(
-            id = generatedId.toInt(),
+            id = generatedId,
             date = Date.valueOf("2023-10-02")
         )
 
@@ -126,7 +128,7 @@ class ScheduleDaoTest {
         val schedule = Schedule(
             date = Date.valueOf("2023-10-01"),
             employeeId = 1,
-            shiftTypeId = 1
+            shiftType = ShiftType.DAY
         )
 
         val generatedId = scheduleDao.insert(schedule)
@@ -144,12 +146,12 @@ class ScheduleDaoTest {
         val schedule1 = Schedule(
             date = Date.valueOf("2023-10-01"),
             employeeId = 1,
-            shiftTypeId = 1
+            shiftType = ShiftType.DAY
         )
         val schedule2 = Schedule(
             date = Date.valueOf("2023-10-02"),
             employeeId = 2,
-            shiftTypeId = 2
+            shiftType = ShiftType.NIGHT
         )
 
         scheduleDao.insert(schedule1)
