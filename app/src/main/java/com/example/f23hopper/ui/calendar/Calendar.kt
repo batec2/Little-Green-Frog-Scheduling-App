@@ -54,7 +54,6 @@ fun Calendar(
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
-    var employee = remember { mutableLongStateOf(-1) }
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
@@ -65,11 +64,11 @@ fun Calendar(
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
-    val employeeShifts = if (employee != null) {
-            shifts.filter { shift -> shift.employee.employeeId == employee.longValue}
+    //Holds employee id for shift highlighting
+    val employee = remember { mutableLongStateOf(-1) }
+
+    val employeeShifts = shifts.filter { shift -> shift.employee.employeeId == employee.longValue}
                 .map { it.schedule.date.toJavaLocalDate() }
-            }
-            else emptyList<LocalDate>()
 
     println("THIS:"+employee.longValue)
 
@@ -130,7 +129,9 @@ fun Calendar(
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
             viewModel = viewModel,
-            employee = { employee.longValue = it }
+            //Checks if the selected employee is the same as the current then clear selection
+            employee = { if (employee.longValue == it) employee.longValue = -1
+                        else employee.longValue = it }
         )
     }
 }

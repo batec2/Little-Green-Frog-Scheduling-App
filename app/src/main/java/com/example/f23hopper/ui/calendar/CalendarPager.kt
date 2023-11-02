@@ -60,7 +60,7 @@ fun CalendarPager(
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
-    employee: (Long) -> Unit,
+    employee: (Long) -> Unit,//passes employeeId to Calendar
 ) {
     Column(
         modifier = modifier
@@ -133,7 +133,7 @@ fun ShiftDetailsForPagerDay(
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
-    employee: (Long) -> Unit
+    employee: (Long) -> Unit//passes employeeId to next composable
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -205,7 +205,7 @@ fun ShiftContent(
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier,
     viewModel: CalendarViewModel,
-    employee: (Long) -> Unit
+    employee: (Long) -> Unit //passes employeeId to next composable
 ) {
     Row(
         modifier = modifier
@@ -271,7 +271,7 @@ fun ShiftRow(
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel,
-    employee: (Long) -> Unit
+    employee: (Long) -> Unit //passes employeeId to next composable
 ) {
     Column(
         modifier = modifier
@@ -296,6 +296,7 @@ fun ShiftRow(
                         },
                         contentScale = ContentScale.FillBounds
                     )
+                    //Click to select employee ID passes employeeId up chain
                     .clickable {
                         employee(shift.employee.employeeId)
                         //println(shift.employee.toString())
