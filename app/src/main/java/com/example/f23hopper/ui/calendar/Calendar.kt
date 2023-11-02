@@ -6,6 +6,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -14,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
+import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -29,6 +34,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
+import java.util.Date
 
 @Composable
 fun Calendar(
@@ -53,8 +59,18 @@ fun Calendar(
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
     } ?: emptyMap()
 
+    shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+
     val specialDaysByDay =
         specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+
+    //Holds employee id for shift highlighting
+    val employee = remember { mutableLongStateOf(-1) }
+
+    val employeeShifts = shifts.filter { shift -> shift.employee.employeeId == employee.longValue}
+                .map { it.schedule.date.toJavaLocalDate() }
+
+    println("THIS:"+employee.longValue)
 
     StatusBarColorUpdateEffect(toolbarColor)
 
@@ -101,7 +117,8 @@ fun Calendar(
             specialDaysByDay = specialDaysByDay,
             selection = selection,
             onSelectionChanged = onSelectionChanged,
-            viewModel = viewModel
+            viewModel = viewModel,
+            employeeShift = employeeShifts
         )
 
         CalendarPager(
@@ -110,7 +127,11 @@ fun Calendar(
             shiftsOnSelectedDate = shiftsOnSelectedDate,
             specialDaysByDay = specialDaysByDay,
             navigateToShiftView = navigateToShiftView,
-            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) }
+            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
+            viewModel = viewModel,
+            //Checks if the selected employee is the same as the current then clear selection
+            employee = { if (employee.longValue == it) employee.longValue = -1
+                        else employee.longValue = it }
         )
     }
 }
@@ -122,6 +143,7 @@ fun CalendarBody(
     state: CalendarState,
     shiftsByDay: Map<LocalDate, List<Shift>>,
     specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
+    employeeShift: List<LocalDate>,
     selection: CalendarDay?,
     onSelectionChanged: (CalendarDay?) -> Unit,
     viewModel: CalendarViewModel
@@ -130,13 +152,16 @@ fun CalendarBody(
         modifier = modifier,
         state = state,
         dayContent = { day ->
+            val employeeShiftSelected = employeeShift.contains(day.date)
             val isSpecialDay = specialDaysByDay[day.date] != null
             val context = DayContext(
-                viewModel = viewModel, day = day,
+                viewModel = viewModel,
+                day = day,
                 shiftsOnDay = shiftsByDay[day.date]?.groupBy { it.schedule.shiftType }
                     .orEmpty(),
                 isSpecialDay = isSpecialDay,
-                isSelected = selection == day
+                isSelected = selection == day,
+                employeeShiftSelected = employeeShiftSelected
             )
             Day(
                 context,

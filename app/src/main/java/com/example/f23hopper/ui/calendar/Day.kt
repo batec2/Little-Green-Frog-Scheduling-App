@@ -1,6 +1,13 @@
 package com.example.f23hopper.ui.calendar
 
 import InvalidDayIcon
+import androidx.compose.animation.animateColor
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,8 +24,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -34,6 +43,7 @@ data class DayContext(
     val shiftsOnDay: Map<ShiftType, List<Shift>>,
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
+    val employeeShiftSelected: Boolean,//For employee highlighting
 )
 
 @Composable
@@ -47,6 +57,15 @@ fun Day(
         context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.Gray else MaterialTheme.colorScheme.tertiaryContainer
         else -> itemBackgroundColor
     }
+    val infiniteTransition = rememberInfiniteTransition()
+    val color by infiniteTransition.animateColor(
+            initialValue = Color.Red,
+    targetValue = Color.Green,
+    animationSpec = infiniteRepeatable(
+        animation = tween(1000, easing = LinearEasing),
+        repeatMode = RepeatMode.Reverse
+    )
+    )
     Box( // Square days!!
         modifier = Modifier
             .aspectRatio(1f)
@@ -55,7 +74,7 @@ fun Day(
                 color = if (context.isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(dayBackgroundColor)
+            .background(if (context.employeeShiftSelected) color else dayBackgroundColor)
             .clickable(
                 enabled = true,/*day.position == DayPosition.MonthDate,*/
                 onClick = { onClick(context.day) })
