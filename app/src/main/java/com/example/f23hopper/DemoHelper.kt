@@ -238,32 +238,109 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 
             if (day == 10) {
                 // Special Day in October
-                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftType = ShiftType.DAY))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftType = ShiftType.DAY))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.DAY))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftType = ShiftType.NIGHT))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftType = ShiftType.NIGHT))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.NIGHT))
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee1.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee2.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee3.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee1.employeeId,
+                        shiftType = ShiftType.NIGHT
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee2.employeeId,
+                        shiftType = ShiftType.NIGHT
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee3.employeeId,
+                        shiftType = ShiftType.NIGHT
+                    )
+                )
                 specialDayDao.insert(SpecialDay(date = date))
-            }
-            else if (day == 11) {
+            } else if (day == 13) {
                 // Incomplete weekday shift
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftType = ShiftType.DAY))
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee2.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
             }
-            else if (day == 15) {
-                // Incomplete weekend shift
-                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.FULL))
-            }
+//            else if (day == 12) {
+//                // Incomplete weekend shift
+//                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.FULL))
+//            }
             else if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
                 // Completed weekend shifts
-                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftType = ShiftType.FULL))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftType = ShiftType.FULL))
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee1.employeeId,
+                        shiftType = ShiftType.FULL
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee2.employeeId,
+                        shiftType = ShiftType.FULL
+                    )
+                )
             } else {
                 // Regular weekdays
-                scheduleDao.insert(Schedule(date = date, employeeId = employee1.employeeId, shiftType = ShiftType.DAY))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee2.employeeId, shiftType = ShiftType.DAY))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.NIGHT))
-                scheduleDao.insert(Schedule(date = date, employeeId = employee4.employeeId, shiftType = ShiftType.NIGHT))
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee1.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee2.employeeId,
+                        shiftType = ShiftType.DAY
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee3.employeeId,
+                        shiftType = ShiftType.NIGHT
+                    )
+                )
+                scheduleDao.insert(
+                    Schedule(
+                        date = date,
+                        employeeId = employee4.employeeId,
+                        shiftType = ShiftType.NIGHT
+                    )
+                )
             }
         }
     }
