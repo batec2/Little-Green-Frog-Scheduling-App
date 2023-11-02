@@ -5,6 +5,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -30,11 +31,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.compose.F23HopperTheme
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.ui.components.BottomNavigationBar
 import com.example.f23hopper.ui.nav.AppNavHost
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
@@ -131,8 +132,9 @@ fun FullScreenSplash() {
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun SchedulerApp(navController: NavHostController = rememberNavController()) {
+fun SchedulerApp(navController: NavHostController = rememberAnimatedNavController()) {
     var selectedItem by remember { mutableIntStateOf(0) }
     val colorScheme = MaterialTheme.colorScheme
     val systemUiController = rememberSystemUiController()
