@@ -25,6 +25,10 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -39,6 +43,7 @@ import com.example.f23hopper.R
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -54,7 +59,8 @@ fun CalendarPager(
     specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel,
+    employee: (Long) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -72,7 +78,8 @@ fun CalendarPager(
                         isSpecialDay = isSpecialDay,
                         navigateToShiftView,
                         toggleSpecialDay,
-                        viewModel = viewModel
+                        viewModel = viewModel,
+                        employee = employee
                     )
                 } else {
                     Row(
@@ -125,7 +132,8 @@ fun ShiftDetailsForPagerDay(
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel,
+    employee: (Long) -> Unit
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -136,7 +144,8 @@ fun ShiftDetailsForPagerDay(
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             modifier = Modifier.weight(0.8f), // 80% of the total width
-            viewModel = viewModel
+            viewModel = viewModel,
+            employee = employee
         )
         Divider(
             color = Color.Gray, modifier = Modifier
@@ -195,7 +204,8 @@ fun ShiftContent(
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel,
+    employee: (Long) -> Unit
 ) {
     Row(
         modifier = modifier
@@ -213,7 +223,8 @@ fun ShiftContent(
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
                 maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel
+                viewModel = viewModel,
+                employee = employee
             )
             /*
             Spacer(
@@ -230,7 +241,8 @@ fun ShiftContent(
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
                 maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel
+                viewModel = viewModel,
+                employee = employee
             )
         } else {
             ShiftRow(
@@ -240,7 +252,8 @@ fun ShiftContent(
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
                 maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel
+                viewModel = viewModel,
+                employee = employee
             )
 
         }
@@ -257,7 +270,8 @@ fun ShiftRow(
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel,
+    employee: (Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -273,19 +287,18 @@ fun ShiftRow(
                     .padding(2.dp)
                     //.background(MaterialTheme.colorScheme.secondaryContainer)
                     .paint(
-                        if(shiftType.equals(ShiftType.NIGHT)){
+                        if (shiftType.equals(ShiftType.NIGHT)) {
                             //image for night shift go to res/drawable/ to change image
                             painterResource(id = R.drawable.img_2)
-                        }
-                        else{
+                        } else {
                             //image for night shift go to res/drawable/ to change image
                             painterResource(id = R.drawable.img_3)
                         },
                         contentScale = ContentScale.FillBounds
                     )
                     .clickable {
-                        viewModel.setEmployeeShifts(shift)
-                        println(shift.employee.toString())
+                        employee(shift.employee.employeeId)
+                        //println(shift.employee.toString())
                     },
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -311,14 +324,6 @@ fun ShiftRow(
                 }
             }
         }
-        /*
-        ShiftIcon(shiftType, Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(8.dp))
-        ShiftCircles(maxShifts, shiftsForType.size, shiftType, Modifier.weight(1f))
-        Spacer(modifier = Modifier.width(8.dp))
-        ShiftCompletionText(shiftsForType, shiftType, maxShifts, Modifier.weight(3f))
-        Spacer(modifier = Modifier.width(8.dp))
-         */
     }
 }
 

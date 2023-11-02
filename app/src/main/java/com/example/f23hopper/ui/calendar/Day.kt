@@ -34,6 +34,7 @@ data class DayContext(
     val shiftsOnDay: Map<ShiftType, List<Shift>>,
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
+    val employeeShiftSelected: Boolean,
 )
 
 @Composable
@@ -42,7 +43,8 @@ fun Day(
     onClick: (CalendarDay) -> Unit = {},
 ) {
     val dayBackgroundColor = when {
-        context.isSpecialDay -> CustomColor.specialDay
+        context.employeeShiftSelected -> CustomColor.specialDay
+        //context.isSpecialDay -> CustomColor.specialDay
         // Todo: Look into a better color for dark off-month days.
         context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.Gray else MaterialTheme.colorScheme.tertiaryContainer
         else -> itemBackgroundColor
