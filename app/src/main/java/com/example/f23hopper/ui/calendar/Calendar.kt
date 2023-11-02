@@ -123,7 +123,8 @@ fun Calendar(
             }
             ,
             viewModel = viewModel,
-            employeeShift = employeeShifts
+            employeeShift = employeeShifts,
+            employeesSelected = employee
         )
 
         CalendarPager(
@@ -159,7 +160,8 @@ fun CalendarBody(
     employeeShift: List<LocalDate>,
     selection: CalendarDay?,
     onSelectionChanged: (CalendarDay?) -> Unit,
-    viewModel: CalendarViewModel
+    viewModel: CalendarViewModel,
+    employeesSelected: List<Long>
 ) {
     HorizontalCalendar(
         modifier = modifier,
@@ -174,7 +176,8 @@ fun CalendarBody(
                     .orEmpty(),
                 isSpecialDay = isSpecialDay,
                 isSelected = selection == day,
-                employeeShiftSelected = employeeShiftSelected
+                employeeShiftSelected = employeeShiftSelected,
+                employeesSelected = employeesSelected
             )
             Day(
                 context,
