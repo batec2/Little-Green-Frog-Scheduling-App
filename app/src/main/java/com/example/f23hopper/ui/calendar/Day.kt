@@ -114,8 +114,11 @@ fun Day(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceAround
         ){
+            val ids =
+                context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee.employeeId) } }.toSet()
+
             context.employeesSelected.forEachIndexed{index, employee->
-                if(context.employeeShiftSelected){
+                if(context.employeeShiftSelected && ids.contains(employee)){
                     Column(
                         Modifier
                             .size(6.dp)
