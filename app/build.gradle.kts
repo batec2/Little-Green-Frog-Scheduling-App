@@ -126,6 +126,8 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:2.6.0")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
+    implementation("com.google.accompanist:accompanist-navigation-animation:0.30.1")
+
 }
 
 // Allow references to generated code

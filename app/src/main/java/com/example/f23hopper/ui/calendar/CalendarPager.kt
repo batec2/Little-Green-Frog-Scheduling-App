@@ -3,11 +3,12 @@ package com.example.f23hopper.ui.calendar
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,17 +30,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.paint
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.example.f23hopper.R
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.getShiftIcon
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -274,59 +272,67 @@ fun ShiftRow(
             .fillMaxWidth()
             .padding(vertical = 8.dp),
         horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceAround
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
-        shiftsForType.forEach{shift->
-            Row(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .padding(2.dp)
-                    //.background(MaterialTheme.colorScheme.secondaryContainer)
-                    .paint(
-                        if (shiftType.equals(ShiftType.NIGHT)) {
-                            //image for night shift go to res/drawable/ to change image
-                            if (isSystemInDarkTheme()) painterResource (id = R.drawable.night_theme_night_tmp)//dark mode
-                            else painterResource (id = R.drawable.day_theme_night_tmp)//light mode
-
-                        } else {
-                            //image for day shift go to res/drawable/ to change image
-                            if (isSystemInDarkTheme()) painterResource (id = R.drawable.night_theme_day_tmp)//dark mode
-                            else painterResource (id = R.drawable.day_theme_day_tmp)//light mode
-                        },
-                        contentScale = ContentScale.FillBounds
-                    )
-                    //Click to select employee ID passes employeeId up chain
-                    .clickable {
-                        employee(shift.employee.employeeId)
-                        //println(shift.employee.toString())
-                    },
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ){
-                Text(text = shift.employee.firstName+" "+shift.employee.lastName,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis)
-            }
+        shiftsForType.forEach { shift ->
+            ShiftRowEmployeeEntry(
+                shift = shift,
+                onEmployeeClick = { employeeId ->
+                    employee(employeeId)
+                },
+                modifier = Modifier.weight(1f)
+            )
         }
-        if(shiftsForType.size<maxShifts){
-            for(i in 1..(maxShifts-shiftsForType.size)){
+        if (shiftsForType.size < maxShifts) {
+            for (i in 1..(maxShifts - shiftsForType.size)) {
                 Row(
                     modifier = modifier
                         .fillMaxWidth()
+                        .weight(1f)
                         .padding(2.dp)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .clickable {
-                            println("empty")
                             navigateToShiftView(date.toString())
                         },
-                ){
-                    //empty row
+                ) {
                 }
             }
         }
     }
 }
 
+@Composable
+fun ShiftRowEmployeeEntry(
+    shift: Shift,
+    onEmployeeClick: (Long) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(2.dp)
+            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .clickable { onEmployeeClick(shift.employee.employeeId) },
+        horizontalArrangement = Arrangement.Start,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = getShiftIcon(shiftType = shift.schedule.shiftType),
+            contentDescription = "shift icon",
+            modifier = Modifier
+                .padding(start = 10.dp)
+                .size(30.dp) // Size for the icon
+        )
+        Spacer(Modifier.width(10.dp)) // add spacing between icon and text
+        Text(
+            text = shift.employee.firstName + " " + shift.employee.lastName,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .width(IntrinsicSize.Max)
+        )
+    }
+}
 
 @Composable
 fun ShiftCompletionText(
