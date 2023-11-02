@@ -17,7 +17,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -44,6 +47,7 @@ data class DayContext(
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
     val employeeShiftSelected: Boolean,//For employee highlighting
+    val employeesSelected: List<Long>
 )
 
 @Composable
@@ -59,12 +63,11 @@ fun Day(
     }
     val infiniteTransition = rememberInfiniteTransition()
     val color by infiniteTransition.animateColor(
-            initialValue = Color.Red,
-    targetValue = Color.Green,
-    animationSpec = infiniteRepeatable(
-        animation = tween(1000, easing = LinearEasing),
-        repeatMode = RepeatMode.Reverse
-    )
+        initialValue = MaterialTheme.colorScheme.primary,
+        targetValue = MaterialTheme.colorScheme.secondaryContainer,
+        animationSpec = infiniteRepeatable(
+            animation = tween(100, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse)
     )
     Box( // Square days!!
         modifier = Modifier
@@ -74,7 +77,7 @@ fun Day(
                 color = if (context.isSelected) selectedItemColor else Color.Transparent
             )
             .padding(1.dp)
-            .background(if (context.employeeShiftSelected) color else dayBackgroundColor)
+            .background(/*if (context.employeeShiftSelected) color else*/ dayBackgroundColor)
             .clickable(
                 enabled = true,/*day.position == DayPosition.MonthDate,*/
                 onClick = { onClick(context.day) })
@@ -83,8 +86,6 @@ fun Day(
             DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
             DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
         }
-
-
         InvalidDayIcon(
             context.shiftsOnDay,
             context.day.date,
@@ -103,7 +104,36 @@ fun Day(
             color = textColor,
             fontSize = 12.sp
         )
-
+        Row(
+            modifier = Modifier
+                //.background(Color.Blue)
+                .fillMaxWidth()
+                .height(15.dp)
+                .align(Alignment.Center)
+                .padding(1.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceAround
+        ){
+            context.employeesSelected.forEachIndexed{index, employee->
+                if(context.employeeShiftSelected){
+                    Column(
+                        Modifier
+                            .size(6.dp)
+                            .background(
+                                when(index){
+                                    0->Color.Red
+                                    1->Color.Blue
+                                    2->Color.Cyan
+                                    3->Color.Yellow
+                                    4->Color.Green
+                                    5->Color.White
+                                    else-> Color.DarkGray
+                                }
+                            )
+                    ){}
+                }
+            }
+        }
         val groupedColors = generateGroupedColors(context.shiftsOnDay)
         ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
@@ -135,4 +165,3 @@ fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier 
         }
     }
 }
-
