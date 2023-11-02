@@ -57,10 +57,9 @@ fun Calendar(
 
     //Holds employee id for shift highlighting
     val employee = remember { mutableStateListOf<Long>() }
+    /*all shifts dates for the current montt for employees selected for shift view*/
     val employeeShifts = shifts.filter { shift -> employee.contains(shift.employee.employeeId)}
                 .map { it.schedule.date.toJavaLocalDate() }
-    val selected = remember{ mutableStateListOf<Employee>() }
-    selected.addAll(employees.filter {item -> employee.contains(item.employeeId)})
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
@@ -140,9 +139,10 @@ fun Calendar(
             employee = { if (employee.contains(it)) employee.remove(it)
                         else if(employee.size<=6) employee.add(it) },
             employees = employee,
-            employeeList = selected,
+            employeeList = employees,
             clearList = {
-                selected.clear()
+                //selected.clear()
+                //Clears list of employee ids for shiftview
                 employee.clear()
             }
         )

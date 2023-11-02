@@ -74,7 +74,7 @@ fun CalendarPager(
         val pagerState = rememberPagerState(initialPage = 0)
         HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.weight(1f)) { page ->
             when(page) {
-                0->
+                0->//shows employees scheduled to work on current day
                 if (selection != null) {
                     //Divider(color = itemBackgroundColor)
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
@@ -97,17 +97,38 @@ fun CalendarPager(
                         Text(text = "Select Day")
                     }
                 }
-                1->
+                1->//Shows employees selected for the employee shift view
                 Row(
                     modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
 
                 ) {
-                    //Text(text = "PUT STUFF HERE")
-                    SelectedEmployeesForPager(employeeList)
-                    Button(onClick = (clearList)) {
-                        Text(text = "Clear")
+                    if(employees.isEmpty()){
+                        Text(text = "No Employees Selected for Shift View")
+                    }
+                    else{
+                        //Checks if employee id is in the list of selected employees for shift view
+                        employeeList.forEach{item ->
+                            if(employees.contains(item.employeeId)){
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .fillMaxHeight()
+                                        .padding(2.dp)
+                                        .background(MaterialTheme.colorScheme.secondaryContainer),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ){
+                                    Text(text = item.firstName)
+                                }
+                            }
+                        }
+                        //Clears list of employees for shift view
+                        //Temporary replace later
+                        Button(onClick = (clearList)) {
+                            Text(text = "Clear")
+                        }
                     }
                 }
             }
