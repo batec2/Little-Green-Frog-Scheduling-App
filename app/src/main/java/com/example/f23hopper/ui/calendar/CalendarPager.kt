@@ -255,7 +255,6 @@ fun ShiftContent(
 
 }
 
-
 @Composable
 fun ShiftRow(
     maxShifts: Int,
@@ -265,14 +264,13 @@ fun ShiftRow(
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel,
-    employee: (Long) -> Unit //passes employeeId to next composable
+    employee: (Long) -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp),
-        horizontalAlignment = Alignment.Start,
-        verticalArrangement = Arrangement.SpaceBetween
+        horizontalAlignment = Alignment.Start
     ) {
         shiftsForType.forEach { shift ->
             ShiftRowEmployeeEntry(
@@ -286,15 +284,16 @@ fun ShiftRow(
         if (shiftsForType.size < maxShifts) {
             for (i in 1..(maxShifts - shiftsForType.size)) {
                 Row(
-                    modifier = modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(2.dp)
                         .background(MaterialTheme.colorScheme.secondaryContainer)
                         .clickable {
                             navigateToShiftView(date.toString())
-                        },
+                        }
                 ) {
+                    // Empty row
                 }
             }
         }
@@ -321,7 +320,7 @@ fun ShiftRowEmployeeEntry(
             contentDescription = "shift icon",
             modifier = Modifier
                 .padding(start = 10.dp)
-                .size(30.dp) // Size for the icon
+                .size(30.dp) // size of the icon
         )
         Spacer(Modifier.width(10.dp)) // add spacing between icon and text
         Text(

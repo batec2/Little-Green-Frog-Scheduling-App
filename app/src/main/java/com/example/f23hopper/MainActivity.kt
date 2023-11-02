@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -135,7 +134,6 @@ fun FullScreenSplash() {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun SchedulerApp(navController: NavHostController = rememberAnimatedNavController()) {
-    var selectedItem by remember { mutableIntStateOf(0) }
     val colorScheme = MaterialTheme.colorScheme
     val systemUiController = rememberSystemUiController()
     val isDarkTheme = isSystemInDarkTheme()
