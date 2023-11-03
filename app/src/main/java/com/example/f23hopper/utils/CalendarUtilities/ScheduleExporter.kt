@@ -3,7 +3,6 @@ package com.example.f23hopper.utils.CalendarUtilities
 import android.content.Context
 import android.os.Environment
 import android.util.Log
-import android.view.Gravity
 import android.widget.Toast
 import com.example.f23hopper.data.schedule.Shift
 import java.io.File
@@ -28,14 +27,15 @@ class ScheduleExporter {
         return header + rows
     }
 
-    fun createFile(content: String, context: Context): File {
-        val file = File(context.cacheDir, "schedule.txt")
+    fun createFile(content: String, context: Context, filename: String = "schedule.txt"): File {
+        val file = File(context.cacheDir, filename)
         file.writeText(content)
         return file
     }
 
     fun shareFile(file: File, context: Context) {
-        val downloadsDirectory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val downloadsDirectory =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
         val destinationFile = File(downloadsDirectory, file.name)
 
         try {

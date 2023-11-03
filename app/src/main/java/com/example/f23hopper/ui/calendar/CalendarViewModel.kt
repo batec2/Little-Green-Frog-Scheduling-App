@@ -1,16 +1,7 @@
 package com.example.f23hopper.ui.calendar
 
 import android.content.Context
-import android.content.Intent
-import android.os.Environment
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.FileProvider
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
@@ -19,25 +10,20 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.ScheduleExporter
-import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
-import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
-import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileWriter
 import java.sql.Date
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.format.TextStyle
+import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -120,8 +106,12 @@ class CalendarViewModel @Inject constructor(
 
     fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
         val content = exporter.formatFileData(shifts, curMonth)
-        val csvFile = exporter.createFile(content, context)
+        val filename = "${curMonth.year}-${
+            curMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+        }_schedule.txt"
+        val csvFile = exporter.createFile(content, context, filename = filename)
         exporter.shareFile(csvFile, context)
-    }
 
+
+    }
 }
