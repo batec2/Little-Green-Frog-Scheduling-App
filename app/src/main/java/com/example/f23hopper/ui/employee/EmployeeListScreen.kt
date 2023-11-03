@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -197,36 +199,52 @@ fun EmployeeListScaffold(
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeDeactivationDialog(
     employee: Employee?,
     showDialog: Boolean = true,
     onConfirmDeactivation: () -> Unit,
-    onDismissDialog: () -> Unit
+    onDismissDialog: () -> Unit,
 ) {
     if (showDialog && employee != null) {
         AlertDialog(
             onDismissRequest = onDismissDialog,
-            title = { Text("Deactivate Employee") },
-            text = {
-                Text("The employee currently has shifts scheduled for a future date, are you sure you want to deactivate?")
-            },
-            confirmButton = {
-                Button(
-                    onClick = onConfirmDeactivation,
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+            content = {
+                Surface(
+                    shape = RoundedCornerShape(15.dp),
+                    color = colorScheme.surface
                 ) {
-                    Text("Yes", color = colorScheme.onPrimary)
-                }
-            },
-            dismissButton = {
-                Button(
-                    onClick = onDismissDialog,
-                    shape = RoundedCornerShape(50),
-                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
-                ) {
-                    Text("No", color = colorScheme.onPrimary)
+                    Column(
+                        modifier = Modifier
+                            .padding(24.dp)
+                            .fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text("Deactivate Employee", style = MaterialTheme.typography.headlineMedium)
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Text("The employee currently has shifts scheduled for a future date, are you sure you want to deactivate?")
+                        Spacer(modifier = Modifier.height(32.dp))
+                        Row(
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            Button(
+                                onClick = onDismissDialog,
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                            ) {
+                                Text("No", color = colorScheme.onPrimary)
+                            }
+                            Spacer(modifier = Modifier.width(16.dp))
+                            Button(
+                                onClick = onConfirmDeactivation,
+                                shape = RoundedCornerShape(50),
+                                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                            ) {
+                                Text("Yes", color = colorScheme.onPrimary)
+                            }
+                        }
+                    }
                 }
             }
         )
