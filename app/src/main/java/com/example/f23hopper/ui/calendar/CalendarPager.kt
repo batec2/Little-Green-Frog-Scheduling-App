@@ -3,6 +3,7 @@ package com.example.f23hopper.ui.calendar
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -360,10 +361,25 @@ fun ShiftRowEmployeeEntry(
         modifier = modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
+            .background(
+                if(shift.schedule.shiftType == ShiftType.DAY) {
+                    if(isSystemInDarkTheme()) {
+                        Color(0xFF72B9E0) //Day Dark
+                    } else {
+                        Color(0xFFB1C1F2) //Day Light
+                    }
+                } else {
+                    if(isSystemInDarkTheme()) {
+                        Color(0xFF2C8D76) //Evening Dark
+                    } else {
+                        Color(0xFFA18AB4) //Evening Light
+                    }
+                }
+            )
             .clickable { onEmployeeClick(shift.employee.employeeId) },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
+
     ) {
         Icon(
             imageVector = getShiftIcon(shiftType = shift.schedule.shiftType),
@@ -380,6 +396,7 @@ fun ShiftRowEmployeeEntry(
             modifier = Modifier
                 .width(IntrinsicSize.Max)
         )
+
     }
 }
 
