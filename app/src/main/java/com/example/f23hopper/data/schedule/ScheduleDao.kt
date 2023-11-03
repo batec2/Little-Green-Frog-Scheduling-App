@@ -55,7 +55,7 @@ interface ScheduleDao {
     AND employees.employeeId = :employeeId
     """
     )
-    fun getActiveShiftsForEmployee(monthYear: String,employeeId: Int): Flow<List<Shift>>
+    fun getActiveShiftsForEmployee(monthYear: String, employeeId: Int): Flow<List<Shift>>
 
 
     @Transaction
@@ -90,5 +90,9 @@ interface ScheduleDao {
 
     @Query("DELETE FROM schedules")
     suspend fun deleteAllSchedules()
+
+    @Query(" SELECT * FROM schedules WHERE schedules.date >= :date")
+    fun getShiftFromDate(date: Date): Flow<List<Schedule>>
+
 
 }

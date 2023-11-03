@@ -34,7 +34,7 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
 
     //Gets the all shifts for an employee of the current month
     fun getSchedulesForEmployee(monthYear: String,employeeId: Int): Flow<List<Shift>> {
-        return scheduleDao.getActiveShiftsForEmployee(monthYear,employeeId)
+        return scheduleDao.getActiveShiftsForEmployee(monthYear, employeeId)
     }
 
     fun getSchedulesByDate(date: Date): Flow<List<Schedule>> {
@@ -43,6 +43,10 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
 
     fun getShiftsByDate(date: Date): Flow<List<Shift>> {
         return scheduleDao.getShiftByDate(date)
+    }
+
+    fun getShiftsFromDate(date: Date): Flow<List<Schedule>> {
+        return scheduleDao.getShiftFromDate(date)
     }
 
     suspend fun deleteAllSchedules() {

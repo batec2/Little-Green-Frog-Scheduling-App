@@ -39,7 +39,7 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         employeeDao.update(employee)
     }
 
-    suspend fun deactivateEmployee(employee: Employee, value: Int) {
+    suspend fun updateEmployeeActive(employee: Employee, value: Int) {
         employeeDao.updateActive(employee.employeeId, value)
     }
 

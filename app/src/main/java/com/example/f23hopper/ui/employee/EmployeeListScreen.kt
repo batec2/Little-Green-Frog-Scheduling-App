@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +23,11 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
@@ -39,7 +44,6 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -63,9 +67,9 @@ import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberRedo
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeListScreen(
     navigateToEmployeeAdd: () -> Unit,
@@ -74,70 +78,159 @@ fun EmployeeListScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val employees by sharedViewModel.employees.asFlow().collectAsState(initial = emptyList())
+    val showConfirmationDialog = sharedViewModel.showConfirmationDialog
+    val employeeToToggle = sharedViewModel.employeeToToggle
+
     val coroutineScope = rememberCoroutineScope()
-    var offsetX by remember { mutableFloatStateOf(0f) }
-    var offsetY by remember { mutableFloatStateOf(0f) }
 
-    StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.secondaryContainer,
-                    titleContentColor = colorScheme.secondaryContainer,
-                    navigationIconContentColor = colorScheme.primary,
-                    actionIconContentColor = colorScheme.primary
-                ),
-                navigationIcon = {
-                    Icon(
-                        Icons.Default.Add,
-                        contentDescription = "add",
-                        modifier = Modifier
-                            .clickable { navigateToEmployeeAdd() }
-                            .size(40.dp)
-                    )
-                },
-                title = {},
-                actions = {
-                    var isExpanded by remember { mutableStateOf(false) }
-                    Box(modifier = Modifier, contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = rememberFilterList(),
-                            contentDescription = "Filter",
-                            modifier = Modifier.clickable { isExpanded = true },
-                        )
-                    }
-                    FilterDialogue(
-                        isFilterExpanded = isExpanded,
-                        filterState = { isExpanded = it },
-                    ) { filter -> sharedViewModel.filterEmployee(filter) }
-                },
+    EmployeeDeactivationDialog(
+        employee = employeeToToggle,
+        showDialog = showConfirmationDialog,
+        onConfirmDeactivation = { sharedViewModel.confirmDeactivation() },
+        onDismissDialog = { sharedViewModel.dismissDialog() }
+    )
 
-                modifier = Modifier.height(50.dp),
+    StatusBarColorUpdateEffect(toolbarColor) // Top status bar color
+
+    EmployeeListScaffold(
+        colorScheme = colorScheme,
+        navigateToEmployeeAdd = navigateToEmployeeAdd,
+        sharedViewModel = sharedViewModel,
+        employees = employees,
+        coroutineScope = coroutineScope,
+        navigateToEmployeeEdit = navigateToEmployeeEdit
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EmployeeListTopBar(
+    colorScheme: ColorScheme,
+    navigateToEmployeeAdd: () -> Unit,
+    sharedViewModel: EmployeeListViewModel
+) {
+    var isExpanded by remember { mutableStateOf(false) }
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = colorScheme.secondaryContainer,
+            titleContentColor = colorScheme.secondaryContainer,
+            navigationIconContentColor = colorScheme.primary,
+            actionIconContentColor = colorScheme.primary
+        ),
+        navigationIcon = {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "add",
+                modifier = Modifier
+                    .clickable { navigateToEmployeeAdd() }
+                    .size(40.dp)
             )
         },
-        content = { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-            ) {
-                EmployeeListItem(
-                    employees,
-                    deactivateItem =
-                    {
-                        coroutineScope.launch {
-                            sharedViewModel.deactivateEmployee(it,it.active)
-                        }
-                    },
-                ) { navigateToEdit ->
-                    println("this: ${navigateToEdit.firstName}")
-                    sharedViewModel.setEmployee(navigateToEdit)
-                    navigateToEmployeeEdit()
+        title = {},
+        actions = {
+            Box(modifier = Modifier, contentAlignment = Alignment.Center) {
+                Icon(
+                    imageVector = rememberFilterList(),
+                    contentDescription = "Filter",
+                    modifier = Modifier.clickable { isExpanded = true },
+                )
+            }
+            FilterDialogue(
+                isFilterExpanded = isExpanded,
+                filterState = { isExpanded = it },
+            ) { filter -> sharedViewModel.filterEmployee(filter) }
+        },
+        modifier = Modifier.height(50.dp),
+    )
+}
+
+@Composable
+fun EmployeeListContent(
+    paddingValues: PaddingValues,
+    employees: List<Employee>,
+    coroutineScope: CoroutineScope,
+    sharedViewModel: EmployeeListViewModel,
+    navigateToEmployeeEdit: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(paddingValues)
+    ) {
+        EmployeeListItem(
+            employees,
+            deactivateItem = { employee ->
+                coroutineScope.launch {
+                    sharedViewModel.toggleEmployeeActive(employee, employee.active)
+                }
+            },
+            onEmployeeClick = { navigateToEdit ->
+                println("this: ${navigateToEdit.firstName}")
+                sharedViewModel.setEmployee(navigateToEdit)
+                navigateToEmployeeEdit()
+            }
+        )
+    }
+}
+
+@Composable
+fun EmployeeListScaffold(
+    colorScheme: ColorScheme,
+    navigateToEmployeeAdd: () -> Unit,
+    sharedViewModel: EmployeeListViewModel,
+    employees: List<Employee>,
+    coroutineScope: CoroutineScope,
+    navigateToEmployeeEdit: () -> Unit
+) {
+    Scaffold(
+        topBar = { EmployeeListTopBar(colorScheme, navigateToEmployeeAdd, sharedViewModel) },
+        // I have no idea why padding values needs to be like this, but it gets real mad at me without it.
+        content = { paddingValues ->
+            EmployeeListContent(
+                paddingValues,
+                employees,
+                coroutineScope,
+                sharedViewModel,
+                navigateToEmployeeEdit
+            )
+        }
+    )
+}
+
+@Composable
+fun EmployeeDeactivationDialog(
+    employee: Employee?,
+    showDialog: Boolean = true,
+    onConfirmDeactivation: () -> Unit,
+    onDismissDialog: () -> Unit
+) {
+    if (showDialog && employee != null) {
+        AlertDialog(
+            onDismissRequest = onDismissDialog,
+            title = { Text("Deactivate Employee") },
+            text = {
+                Text("The employee currently has shifts scheduled for a future date, are you sure you want to deactivate?")
+            },
+            confirmButton = {
+                Button(
+                    onClick = onConfirmDeactivation,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                ) {
+                    Text("Yes", color = colorScheme.onPrimary)
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = onDismissDialog,
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
+                ) {
+                    Text("No", color = colorScheme.onPrimary)
                 }
             }
-        },
-    )
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,8 +252,8 @@ fun EmployeeListItem(
             val dismissState = DismissState(
                 initialValue = DismissValue.Default,
                 confirmValueChange = {
-                true
-            })
+                    true
+                })
             /*
             val dismissState = rememberDismissState(
                 confirmValueChange = {
@@ -168,7 +261,7 @@ fun EmployeeListItem(
                 },
             )
              */
-                //positionalThreshold =
+            //positionalThreshold =
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
@@ -217,8 +310,8 @@ fun EmployeeListItem(
                                             deactivateItem(employee)
                                         },
                                     imageVector =
-                                    if (employee.active)Icons.Filled.Clear
-                                    else Icons.Filled.Refresh ,
+                                    if (employee.active) Icons.Filled.Clear
+                                    else Icons.Filled.Refresh,
                                     contentDescription = "Deactivate and Reactivate"
                                 )
                             }
