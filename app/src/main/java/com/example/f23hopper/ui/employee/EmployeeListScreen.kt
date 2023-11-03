@@ -68,6 +68,7 @@ import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberRedo
+import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -393,7 +394,7 @@ fun ListEmployeeInfo(
         ) {
             if (employee.canOpen) {
                 Icon(
-                    imageVector = rememberLockOpen(),
+                    imageVector = unlockIcon(),
                     modifier = Modifier.size(20.dp),
                     contentDescription = "Can Open"
                 )

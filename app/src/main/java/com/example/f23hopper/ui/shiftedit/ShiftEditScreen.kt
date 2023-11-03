@@ -51,6 +51,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.ToggleSpecialDayButton
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
+import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
 import com.example.f23hopper.utils.isWeekday
@@ -428,7 +429,7 @@ fun CanOpenIcon(text: Boolean = false) {
         horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         Icon(
-            imageVector = rememberLockOpen(),
+            imageVector = unlockIcon(),
             contentDescription = "Can Open",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)

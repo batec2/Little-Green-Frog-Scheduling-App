@@ -65,6 +65,7 @@ import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.rememberLockOpen
+import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
@@ -322,7 +323,7 @@ fun OpenCloseCertificationSelector(
             },
             primaryColor = primaryColor,
             offColor = offColor,
-            icon = rememberLockOpen(),
+            icon = unlockIcon(),
         )
 
         Spacer(modifier = Modifier.size(15.dp))
