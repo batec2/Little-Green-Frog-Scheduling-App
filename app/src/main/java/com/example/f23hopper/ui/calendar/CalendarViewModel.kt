@@ -109,8 +109,8 @@ class CalendarViewModel @Inject constructor(
         val filename = "${curMonth.year}-${
             curMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
         }_schedule.txt"
-        val csvFile = exporter.createFile(content, context, filename = filename)
-        exporter.shareFile(csvFile, context)
+        val file = exporter.createFile(content, context, filename = filename)
+        exporter.shareFile(file, context)
 
 
     }
