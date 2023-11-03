@@ -37,6 +37,11 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.util.Date
 
+data class ViewItem(
+    val empItem: Employee,
+    val color: ShiftViewColors,
+)
+
 @Composable
 fun Calendar(
     shifts: List<Shift>,
@@ -54,12 +59,22 @@ fun Calendar(
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+    val colors = listOf<ShiftViewColors>(
+        ShiftViewColors.COLOR1,
+        ShiftViewColors.COLOR2,
+        ShiftViewColors.COLOR3,
+        ShiftViewColors.COLOR4,
+        ShiftViewColors.COLOR5,
+        ShiftViewColors.COLOR6)
 
     //Holds employee id for shift highlighting
-    val employee = remember { mutableStateListOf<Long>() }
-    /*all shifts dates for the current montt for employees selected for shift view*/
-    val employeeShifts = shifts.filter { shift -> employee.contains(shift.employee.employeeId)}
-                .map { it.schedule.date.toJavaLocalDate() }
+    val employee = remember {mutableStateListOf<ViewItem>()}
+    //val employee = remember { mutableStateListOf<Long>() }
+
+    /*all shifts dates for the current month for employees selected for shift view*/
+    val employeeShifts = shifts.filter { shift ->
+        (employee.filter{emp->emp.empItem == shift.employee}.isNotEmpty())}
+        .map { it.schedule.date.toJavaLocalDate() }
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
@@ -137,19 +152,33 @@ fun Calendar(
             viewModel = viewModel,
             //Employee selected limit is 6, if employee already in list it gets removed
             //else if the list is less than 6 entries then it gets added
-            employee = { if (employee.contains(it)) employee.remove(it)
-                        else if(employee.size<=6) employee.add(it) },
+            employee =
+            {
+                if(employee.filter {emp->emp.empItem == it}.isNotEmpty()) {
+                    employee.removeIf {emp->emp.empItem == it}
+                }
+                else if(employee.size<=6) {
+                    employee.add(ViewItem(empItem = it,color = getColor(employee,colors)))
+                }
+            },
             employees = employee,
             employeeList = employees,
             clearList = {
-                //selected.clear()
-                //Clears list of employee ids for shiftview
                 employee.clear()
             }
         )
     }
 }
 
+fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewColors{
+    return if(viewList.isNotEmpty()){
+        (colorList.filter {item-> viewList
+            .filter { emp -> emp.color == item}.isNotEmpty()}).first()
+    }
+    else{
+        colorList.first()
+    }
+}
 
 @Composable
 fun CalendarBody(
@@ -161,7 +190,7 @@ fun CalendarBody(
     selection: CalendarDay?,
     onSelectionChanged: (CalendarDay?) -> Unit,
     viewModel: CalendarViewModel,
-    employeesSelected: List<Long>
+    employeesSelected: List<ViewItem>
 ) {
     HorizontalCalendar(
         modifier = modifier,

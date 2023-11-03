@@ -47,7 +47,7 @@ data class DayContext(
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
     val employeeShiftSelected: Boolean,//For employee highlighting
-    val employeesSelected: List<Long>
+    val employeesSelected: List<ViewItem>
 )
 
 @Composable
@@ -120,7 +120,6 @@ fun shiftViewIndicators(
 ){
     Row(
         modifier
-            //.background(Color.Blue)
             .fillMaxWidth()
             .height(15.dp)
             .padding(1.dp),
@@ -128,25 +127,14 @@ fun shiftViewIndicators(
         horizontalArrangement = Arrangement.SpaceAround
     ){
         val ids =
-            context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee.employeeId) } }.toSet()
+            context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee) } }.toSet()
 
-        context.employeesSelected.forEachIndexed{index, employee->
-            if(context.employeeShiftSelected && ids.contains(employee)){
+        context.employeesSelected.forEachIndexed{index, item->
+            if(context.employeeShiftSelected && ids.contains(item.empItem)){
                 Column(
                     Modifier
                         .size(6.dp)
-                        .background(
-                            //changes colour depending on index of item in list
-                            when(index){
-                                0->Color.Red
-                                1->Color.Blue
-                                2->Color.Cyan
-                                3->Color.Yellow
-                                4->Color.Green
-                                5->Color.White
-                                else-> Color.DarkGray
-                            }
-                        )
+                        .background(item.color.colVal)
                 ){}
             }
         }
