@@ -23,6 +23,9 @@ import com.example.f23hopper.R
 fun fullShiftIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.fullshift)
 
 @Composable
+fun unlockIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.lock_open_variant_outline)
+
+@Composable
 fun FullShiftIcon(modifier: Modifier = Modifier, tint: Color = Color.Black, size: Dp = 40.dp) {
     Icon(
         painter = painterResource(id = R.drawable.fullshift),

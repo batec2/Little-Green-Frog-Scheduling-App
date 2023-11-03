@@ -171,12 +171,15 @@ fun Calendar(
 }
 
 fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewColors{
-    return if(viewList.isNotEmpty()){
-        (colorList.filter {item-> viewList
-            .filter { emp -> emp.color == item}.isNotEmpty()}).first()
+
+    if(viewList.isNotEmpty()){
+        println("here")
+        return (colorList.filter {item-> viewList
+            .filter { emp -> emp.color == item}.isNotEmpty()}).random()
     }
     else{
-        colorList.first()
+        println("over here")
+        return colorList.first()
     }
 }
 
