@@ -105,7 +105,7 @@ fun Calendar(
                 coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth) }
             },
             onExportClick = {
-                viewModel.exportToCsv(shifts, currentMonth, context)
+                viewModel.exportSchedule(shifts, currentMonth, context)
             }
         )
 

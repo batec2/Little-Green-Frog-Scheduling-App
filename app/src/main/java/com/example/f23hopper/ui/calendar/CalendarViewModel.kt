@@ -2,7 +2,9 @@ package com.example.f23hopper.ui.calendar
 
 import android.content.Context
 import android.content.Intent
+import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,6 +18,7 @@ import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.utils.CalendarUtilities.ScheduleExporter
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
@@ -45,6 +48,9 @@ class CalendarViewModel @Inject constructor(
 ) : ViewModel() {
     //var employeeSchedule =
     //    mutableStateOf(scheduleRepo.getSchedulesForEmployee(null,null))
+
+    // Exporting helper
+    private val exporter: ScheduleExporter = ScheduleExporter()
 
     private val startDate: Date = getStartDate()
     private val endDate: Date = getEndDate()
@@ -112,54 +118,10 @@ class CalendarViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
-    private fun createCsvFile(content: String, context: Context): File {
-        val csvFile = File(context.cacheDir, "schedule.csv")
-        csvFile.writeText(content)
-        Log.d("csv", "File Path: ${csvFile.absolutePath}")
-        return csvFile
-    }
-
-    private fun shareCsvFile(file: File, context: Context) {
-
-        val uri = FileProvider.getUriForFile(
-            context,
-            "${context.applicationContext.packageName}.provider",
-            file
-        )
-        Log.d("uri", uri.toString())
-
-        val sendIntent: Intent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, uri)
-            type = "text/*"
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
-
-        val chooser = Intent.createChooser(sendIntent, "Share .csv file.")
-        context.startActivity(chooser)
-    }
-
-    fun exportToCsv(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
-        val content = formatShiftsToCsv(shifts, curMonth)
-        val csvFile = createCsvFile(content, context)
-        shareCsvFile(csvFile, context)
-    }
-
-    private fun formatShiftsToCsv(shifts: List<Shift>, curMonth: YearMonth): String {
-        val header = "Date,Shift Type,Employee Name\n"
-        val filteredShifts = shifts.filter { shift ->
-            val scheduleDate = shift.schedule.date.toKotlinxLocalDate()
-            scheduleDate.year == curMonth.year && scheduleDate.month == curMonth.month
-        }
-        val rows = filteredShifts.groupBy { it.schedule.date }
-            .toList()
-            .sortedBy { it.first }
-            .joinToString("\n") { (_, groupedShifts) ->
-                groupedShifts.joinToString("\n") { shift ->
-                    "${shift.schedule.date},${shift.schedule.shiftType},${shift.employee.firstName} ${shift.employee.lastName}"
-                }
-            }
-        return header + rows
+    fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
+        val content = exporter.formatFileData(shifts, curMonth)
+        val csvFile = exporter.createFile(content, context)
+        exporter.shareFile(csvFile, context)
     }
 
 }
