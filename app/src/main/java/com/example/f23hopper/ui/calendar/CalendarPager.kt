@@ -35,12 +35,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
-import com.example.compose.CustomColor
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.getShiftIcon
+import com.example.f23hopper.utils.getShiftRowColor
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -373,14 +373,7 @@ fun ShiftRowEmployeeEntry(
         modifier = modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .background(
-                if (shift.schedule.shiftType == ShiftType.DAY) {
-                    // TODO: Add these to the colorscheme file
-                    CustomColor.shiftRowDayBackground
-                } else {
-                    CustomColor.shiftRowNightBackground
-                }
-            )
+            .background(getShiftRowColor(shiftType = shift.schedule.shiftType))
             .clickable { onEmployeeClick(shift.employee.employeeId) },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically

@@ -3,7 +3,6 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
@@ -11,9 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,6 +22,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.displayText
+import com.example.f23hopper.utils.getShiftCircleColor
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.daysOfWeek
 
@@ -67,22 +65,10 @@ fun WeekDays(modifier: Modifier) {
 
 
 @Composable
-fun getShiftColor(shiftType: ShiftType): Color {
-    val isDarkTheme = isSystemInDarkTheme()
-    return when (shiftType) {
-        ShiftType.CANT_WORK -> MaterialTheme.colorScheme.primary
-        ShiftType.DAY -> if (isDarkTheme) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
-        ShiftType.NIGHT -> if (isDarkTheme) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onTertiaryContainer
-        ShiftType.FULL -> MaterialTheme.colorScheme.secondary
-        else -> Color.Transparent
-    }
-}
-
-@Composable
 fun generateGroupedColors(shiftsOnDay: Map<ShiftType, List<Shift>>): Map<Color, List<Color>> {
     // Map all shifts to their corresponding colors
 
-    val shiftTypeToColor = shiftsOnDay.keys.associateWith { getShiftColor(it) }
+    val shiftTypeToColor = shiftsOnDay.keys.associateWith { getShiftCircleColor(it) }
     val allColors = shiftsOnDay.flatMap { entry ->
         val colorForShiftType = shiftTypeToColor[entry.key] ?: Color.Transparent
         entry.value.map { colorForShiftType }

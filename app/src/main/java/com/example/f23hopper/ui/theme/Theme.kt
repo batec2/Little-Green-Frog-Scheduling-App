@@ -103,8 +103,17 @@ class CustomColor {
                 md_theme_dark_shift_row_day
             } else
                 md_theme_light_shift_row_day
+
+        val shiftRowFullBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift_row_full
+            } else
+                md_theme_light_shift_row_full
+
     }
+
 }
+
 
 @Composable
 fun F23HopperTheme(

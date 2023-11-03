@@ -12,6 +12,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,8 +47,8 @@ import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.example.compose.CustomColor
 import com.example.f23hopper.data.shifttype.ShiftType
-import com.example.f23hopper.ui.calendar.getShiftColor
 import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
@@ -124,7 +125,7 @@ fun ShiftCircles(
                 modifier = if (index < shiftCount) {
                     Modifier
                         .size(8.dp)
-                        .background(getShiftColor(shiftType), CircleShape)
+                        .background(getShiftCircleColor(shiftType), CircleShape)
                 } else {
                     Modifier
                         .size(8.dp)
@@ -316,6 +317,31 @@ fun getWeekPageTitle(week: Week): String {
         else -> {
             "${firstDate.yearMonth.displayText()} - ${lastDate.yearMonth.displayText()}"
         }
+    }
+}
+
+
+@Composable
+fun getShiftCircleColor(shiftType: ShiftType): Color {
+    val isDarkTheme = isSystemInDarkTheme()
+    return when (shiftType) {
+        ShiftType.CANT_WORK -> MaterialTheme.colorScheme.primary
+        ShiftType.DAY -> if (isDarkTheme) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
+        ShiftType.NIGHT -> if (isDarkTheme) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onTertiaryContainer
+        ShiftType.FULL -> MaterialTheme.colorScheme.secondary
+        else -> Color.Transparent
+    }
+}
+
+
+@Composable
+fun getShiftRowColor(shiftType: ShiftType): Color {
+    return when (shiftType) {
+        ShiftType.CANT_WORK -> MaterialTheme.colorScheme.primary
+        ShiftType.DAY -> CustomColor.shiftRowDayBackground
+        ShiftType.NIGHT -> CustomColor.shiftRowNightBackground
+        ShiftType.FULL -> CustomColor.shiftRowFullBackground
+        else -> Color.Transparent
     }
 }
 
