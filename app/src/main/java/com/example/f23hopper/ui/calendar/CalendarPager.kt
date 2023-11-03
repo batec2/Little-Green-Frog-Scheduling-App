@@ -63,7 +63,7 @@ fun CalendarPager(
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
     employee: (Long) -> Unit,//passes employeeId to Calendar
-    employees: List<Long>,
+    employees: List<Long>,//list ids for employees selected for schedule view
     employeeList: List<Employee>,
     clearList:()->Unit
 ) {
@@ -99,39 +99,10 @@ fun CalendarPager(
                     }
                 }
                 1->//Shows employees selected for the employee shift view
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                    verticalAlignment = Alignment.CenterVertically
-
-                ) {
-                    if(employees.isEmpty()){
-                        Text(text = "No Employees Selected for Shift View")
-                    }
-                    else{
-                        //Checks if employee id is in the list of selected employees for shift view
-                        employeeList.forEach{item ->
-                            if(employees.contains(item.employeeId)){
-                                Column(
-                                    modifier = Modifier
-                                        .weight(1f)
-                                        .fillMaxHeight()
-                                        .padding(2.dp)
-                                        .background(MaterialTheme.colorScheme.secondaryContainer),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ){
-                                    Text(text = item.firstName)
-                                }
-                            }
-                        }
-                        //Clears list of employees for shift view
-                        //Temporary replace later
-                        Button(onClick = (clearList)) {
-                            Text(text = "Clear")
-                        }
-                    }
-                }
+                ShiftViewPage(
+                    employees = employees
+                    , employeeList = employeeList
+                    , clearList = clearList)
             }
 
         }
@@ -159,13 +130,60 @@ fun CalendarPager(
 }
 
 @Composable
-fun SelectedEmployeesForPager(
-    selected: List<Employee>
+fun ShiftViewPage(
+    employees: List<Long>,
+    employeeList: List<Employee>,
+    clearList:()->Unit
 ){
-    selected.forEach{item ->
-        println("this happening")
-        Box{
-            Text(text = item.firstName)
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically
+
+    ) {
+        if(employees.isEmpty()){
+            Text(text = "No Employees Selected for Shift View")
+        }
+        else{
+            //Checks if employee id is in the list of selected employees for shift view
+            employeeList.forEach{item ->
+                if(employees.contains(item.employeeId)){
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(
+                                start = 2.dp,
+                                end = 2.dp,
+                                top = 10.dp,
+                                bottom = 10.dp
+                            )
+                            .background(
+                                //changes colour depending on index of item in list
+                                when (employees.indexOf(item.employeeId)) {
+                                    0 -> Color.Red
+                                    1 -> Color.Blue
+                                    2 -> Color.Cyan
+                                    3 -> Color.Yellow
+                                    4 -> Color.Green
+                                    5 -> Color.White
+                                    else -> Color.DarkGray
+                                }
+                            ),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        Text(text = item.firstName)
+                        Text(text = item.lastName)
+                    }
+                }
+            }
+
+            //Clears list of employees for shift view
+            //Temporary replace later
+            Button(onClick = (clearList)) {
+                Text(text = "Clear")
+            }
         }
     }
 }
