@@ -104,44 +104,54 @@ fun Day(
             color = textColor,
             fontSize = 12.sp
         )
-        Row(
-            modifier = Modifier
-                //.background(Color.Blue)
-                .fillMaxWidth()
-                .height(15.dp)
-                .align(Alignment.Center)
-                .padding(1.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceAround
-        ){
-            val ids =
-                context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee.employeeId) } }.toSet()
-
-            context.employeesSelected.forEachIndexed{index, employee->
-                if(context.employeeShiftSelected && ids.contains(employee)){
-                    Column(
-                        Modifier
-                            .size(6.dp)
-                            .background(
-                                when(index){
-                                    0->Color.Red
-                                    1->Color.Blue
-                                    2->Color.Cyan
-                                    3->Color.Yellow
-                                    4->Color.Green
-                                    5->Color.White
-                                    else-> Color.DarkGray
-                                }
-                            )
-                    ){}
-                }
-            }
-        }
+        shiftViewIndicators(
+            context=context,
+            modifier = Modifier.align(Alignment.Center)
+        )
         val groupedColors = generateGroupedColors(context.shiftsOnDay)
         ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
     }
 }
 
+@Composable
+fun shiftViewIndicators(
+    context: DayContext,
+    modifier: Modifier
+){
+    Row(
+        modifier
+            //.background(Color.Blue)
+            .fillMaxWidth()
+            .height(15.dp)
+            .padding(1.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceAround
+    ){
+        val ids =
+            context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee.employeeId) } }.toSet()
+
+        context.employeesSelected.forEachIndexed{index, employee->
+            if(context.employeeShiftSelected && ids.contains(employee)){
+                Column(
+                    Modifier
+                        .size(6.dp)
+                        .background(
+                            //changes colour depending on index of item in list
+                            when(index){
+                                0->Color.Red
+                                1->Color.Blue
+                                2->Color.Cyan
+                                3->Color.Yellow
+                                4->Color.Green
+                                5->Color.White
+                                else-> Color.DarkGray
+                            }
+                        )
+                ){}
+            }
+        }
+    }
+}
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
