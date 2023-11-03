@@ -136,7 +136,7 @@ fun determineShiftType(
 }
 
 fun formatPhoneNumber(input: String): String {
-    val digits = input.filter { it.isDigit() }
+    val digits = input.filter { it.isDigit() }.take(11)
 
     // US & Canada, e.g +1
     if (digits.startsWith("1") && digits.length == 11) {
@@ -156,6 +156,7 @@ fun formatPhoneNumber(input: String): String {
         else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
     }
 }
+
 
 fun formatName(input: String): String {
     return input.filter { it.isLetter() || it == '-' }

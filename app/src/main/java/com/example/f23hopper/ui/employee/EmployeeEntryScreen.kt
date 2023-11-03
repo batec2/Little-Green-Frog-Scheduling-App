@@ -99,41 +99,36 @@ fun EmployeeEntryBody(
 ) {
 
 //    StatusBarColorUpdateEffect(toolbarColor)
-    Scaffold(
-        topBar = {
-            CenterAlignedTopAppBar(
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = colorScheme.secondaryContainer,
-                    titleContentColor = colorScheme.primary,
-                    navigationIconContentColor = colorScheme.primary,
-                    actionIconContentColor = colorScheme.primary
-                ),
-                title = {},
-                navigationIcon = {
-                    IconButton(onClick = { navigateToEmployeeList() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back To list"
-                        )
-                    }
-                },
-                actions = {
-                    ElevatedButton(
-                        modifier = Modifier,
-                        shape = RoundedCornerShape(10.dp),
-                        onClick = {
-                            onSaveClick()
-                            navigateToEmployeeList()
-                        },
-                        enabled = employeeUiState.isEmployeeValid
-                    ) {
-                        Text(text = "Done")
-                    }
-                },
-                modifier = Modifier.height(50.dp),
-            )
-        }
-    ) { innerPadding ->
+    Scaffold(topBar = {
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.topAppBarColors(
+                containerColor = colorScheme.secondaryContainer,
+                titleContentColor = colorScheme.primary,
+                navigationIconContentColor = colorScheme.primary,
+                actionIconContentColor = colorScheme.primary
+            ),
+            title = {},
+            navigationIcon = {
+                IconButton(onClick = { navigateToEmployeeList() }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Back To list"
+                    )
+                }
+            },
+            actions = {
+                ElevatedButton(
+                    modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                        onSaveClick()
+                        navigateToEmployeeList()
+                    }, enabled = employeeUiState.isEmployeeValid
+                ) {
+                    Text(text = "Done")
+                }
+            },
+            modifier = Modifier.height(50.dp),
+        )
+    }) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,16 +137,13 @@ fun EmployeeEntryBody(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             EmployeeInfo(
-                onEmployeeInfoChange = onEmployeeValueChange,
-                employeeDetails = employeeDetails
+                onEmployeeInfoChange = onEmployeeValueChange, employeeDetails = employeeDetails
             )
             OpenCloseCertificationSelector(
-                onCertValueChange = onEmployeeValueChange,
-                employeeDetails = employeeDetails
+                onCertValueChange = onEmployeeValueChange, employeeDetails = employeeDetails
             )
             ScheduleSelector(
-                onScheduleValueChange = onEmployeeValueChange,
-                employeeDetails = employeeDetails
+                onScheduleValueChange = onEmployeeValueChange, employeeDetails = employeeDetails
             )
         }
     }
@@ -165,15 +157,15 @@ data class FieldDetail(
     val onValueChange: (String) -> Unit,
     val validate: (String) -> Boolean,
     val errorMessage: String,
-    val formatter: ((String) -> String)? = null // Optional formatter function
+    val formatter: ((String) -> String)? = null, // Optional formatter function
+    val showErrorChars: Boolean = true
 )
 
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeInfo(
-    onEmployeeInfoChange: (EmployeeDetails) -> Unit = {},
-    employeeDetails: EmployeeDetails
+    onEmployeeInfoChange: (EmployeeDetails) -> Unit = {}, employeeDetails: EmployeeDetails
 ) {
     val focusManager = LocalFocusManager.current
     val handleKeyEvent: (KeyEvent) -> Boolean = {
@@ -217,8 +209,9 @@ fun EmployeeInfo(
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
-            validate = { it.matches(Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\$")) },
-            errorMessage = "name@mail.com format accepted"
+            validate = { verifyEmail(it) },
+            errorMessage = "name@mail.com format accepted",
+            showErrorChars = false
         ),
 
         FieldDetail(
@@ -235,6 +228,31 @@ fun EmployeeInfo(
     fields.forEach { field -> ValidatedOutlinedTextField(field) }
 }
 
+fun verifyEmail(email: String): Boolean {
+    //  Internet Message Format (RFC 5322) and the domain name criteria defined in RFC 1034 and RFC 1035.
+
+    // maximum length for the local part is 64 characters
+    // maximum length for the domain part is 255 characters
+    // maximum total length is 320 characters
+    if (email.length > 320) return false
+
+    val parts = email.split("@")
+    if (parts.size != 2) return false
+
+    val localPart = parts[0]
+    val domainPart = parts[1]
+
+    if (localPart.length > 64 || domainPart.length > 255) return false
+
+    // check if the domain part contains at least one dot and doesn't start/end with a dot
+    if (!domainPart.contains(".") || domainPart.startsWith(".") || domainPart.endsWith(".")) return false
+
+    // enhanced regex for local part and domain part validation
+    val localPartRegex = Regex("^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+\$")
+    val domainPartRegex = Regex("^[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
+
+    return localPart.matches(localPartRegex) && domainPart.matches(domainPartRegex)
+}
 
 @Composable
 fun ValidatedOutlinedTextField(field: FieldDetail) {
@@ -250,8 +268,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
             if (field.formatter != null) {
                 formattedValue = field.formatter.invoke(newValue.text)
                 textFieldValue = TextFieldValue(
-                    text = formattedValue,
-                    selection = TextRange(formattedValue.length)
+                    text = formattedValue, selection = TextRange(formattedValue.length)
                 )
             } else {
                 textFieldValue = newValue
@@ -261,7 +278,8 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
             isError.value = textFieldValue.text.isNotEmpty() && !isValid
             if (!isValid) {
                 val invalidChars = textFieldValue.text.filterNot { field.validate(it.toString()) }
-                errorMessage.value = "${field.errorMessage}: $invalidChars"
+                errorMessage.value = field.errorMessage
+                if (field.showErrorChars) errorMessage.value += ": $invalidChars"
             }
         },
         label = { Text(text = field.label) },
@@ -281,8 +299,7 @@ fun ValidatedOutlinedTextField(field: FieldDetail) {
 
 @Composable
 fun OpenCloseCertificationSelector(
-    onCertValueChange: (EmployeeDetails) -> Unit = {},
-    employeeDetails: EmployeeDetails
+    onCertValueChange: (EmployeeDetails) -> Unit = {}, employeeDetails: EmployeeDetails
 ) {
     var checkedOpen by remember { mutableStateOf(employeeDetails.canOpen) }
     var checkedClose by remember { mutableStateOf(employeeDetails.canClose) }
@@ -337,21 +354,18 @@ fun CertificationButton(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(text = text, fontSize = 20.sp)
         Spacer(modifier = Modifier.size(5.dp))
-        Icon(
-            imageVector = icon,
+        Icon(imageVector = icon,
             contentDescription = text,
             tint = if (checked) primaryColor else offColor,
             modifier = Modifier
                 .size(40.dp) // Increase icon size
-                .clickable { onCheckedChange(!checked) }
-        )
+                .clickable { onCheckedChange(!checked) })
     }
 }
 
 @Composable
 fun ScheduleSelector(
-    onScheduleValueChange: (EmployeeDetails) -> Unit = {},
-    employeeDetails: EmployeeDetails
+    onScheduleValueChange: (EmployeeDetails) -> Unit = {}, employeeDetails: EmployeeDetails
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
@@ -359,8 +373,7 @@ fun ScheduleSelector(
         DayOfWeek.values().forEach { day ->
             Spacer(modifier = Modifier.size(10.dp))
             DaySelector(
-                dayOfWeek = day,
-                shiftStatus = when (day) {
+                dayOfWeek = day, shiftStatus = when (day) {
                     DayOfWeek.MONDAY -> employeeDetails.monday
                     DayOfWeek.TUESDAY -> employeeDetails.tuesday
                     DayOfWeek.WEDNESDAY -> employeeDetails.wednesday
@@ -387,9 +400,7 @@ fun ScheduleSelector(
 
 @Composable
 fun DaySelector(
-    shiftStatus: ShiftType,
-    dayOfWeek: DayOfWeek,
-    onSelectionChange: (ShiftType) -> Unit
+    shiftStatus: ShiftType, dayOfWeek: DayOfWeek, onSelectionChange: (ShiftType) -> Unit
 ) {
     val isWeekend = dayOfWeek.isWeekend()
 
@@ -481,10 +492,7 @@ fun DayOfWeekTextBox(dayOfWeek: DayOfWeek, currentShiftType: ShiftType) {
 
 @Composable
 fun DayButton(
-    icon: String,
-    onButtonChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
-    status: Boolean
+    icon: String, onButtonChange: (Boolean) -> Unit, modifier: Modifier = Modifier, status: Boolean
 ) {
     var checked by remember { mutableStateOf(status) }
     val buttonColor = when {
@@ -501,21 +509,15 @@ fun DayButton(
     ) {
         when (icon) {
             "Day" -> Icon(
-                imageVector = dayShiftIcon(),
-                contentDescription = "Sun",
-                tint = buttonColor
+                imageVector = dayShiftIcon(), contentDescription = "Sun", tint = buttonColor
             )
 
             "Full" -> Icon(
-                imageVector = fullShiftIcon(),
-                contentDescription = "Sun/Moon",
-                tint = buttonColor
+                imageVector = fullShiftIcon(), contentDescription = "Sun/Moon", tint = buttonColor
             )
 
             "Night" -> Icon(
-                imageVector = nightShiftIcon(),
-                contentDescription = "Moon",
-                tint = buttonColor
+                imageVector = nightShiftIcon(), contentDescription = "Moon", tint = buttonColor
             )
         }
     }
