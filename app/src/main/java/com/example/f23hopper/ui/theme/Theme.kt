@@ -41,7 +41,7 @@ private val LightColors = lightColorScheme(
     outlineVariant = md_theme_light_outlineVariant,
     scrim = md_theme_light_scrim,
 
-)
+    )
 
 
 private val DarkColors = darkColorScheme(
@@ -90,22 +90,44 @@ class CustomColor {
             @Composable get() = if (isSystemInDarkTheme()) {
                 md_theme_dark_secondaryBackground // Dark theme special day color
             } else md_theme_light_secondaryBackground// Light theme special day color
+
+
+        val shiftRowNightBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift_row_night
+            } else
+                md_theme_light_shift_row_night
+
+        val shiftRowDayBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift_row_day
+            } else
+                md_theme_light_shift_row_day
+
+        val shiftRowFullBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift_row_full
+            } else
+                md_theme_light_shift_row_full
+
     }
+
 }
+
 
 @Composable
 fun F23HopperTheme(
-  useDarkTheme: Boolean = isSystemInDarkTheme(),
-  content: @Composable () -> Unit
+    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    content: @Composable () -> Unit
 ) {
-  val colors = if (!useDarkTheme) {
-    LightColors
-  } else {
-    DarkColors
-  }
+    val colors = if (!useDarkTheme) {
+        LightColors
+    } else {
+        DarkColors
+    }
 
-  MaterialTheme(
-    colorScheme = colors,
-    content = content
-  )
+    MaterialTheme(
+        colorScheme = colors,
+        content = content
+    )
 }
