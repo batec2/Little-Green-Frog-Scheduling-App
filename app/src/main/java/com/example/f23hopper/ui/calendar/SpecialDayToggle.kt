@@ -1,8 +1,8 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccessTime
-import androidx.compose.material.icons.outlined.AccessTimeFilled
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.StarBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.maxShifts
@@ -23,8 +25,10 @@ fun ToggleSpecialDayButton(
     toggleSpecialDay: suspend () -> Unit,
     isSpecialDay: Boolean,
     modifier: Modifier = Modifier,
-    shiftsOnDay: Map<ShiftType, List<Shift>>
-) {
+    shiftsOnDay: Map<ShiftType, List<Shift>>,
+    iconSize: Dp = 30.dp,
+
+    ) {
     val coroutineScope = rememberCoroutineScope()
 
     // add shift types to a list if they max out shifts on special days
@@ -50,11 +54,13 @@ fun ToggleSpecialDayButton(
     ) {
         if (!isSpecialDay) {
             Icon(
-                imageVector = Icons.Outlined.AccessTime,
+                imageVector = Icons.Filled.StarBorder,
                 contentDescription = "Not Special Day"
             )
         } else {
-            Icon(imageVector = Icons.Outlined.AccessTimeFilled, contentDescription = "Special Day")
+            Icon(
+                imageVector = Icons.Filled.Star, contentDescription = "Special Day"
+            )
         }
     }
 
