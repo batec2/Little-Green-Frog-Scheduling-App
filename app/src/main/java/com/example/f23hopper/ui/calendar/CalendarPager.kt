@@ -64,7 +64,7 @@ fun CalendarPager(
     employee: (Employee) -> Unit,//passes employeeId to Calendar
     viewItemList: List<ViewItem>,//list ids for employees selected for schedule view
     employeeList: List<Employee>,
-    clearList:()->Unit
+    clearList: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -72,33 +72,35 @@ fun CalendarPager(
         //List of current selected employees
         val pagerState = rememberPagerState(initialPage = 0)
         HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.weight(1f)) { page ->
-            when(page) {
-                0->//shows employees scheduled to work on current day
-                if (selection != null) {
-                    val isSpecialDay = specialDaysByDay[selection?.date!!] != null
-                    ShiftDetailsForPagerDay(
-                        shiftsOnSelectedDay = shiftsOnSelectedDate,
-                        selection.date,
-                        isSpecialDay = isSpecialDay,
-                        navigateToShiftView,
-                        toggleSpecialDay,
-                        employee = employee
-                    )
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+            when (page) {
+                0 ->//shows employees scheduled to work on current day
+                    if (selection != null) {
+                        val isSpecialDay = specialDaysByDay[selection?.date!!] != null
+                        ShiftDetailsForPagerDay(
+                            shiftsOnSelectedDay = shiftsOnSelectedDate,
+                            selection.date,
+                            isSpecialDay = isSpecialDay,
+                            navigateToShiftView,
+                            toggleSpecialDay,
+                            employee = employee
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
 
-                    ) {
-                        Text(text = "Select Day")
+                        ) {
+                            Text(text = "Select Day")
+                        }
                     }
-                }
-                1->//Shows employees selected for the employee shift view
-                ShiftViewPage(
-                    viewItemList = viewItemList
-                    , employeeList = employeeList
-                    , clearList = clearList)
+
+                1 ->//Shows employees selected for the employee shift view
+                    ShiftViewPage(
+                        viewItemList = viewItemList,
+                        employeeList = employeeList,
+                        clearList = clearList
+                    )
             }
 
         }
@@ -130,20 +132,19 @@ fun CalendarPager(
 fun ShiftViewPage(
     viewItemList: List<ViewItem>,
     employeeList: List<Employee>,
-    clearList:()->Unit
-){
+    clearList: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        if(viewItemList.isEmpty()){
+        if (viewItemList.isEmpty()) {
             Text(text = "No Employees Selected for Shift View")
-        }
-        else{
+        } else {
             //Checks if employee id is in the list of selected employees for shift view
-            viewItemList.forEach{item ->
+            viewItemList.forEach { item ->
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -157,7 +158,7 @@ fun ShiftViewPage(
                         .background(item.color.colVal),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
-                ){
+                ) {
                     Text(text = item.empItem.firstName)
                     Text(text = item.empItem.lastName)
                 }
@@ -324,20 +325,21 @@ fun ShiftRow(
                         .border(1.dp, colorScheme.outline.copy(alpha = 0.4f))
                         .clickable {
                             navigateToShiftView(date.toString())
-                        }
+                        },
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
 
-                    Spacer(Modifier.width(65.dp))// center the + in the row
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add Employee",
                         tint = colorScheme.outline.copy(alpha = 0.4f),
                         modifier = Modifier
-                            .size(30.dp) // size of the icon
-                            .wrapContentWidth(Alignment.CenterHorizontally) // Center horizontally
+                            .size(30.dp)
+                            .wrapContentWidth(Alignment.CenterHorizontally)
                             .width(IntrinsicSize.Max)
                             .height(IntrinsicSize.Max)
-                            .align(Alignment.CenterVertically) // This line centers the text vertically in the parent
+                            .align(Alignment.CenterVertically)
                     )
 
                 }
@@ -358,27 +360,27 @@ fun ShiftRowEmployeeEntry(
             .padding(2.dp)
             .background(getShiftRowColor(shiftType = shift.schedule.shiftType))
             .clickable { onEmployeeClick(shift.employee) },
-        horizontalArrangement = Arrangement.Start,
+        horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
-
     ) {
         Icon(
             imageVector = getShiftIcon(shiftType = shift.schedule.shiftType),
             contentDescription = "shift icon",
             modifier = Modifier
                 .padding(start = 10.dp)
-                .size(30.dp) // size of the icon
+                .size(30.dp)
+                .align(Alignment.CenterVertically)
         )
-        Spacer(Modifier.width(10.dp)) // add spacing between icon and text
+        Spacer(Modifier.weight(.7f))
         Text(
-            text = shift.employee.firstName + " " + shift.employee.lastName,
+
+            text = shift.employee.nickname.ifBlank { shift.employee.firstName + " " + shift.employee.lastName },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
-                .width(IntrinsicSize.Max)
-                .height(IntrinsicSize.Max)
+                .wrapContentWidth(Alignment.CenterHorizontally)
         )
-
+        Spacer(Modifier.weight(1f))
     }
 }
 
