@@ -60,20 +60,22 @@ fun Calendar(
         ShiftViewColors.COLOR3,
         ShiftViewColors.COLOR4,
         ShiftViewColors.COLOR5,
-        ShiftViewColors.COLOR6)
+        ShiftViewColors.COLOR6
+    )
 
     //Holds employee id for shift highlighting
-    val viewItemList = remember {mutableStateListOf<ViewItem>()}
+    val viewItemList = remember { mutableStateListOf<ViewItem>() }
     //val employee = remember { mutableStateListOf<Long>() }
 
     /*all shifts dates for the current month for employees selected for shift view*/
     val employeeShifts = shifts.filter { shift ->
-        (viewItemList.any { emp -> emp.empItem == shift.employee })}
+        (viewItemList.any { emp -> emp.empItem == shift.employee })
+    }
         .map { it.schedule.date.toJavaLocalDate() }
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
-        } ?: emptyMap()
+    } ?: emptyMap()
 
     shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
 
@@ -130,46 +132,43 @@ fun Calendar(
                 onSelectionChanged(it)
                 //clears current selection if new day is selected
                 //employee.longValue = -1
-            }
-            ,
+            },
             viewModel = viewModel,
             employeeShift = employeeShifts,
             viewItemList = viewItemList
         )
 
-        CalendarPager(
-            modifier = Modifier.fillMaxSize(),
+        val calendarPagerContext = CalendarPagerContext(
             selection = selection,
             shiftsOnSelectedDate = shiftsOnSelectedDate,
             specialDaysByDay = specialDaysByDay,
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
-            viewModel = viewModel,
             //Employee selected limit is 6, if employee already in list it gets removed
             //else if the list is less than 6 entries then it gets added
-            employee =
-            {
-                if(viewItemList.any { emp -> emp.empItem == it }) {
-                    viewItemList.removeIf {emp->emp.empItem == it}
-                }
-                else if(viewItemList.size<=6) {
-                    viewItemList.add(ViewItem(empItem = it,color = getColor(viewItemList,colors)))
+            employeeAction = {
+                if (viewItemList.any { emp -> emp.empItem == it }) {
+                    viewItemList.removeIf { emp -> emp.empItem == it }
+                } else if (viewItemList.size <= 6) {
+                    viewItemList.add(ViewItem(empItem = it, color = getColor(viewItemList, colors)))
                 }
             },
             viewItemList = viewItemList,
             employeeList = employees,
-            clearList = {
-                viewItemList.clear()
-            }
+            clearList = { viewItemList.clear() }
+        )
+        CalendarPager(
+            modifier = Modifier.fillMaxSize(),
+            calendarPagerContext,
         )
     }
 }
 
-fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewColors{
-    return if(viewList.isNotEmpty()){
-        (colorList.filter {item-> viewList.none { emp -> emp.color == item } }).first()
-    }
-    else{
+
+fun getColor(viewList: List<ViewItem>, colorList: List<ShiftViewColors>): ShiftViewColors {
+    return if (viewList.isNotEmpty()) {
+        (colorList.filter { item -> viewList.none { emp -> emp.color == item } }).first()
+    } else {
         colorList.first()
     }
 }
