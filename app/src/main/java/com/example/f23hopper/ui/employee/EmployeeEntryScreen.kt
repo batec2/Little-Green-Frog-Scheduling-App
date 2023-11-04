@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,7 +65,6 @@ import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberLock
-import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
@@ -179,37 +179,63 @@ fun EmployeeInfo(
             else -> false
         }
     }
+    val alphaRegex = Regex("^[a-zA-Z-'. ]+$")
+    val hasAnyError = remember { mutableStateOf(false) }
 
     val fields = listOf(
         FieldDetail(
             label = "First Name*",
             value = employeeDetails.firstName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(firstName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
+            onValueChange = {
+                if (!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        firstName = it
+                    )
+                )
+            },
+            validate = { it.matches(alphaRegex) },
             errorMessage = "Only letters, spaces, and '-. are allowed"
         ),
         FieldDetail(
             label = "Last Name*",
             value = employeeDetails.lastName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(lastName = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
+            onValueChange = {
+                if (!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        lastName = it
+                    )
+                )
+            },
+            validate = { it.matches(alphaRegex) },
             errorMessage = "Only letters, spaces, and ('-.) are allowed"
         ),
         FieldDetail(
             label = "Nickname",
             value = employeeDetails.nickname,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(nickname = it)) },
-            validate = { it.matches(Regex("^[a-zA-Z-'. ]+$")) },
+            onValueChange = {
+                if (!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        nickname = it
+                    )
+                )
+            },
+            validate = { it.matches(alphaRegex) },
             errorMessage = "Only letters, spaces, and hyphens are allowed"
         ),
         FieldDetail(
             label = "Email*",
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(email = it)) },
+            onValueChange = {
+                if (!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        email = it
+                    )
+                )
+            },
             validate = { verifyEmail(it) },
             errorMessage = "name@mail.com format accepted",
             showErrorChars = false
@@ -220,13 +246,19 @@ fun EmployeeInfo(
             formatter = ::formatPhoneNumber,
             value = employeeDetails.phoneNumber,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
-            onValueChange = { onEmployeeInfoChange(employeeDetails.copy(phoneNumber = it)) },
+            onValueChange = {
+                if (!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        phoneNumber = it
+                    )
+                )
+            },
             validate = { it.matches(Regex("^\\+?[0-9\\-() ]+$")) },
             errorMessage = "Only numbers are allowed"
         ),
     )
 
-    fields.forEach { field -> ValidatedOutlinedTextField(field) }
+    fields.forEach { field -> ValidatedOutlinedTextField(field, hasAnyError) }
 }
 
 fun verifyEmail(email: String): Boolean {
@@ -256,36 +288,54 @@ fun verifyEmail(email: String): Boolean {
 }
 
 @Composable
-fun ValidatedOutlinedTextField(field: FieldDetail) {
-    val isError = remember { mutableStateOf(false) }
-    val errorMessage = remember { mutableStateOf("") }
+fun ValidatedOutlinedTextField(
+    field: FieldDetail,
+    hasError: MutableState<Boolean>
+) {
+    // state to hold the current text field value
     var textFieldValue by remember { mutableStateOf(TextFieldValue(text = field.value)) }
 
+    // state to determine if the current field has an error
+    val isError = remember { mutableStateOf(false) }
+
+    // state to hold the error message
+    val errorMessage = remember { mutableStateOf("") }
+
+    // the actual text field
     OutlinedTextField(
         value = textFieldValue,
         modifier = field.modifier,
         onValueChange = { newValue ->
-            var formattedValue = newValue.text
-            if (field.formatter != null) {
-                formattedValue = field.formatter.invoke(newValue.text)
-                textFieldValue = TextFieldValue(
-                    text = formattedValue, selection = TextRange(formattedValue.length)
-                )
-            } else {
-                textFieldValue = newValue
-            }
-            field.onValueChange(formattedValue)
-            val isValid = field.validate(textFieldValue.text)
+            // format the text if a formatter is provided
+            val formattedValue = field.formatter?.invoke(newValue.text) ?: newValue.text
+
+            // update the text field value with the formatted text
+            textFieldValue = TextFieldValue(
+                text = formattedValue,
+                selection = TextRange(formattedValue.length)
+            )
+
+            // validate the text field value
+            val isValid = field.validate(formattedValue)
             isError.value = textFieldValue.text.isNotEmpty() && !isValid
-            if (!isValid) {
-                val invalidChars = textFieldValue.text.filterNot { field.validate(it.toString()) }
+            hasError.value = isError.value // Update the shared error state
+
+            // only call onValueChange if the text field value is valid
+            if (isValid) {
+                field.onValueChange(formattedValue)
+            } else {
+                // construct the error message with invalid characters if needed
+                val invalidChars = formattedValue.filterNot { field.validate(it.toString()) }
                 errorMessage.value = field.errorMessage
-                if (field.showErrorChars) errorMessage.value += ": $invalidChars"
+                if (field.showErrorChars) {
+                    errorMessage.value += ": $invalidChars"
+                }
             }
         },
         label = { Text(text = field.label) },
         isError = isError.value,
         supportingText = {
+            // display the error message if there's an error
             if (isError.value) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
