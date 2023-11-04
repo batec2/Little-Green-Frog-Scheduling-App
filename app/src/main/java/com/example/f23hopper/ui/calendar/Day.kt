@@ -54,17 +54,17 @@ fun Day(
 ) {
     val dayBackgroundColor = when {
         context.isSpecialDay -> CustomColor.specialDay
-        // Todo: Look into a better color for dark off-month days.
-        context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.Gray else MaterialTheme.colorScheme.tertiaryContainer
+        context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.DarkGray else MaterialTheme.colorScheme.tertiaryContainer
         else -> itemBackgroundColor
     }
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "")
     val color by infiniteTransition.animateColor(
         initialValue = MaterialTheme.colorScheme.primary,
         targetValue = MaterialTheme.colorScheme.secondaryContainer,
         animationSpec = infiniteRepeatable(
             animation = tween(100, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse)
+            repeatMode = RepeatMode.Reverse
+        ), label = ""
     )
     Box( // Square days!!
         modifier = Modifier
@@ -126,13 +126,13 @@ fun shiftViewIndicators(
         val ids =
             context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee) } }.toSet()
 
-        context.viewItemList.forEachIndexed{ index, item->
-            if(context.employeeShiftSelected && ids.contains(item.empItem)){
+        context.viewItemList.forEachIndexed { _, item ->
+            if (context.employeeShiftSelected && ids.contains(item.empItem)) {
                 Column(
                     Modifier
                         .size(6.dp)
                         .background(item.color.colVal)
-                ){}
+                ) {}
             }
         }
     }

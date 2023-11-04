@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,9 +23,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
@@ -39,7 +35,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,18 +50,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
+import com.example.f23hopper.ui.components.BaseDialog
 import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
-import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberRedo
 import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
@@ -88,7 +82,6 @@ fun EmployeeListScreen(
 
     EmployeeDeactivationDialog(
         employee = employeeToToggle,
-        showDialog = showConfirmationDialog,
         onConfirmDeactivation = { sharedViewModel.confirmDeactivation() },
         onDismissDialog = { sharedViewModel.dismissDialog() }
     )
@@ -200,54 +193,18 @@ fun EmployeeListScaffold(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeDeactivationDialog(
     employee: Employee?,
-    showDialog: Boolean = true,
     onConfirmDeactivation: () -> Unit,
     onDismissDialog: () -> Unit,
 ) {
-    if (showDialog && employee != null) {
-        AlertDialog(
-            onDismissRequest = onDismissDialog,
-            content = {
-                Surface(
-                    shape = RoundedCornerShape(15.dp),
-                    color = colorScheme.surface
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .padding(24.dp)
-                            .fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text("Deactivate Employee", style = MaterialTheme.typography.headlineMedium)
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Text("The employee currently has shifts scheduled for a future date, are you sure you want to deactivate?")
-                        Spacer(modifier = Modifier.height(32.dp))
-                        Row(
-                            horizontalArrangement = Arrangement.Center
-                        ) {
-                            Button(
-                                onClick = onDismissDialog,
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
-                            ) {
-                                Text("No", color = colorScheme.onPrimary)
-                            }
-                            Spacer(modifier = Modifier.width(16.dp))
-                            Button(
-                                onClick = onConfirmDeactivation,
-                                shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(containerColor = colorScheme.primary)
-                            ) {
-                                Text("Yes", color = colorScheme.onPrimary)
-                            }
-                        }
-                    }
-                }
-            }
+    if (employee != null) {
+        BaseDialog(
+            title = "Deactivate Employee",
+            message = "The employee currently has shifts scheduled for a future date, are you sure you want to deactivate?",
+            onConfirm = onConfirmDeactivation,
+            onDismiss = onDismissDialog,
         )
     }
 }
@@ -260,9 +217,6 @@ fun EmployeeListItem(
     onEmployeeClick: (Employee) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var confirmDelete by remember {
-        mutableStateOf(false);
-    }
     LazyColumn(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -273,14 +227,6 @@ fun EmployeeListItem(
                 confirmValueChange = {
                     true
                 })
-            /*
-            val dismissState = rememberDismissState(
-                confirmValueChange = {
-                    true
-                },
-            )
-             */
-            //positionalThreshold =
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
@@ -419,7 +365,7 @@ fun ListScheduleInfo(
 ) {
     Row {
         val week = listOf(
-            Pair(employee.sunday, "S"),
+            Pair(employee.sunday, "U"),
             Pair(employee.monday, "M"),
             Pair(employee.tuesday, "T"),
             Pair(employee.wednesday, "W"),
@@ -512,10 +458,4 @@ fun FilterDialogue(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EmployeeListScreenPreview() {
-
 }

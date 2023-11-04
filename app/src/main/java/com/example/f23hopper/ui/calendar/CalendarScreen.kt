@@ -29,14 +29,13 @@ import com.kizitonwose.calendar.core.daysOfWeek
 
 @Composable
 fun CalendarScreen(navigateToShiftView: (String) -> Unit) {
-//    val coroutineScope = rememberCoroutineScope()
     var selection by rememberSaveable { mutableStateOf<CalendarDay?>(null) }
     val viewModel = hiltViewModel<CalendarViewModel>()
     val shifts by viewModel.shifts.collectAsState(initial = emptyList())
     val employees by viewModel.employees.collectAsState(initial = emptyList())
     val specialDays by viewModel.days.collectAsState(initial = emptyList())
 
-    Calendar(
+    val context = CalendarContext(
         shifts = shifts,
         employees = employees,
         specialDays = specialDays,
@@ -44,8 +43,10 @@ fun CalendarScreen(navigateToShiftView: (String) -> Unit) {
         viewModel = viewModel,
         selection = selection,
         onSelectionChanged = { selection = it })
-}
 
+
+    Calendar(calendarContext = context)
+}
 
 @Composable
 fun WeekDays(modifier: Modifier) {

@@ -40,7 +40,11 @@ class ScheduleExporter {
 
         try {
             file.copyTo(destinationFile, true)
-            val toast = Toast.makeText(context, "Scheduled saved to Downloads folder", Toast.LENGTH_SHORT)
+            val toast = Toast.makeText(
+                context,
+                "${file.name} saved to Downloads folder",
+                Toast.LENGTH_SHORT
+            )
             toast.show()
         } catch (e: Exception) {
             Log.e("Error", "Error copying file: ${e.message}")

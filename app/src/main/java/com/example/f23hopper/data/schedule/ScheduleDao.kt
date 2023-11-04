@@ -91,8 +91,14 @@ interface ScheduleDao {
     @Query("DELETE FROM schedules")
     suspend fun deleteAllSchedules()
 
-    @Query(" SELECT * FROM schedules WHERE schedules.date >= :date")
-    fun getShiftFromDate(date: Date): Flow<List<Schedule>>
+    @Query(
+        """
+            SELECT *
+            FROM schedules
+            INNER JOIN employees ON schedules.employeeId = employees.employeeId
+            WHERE schedules.date >= :date"""
+    )
+    fun getShiftFromDate(date: Date): Flow<List<Shift>>
 
 
 }

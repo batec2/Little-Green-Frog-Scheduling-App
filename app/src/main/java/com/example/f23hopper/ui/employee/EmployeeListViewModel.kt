@@ -35,7 +35,8 @@ class EmployeeListViewModel @Inject constructor(
                 // collect future shifts
                 val futureShifts =
                     scheduleRepository.getShiftsFromDate(Date(System.currentTimeMillis())).first()
-                val hasFutureShifts = futureShifts.any { it.employeeId == employee.employeeId }
+                val hasFutureShifts =
+                    futureShifts.any { it.employee.employeeId == employee.employeeId }
 
                 if (hasFutureShifts) {
                     showConfirmationDialog = true
@@ -72,6 +73,7 @@ class EmployeeListViewModel @Inject constructor(
     fun updateUiState(employeeDetails: EmployeeDetails) {
         employeeUiState =
             EmployeeUiState(
+                employee = employeeUiState.employee,
                 employeeDetails = employeeDetails,
                 isEmployeeValid = validateInput(employeeDetails)
             )
@@ -95,14 +97,16 @@ class EmployeeListViewModel @Inject constructor(
         }
     }
 
-    suspend fun saveEmployee() {
-        if (validateInput()) { //checks if inputs are not blank
-            employeeRepository.updateEmployee(employeeUiState.employeeDetails.toEmployee())
+    fun saveEmployee() {
+        viewModelScope.launch {
+            if (validateInput()) { //checks if inputs are not blank
+                employeeRepository.updateEmployee(employeeUiState.employeeDetails.toEmployee())
+            }
         }
     }
 
     fun setEmployee(employee: Employee) {
         employeeUiState = employee.toEmployeeUiState()
-        println("that: ${employee.firstName}")
+        println("employee set in state: ${employee.firstName}")
     }
 }

@@ -87,9 +87,11 @@ class ShiftEditViewModel @Inject constructor(
         }
     }
 
-    suspend fun toggleSpecialDay(date: Date?) {
-        if (date != null) {
-            specialDayRepo.toggleSpecialDay(date)
+    fun toggleSpecialDay(date: Date?) {
+        viewModelScope.launch {
+            if (date != null) {
+                specialDayRepo.toggleSpecialDay(date)
+            }
         }
     }
 

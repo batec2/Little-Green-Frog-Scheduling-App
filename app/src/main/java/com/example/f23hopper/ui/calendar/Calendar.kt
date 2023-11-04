@@ -13,8 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.f23hopper.data.employee.Employee
-import com.example.f23hopper.data.schedule.Shift
-import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
@@ -22,13 +20,11 @@ import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
-import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.OutDateStyle
 import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 
@@ -39,48 +35,40 @@ data class ViewItem(
 
 @Composable
 fun Calendar(
-    shifts: List<Shift>,
-    employees: List<Employee>,
-    specialDays: List<SpecialDay>,
-    navigateToShiftView: (String) -> Unit,
-    viewModel: CalendarViewModel,
-    selection: CalendarDay?,
-    onSelectionChanged: (CalendarDay?) -> Unit
+    calendarContext: CalendarContext,
 ) {
     val context = LocalContext.current
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(10) }
     val endMonth = remember { currentMonth.plusMonths(10) }
 
-    val shiftsByDay =
-        shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
+    val shiftsByDay = calendarContext.shifts.groupBy {
+        it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+    }
     val colors = listOf(
         ShiftViewColors.COLOR1,
         ShiftViewColors.COLOR2,
         ShiftViewColors.COLOR3,
         ShiftViewColors.COLOR4,
         ShiftViewColors.COLOR5,
-        ShiftViewColors.COLOR6)
+        ShiftViewColors.COLOR6
+    )
 
-    //Holds employee id for shift highlighting
-    val viewItemList = remember {mutableStateListOf<ViewItem>()}
-    //val employee = remember { mutableStateListOf<Long>() }
+    // Holds employee id for shift highlighting
+    val viewItemList = remember { mutableStateListOf<ViewItem>() }
 
-    /*all shifts dates for the current month for employees selected for shift view*/
-    val employeeShifts = shifts.filter { shift ->
-        (viewItemList.any { emp -> emp.empItem == shift.employee })}
-        .map { it.schedule.date.toJavaLocalDate() }
+    // all shifts dates for the current month for employees selected for shift view
+    val employeeShifts = calendarContext.shifts.filter { shift ->
+        (viewItemList.any { emp -> emp.empItem == shift.employee })
+    }.map { it.schedule.date.toJavaLocalDate() }
 
-    val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
+    val shiftsOnSelectedDate = calendarContext.selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
-        } ?: emptyMap()
+    } ?: emptyMap()
 
-    shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-
-    val specialDaysByDay =
-        specialDays.groupBy { it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-
-
+    val specialDaysByDay = calendarContext.specialDays.groupBy {
+        it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+    }
     StatusBarColorUpdateEffect(toolbarColor)
 
     Column(
@@ -100,8 +88,8 @@ fun Calendar(
 
 
         CalendarTitle(
-            employees = employees,
-            shifts = shifts,
+            employees = calendarContext.employees,
+            shifts = calendarContext.shifts,
             modifier = Modifier
                 .background(toolbarColor)
                 .padding(horizontal = 8.dp, vertical = 0.dp),
@@ -115,61 +103,53 @@ fun Calendar(
                 coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth) }
             },
             onExportClick = {
-                viewModel.exportSchedule(shifts, currentMonth, context)
+                calendarContext.viewModel.exportSchedule(
+                    calendarContext.shifts,
+                    currentMonth,
+                    context
+                )
             }
         )
+
 
         CalendarBody(
             modifier = Modifier.wrapContentWidth(),
-            state = state,
-            shiftsByDay = shiftsByDay,
-            specialDaysByDay = specialDaysByDay,
-            selection = selection,
-            onSelectionChanged =
-            {
-                onSelectionChanged(it)
-                //clears current selection if new day is selected
-                //employee.longValue = -1
-            }
-            ,
-            viewModel = viewModel,
-            employeeShift = employeeShifts,
+            calendarState = state,
+            calendarContext = calendarContext,
             viewItemList = viewItemList
         )
 
-        CalendarPager(
-            modifier = Modifier.fillMaxSize(),
-            selection = selection,
+        val calendarPagerContext = CalendarPagerContext(
+            selection = calendarContext.selection,
             shiftsOnSelectedDate = shiftsOnSelectedDate,
             specialDaysByDay = specialDaysByDay,
-            navigateToShiftView = navigateToShiftView,
-            toggleSpecialDay = { viewModel.toggleSpecialDay(selection?.date?.toSqlDate()) },
-            viewModel = viewModel,
+            navigateToShiftView = calendarContext.navigateToShiftView,
+            toggleSpecialDay = { calendarContext.viewModel.toggleSpecialDay(calendarContext.selection?.date?.toSqlDate()) },
             //Employee selected limit is 6, if employee already in list it gets removed
             //else if the list is less than 6 entries then it gets added
-            employee =
-            {
-                if(viewItemList.any { emp -> emp.empItem == it }) {
-                    viewItemList.removeIf {emp->emp.empItem == it}
-                }
-                else if(viewItemList.size<=6) {
-                    viewItemList.add(ViewItem(empItem = it,color = getColor(viewItemList,colors)))
+            employeeAction = {
+                if (viewItemList.any { emp -> emp.empItem == it }) {
+                    viewItemList.removeIf { emp -> emp.empItem == it }
+                } else if (viewItemList.size <= 6) {
+                    viewItemList.add(ViewItem(empItem = it, color = getColor(viewItemList, colors)))
                 }
             },
             viewItemList = viewItemList,
-            employeeList = employees,
-            clearList = {
-                viewItemList.clear()
-            }
+            employeeList = calendarContext.employees,
+            clearList = { viewItemList.clear() }
+        )
+        CalendarPager(
+            modifier = Modifier.fillMaxSize(),
+            calendarPagerContext,
         )
     }
 }
 
-fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewColors{
-    return if(viewList.isNotEmpty()){
-        (colorList.filter {item-> viewList.none { emp -> emp.color == item } }).first()
-    }
-    else{
+
+fun getColor(viewList: List<ViewItem>, colorList: List<ShiftViewColors>): ShiftViewColors {
+    return if (viewList.isNotEmpty()) {
+        (colorList.filter { item -> viewList.none { emp -> emp.color == item } }).first()
+    } else {
         colorList.first()
     }
 }
@@ -177,36 +157,44 @@ fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewC
 @Composable
 fun CalendarBody(
     modifier: Modifier = Modifier,
-    state: CalendarState,
-    shiftsByDay: Map<LocalDate, List<Shift>>,
-    specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
-    employeeShift: List<LocalDate>,
-    selection: CalendarDay?,
-    onSelectionChanged: (CalendarDay?) -> Unit,
-    viewModel: CalendarViewModel,
+    calendarState: CalendarState,
+    calendarContext: CalendarContext,
     viewItemList: List<ViewItem>
 ) {
+    val shiftsByDay = calendarContext.shifts.groupBy {
+        it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+    }
+
+    // All shifts dates for the current month for employees selected for shift view
+    val employeeShifts = calendarContext.shifts.filter { shift ->
+        (viewItemList.any { emp -> emp.empItem == shift.employee })
+    }.map { it.schedule.date.toJavaLocalDate() }
+
+    val specialDaysByDay = calendarContext.specialDays.groupBy {
+        it.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+    }
+
     HorizontalCalendar(
         modifier = modifier,
-        state = state,
+        state = calendarState,
         dayContent = { day ->
-            val employeeShiftSelected = employeeShift.contains(day.date)
+            val employeeShiftSelected = employeeShifts.contains(day.date)
             val isSpecialDay = specialDaysByDay[day.date] != null
-            val context = DayContext(
-                viewModel = viewModel,
+            val shiftsOnDay = shiftsByDay[day.date]?.groupBy { it.schedule.shiftType }.orEmpty()
+            val isSelected = calendarContext.selection == day
+
+            DayContext(
+                viewModel = calendarContext.viewModel,
                 day = day,
-                shiftsOnDay = shiftsByDay[day.date]?.groupBy { it.schedule.shiftType }
-                    .orEmpty(),
+                shiftsOnDay = shiftsOnDay,
                 isSpecialDay = isSpecialDay,
-                isSelected = selection == day,
+                isSelected = isSelected,
                 employeeShiftSelected = employeeShiftSelected,
                 viewItemList = viewItemList
-            )
-            Day(
-                context,
-            ) { clicked ->
-                onSelectionChanged(clicked)
-//                    navigateToDayView(clicked.date.toString())
+            ).let { context ->
+                Day(context) { clicked ->
+                    calendarContext.onSelectionChanged(clicked)
+                }
             }
         },
         monthHeader = {
@@ -214,4 +202,3 @@ fun CalendarBody(
         }
     )
 }
-

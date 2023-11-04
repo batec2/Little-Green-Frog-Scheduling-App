@@ -354,7 +354,7 @@ class StatusBarColorLifecycleObserver(
 ) : DefaultLifecycleObserver {
     private val isLightColor = ColorUtils.calculateLuminance(color) > 0.5
     private val defaultStatusBarColor =
-        "#CEE9DB".toColorInt() //activity.getColorCompat(Color.Green.value.toInt())
+        "#CEE9DB".toColorInt()
     private val activity = WeakReference(activity)
 
     override fun onStart(owner: LifecycleOwner) {
@@ -365,15 +365,4 @@ class StatusBarColorLifecycleObserver(
             }
         }
     }
-    /*
-
-        override fun onStop(owner: LifecycleOwner) {
-            activity.get()?.window?.apply {
-                statusBarColor = defaultStatusBarColor
-                if (isLightColor) decorView.systemUiVisibility = 0
-            }
-        }
-     */
-
-//    override fun onDestroy(owner: LifecycleOwner) = activity.clear()
 }

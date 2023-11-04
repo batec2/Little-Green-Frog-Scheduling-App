@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
 import java.time.YearMonth
@@ -32,30 +33,28 @@ class CalendarViewModel @Inject constructor(
     private val employeeRepository: EmployeeRepository,
     private val specialDayRepo: SpecialDayRepository
 ) : ViewModel() {
-    //var employeeSchedule =
-    //    mutableStateOf(scheduleRepo.getSchedulesForEmployee(null,null))
-
     // Exporting helper
     private val exporter: ScheduleExporter = ScheduleExporter()
 
-    private val startDate: Date = getStartDate()
-    private val endDate: Date = getEndDate()
+    // Custom getters for startDate and endDate
+    private val startDate: Date
+        get() {
+            val currentDate = LocalDate.now()
+            return currentDate.minusMonths(2).withDayOfMonth(1).toSqlDate()
+        }
 
+    private val endDate: Date
+        get() {
+            val currentDate = LocalDate.now()
+            return currentDate.plusMonths(12).withDayOfMonth(1).minusDays(1)
+                .toSqlDate()
+        }
+
+    // Other properties and methods remain unchanged
     val shifts: StateFlow<List<Shift>> by lazy { parseShifts(fetchRawShifts()) }
     val employees: StateFlow<List<Employee>> by lazy { parseEmployees(fetchAllEmployees()) }
     val days: StateFlow<List<SpecialDay>> by lazy { parseSpecialDays(fetchRawSpecialDays()) }
 
-    private fun getStartDate(): Date {
-        val currentDate = LocalDate.now()
-        return currentDate.minusMonths(2).withDayOfMonth(1).toSqlDate()
-    }
-
-
-    private fun getEndDate(): Date {
-        val currentDate = LocalDate.now()
-        return currentDate.plusMonths(12).withDayOfMonth(1).minusDays(1)
-            .toSqlDate()
-    }
 
     private fun fetchRawShifts(): Flow<List<Shift>> {
         return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
@@ -76,10 +75,13 @@ class CalendarViewModel @Inject constructor(
         return specialDayRepo.getSpecialDays()
     }
 
-    suspend fun toggleSpecialDay(date: Date?) {
-        if (date != null) {
-            specialDayRepo.toggleSpecialDay(date)
+    fun toggleSpecialDay(date: Date?) {
+        viewModelScope.launch {
+            if (date != null) {
+                specialDayRepo.toggleSpecialDay(date)
+            }
         }
+
     }
 
     private fun fetchAllEmployees(): Flow<List<Employee>> {
@@ -106,8 +108,11 @@ class CalendarViewModel @Inject constructor(
 
     fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
         val content = exporter.formatFileData(shifts, curMonth)
-        val filename = "${curMonth.year}-${
-            curMonth.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())
+        val filename = "${curMonth.year}_${
+            curMonth.month.getDisplayName(
+                TextStyle.SHORT,
+                Locale.getDefault()
+            )
         }_schedule.txt"
         val file = exporter.createFile(content, context, filename = filename)
         exporter.shareFile(file, context)
