@@ -78,7 +78,7 @@ val md_theme_dark_morningShift = Color(0xFF9DD8F9) //Morning shift color DARK
 val md_theme_dark_nighShift = Color(0xFF2C8D76) //Evening Shift color DARK
 val md_theme_dark_secondaryBackground = Color(0xFF1F2322)
 val md_theme_dark_shift_row_day = Color(0xFF609AB9)
-val md_theme_dark_shift_row_night = Color(0xFF2C8D76)
+val md_theme_dark_shift_row_night = Color(0xFF206857)
 val md_theme_dark_shift_row_full = Color(0xFF4C6359)
 
 
