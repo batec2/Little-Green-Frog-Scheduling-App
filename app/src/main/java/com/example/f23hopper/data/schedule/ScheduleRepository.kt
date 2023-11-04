@@ -45,7 +45,7 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
         return scheduleDao.getShiftByDate(date)
     }
 
-    fun getShiftsFromDate(date: Date): Flow<List<Schedule>> {
+    fun getShiftsFromDate(date: Date): Flow<List<Shift>> {
         return scheduleDao.getShiftFromDate(date)
     }
 

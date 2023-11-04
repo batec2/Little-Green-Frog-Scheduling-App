@@ -3,19 +3,31 @@ package com.example.f23hopper.ui.employee
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
+import com.example.f23hopper.data.schedule.ScheduleRepository
+import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
 class EmployeeEntryViewModel @Inject constructor(
     private val employeeRepository: EmployeeRepository,
+    scheduleRepository: ScheduleRepository,
 ) : ViewModel() {
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
+
+    private val activeShiftsInFuture: LiveData<List<Shift>> =
+        scheduleRepository.getShiftsFromDate(LocalDate.now().toSqlDate()).asLiveData()
 
     //updates current employee details
     fun updateUiState(employeeDetails: EmployeeDetails) {
@@ -25,6 +37,19 @@ class EmployeeEntryViewModel @Inject constructor(
                 isEmployeeValid = validateInput(employeeDetails)
             )
     }
+
+    fun employeeOnlyOpenerCloserCheck(employeeUiState: EmployeeUiState): Boolean {
+        val employee = employeeUiState.employee ?: return false
+        val allShifts = activeShiftsInFuture.value ?: return false
+        val intendedChanges = employeeUiState.employeeDetails
+
+        if (employee.canOpen == intendedChanges.canOpen && employee.canClose == intendedChanges.canClose) {
+            return false
+        }
+
+        return hasCriticalShifts(employee, allShifts)
+    }
+
     //checks if fields: firstName,lastName,email,phone number is not blank
     private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
         return with(uiState) {
@@ -32,15 +57,19 @@ class EmployeeEntryViewModel @Inject constructor(
                     && phoneNumber.isNotBlank()
         }
     }
+
     //inserts employee details into database
-    suspend fun saveEmployee() {
-        if (validateInput()) { //checks if inputs are not blank
-            employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
+    fun saveEmployee() {
+        viewModelScope.launch {
+            if (validateInput()) { //checks if inputs are not blank
+                employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
+            }
         }
     }
 }
 
 data class EmployeeUiState(
+    val employee: Employee? = null,
     val employeeDetails: EmployeeDetails = EmployeeDetails(),
     val isEmployeeValid: Boolean = false
 )
@@ -91,6 +120,7 @@ fun EmployeeDetails.toEmployee(): Employee = Employee(
 
 
 fun Employee.toEmployeeUiState(isEmployeeValid: Boolean = true): EmployeeUiState = EmployeeUiState(
+    employee = this,
     employeeDetails = this.toEmployeeDetails(),
     isEmployeeValid = isEmployeeValid
 )

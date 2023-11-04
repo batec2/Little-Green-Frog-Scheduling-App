@@ -106,19 +106,14 @@ fun ScheduleDetailsPage(context: CalendarPagerContext) {
                 employee = employeeAction
             )
         } else {
-            CenteredText("Select Day")
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Select Day")
+            }
         }
-    }
-}
-
-@Composable
-fun CenteredText(text: String) {
-    Row(
-        modifier = Modifier.fillMaxSize(),
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(text = text)
     }
 }
 

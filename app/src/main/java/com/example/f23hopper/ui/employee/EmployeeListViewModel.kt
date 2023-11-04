@@ -35,7 +35,8 @@ class EmployeeListViewModel @Inject constructor(
                 // collect future shifts
                 val futureShifts =
                     scheduleRepository.getShiftsFromDate(Date(System.currentTimeMillis())).first()
-                val hasFutureShifts = futureShifts.any { it.employeeId == employee.employeeId }
+                val hasFutureShifts =
+                    futureShifts.any { it.employee.employeeId == employee.employeeId }
 
                 if (hasFutureShifts) {
                     showConfirmationDialog = true
