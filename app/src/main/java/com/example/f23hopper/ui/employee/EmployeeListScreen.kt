@@ -55,7 +55,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.asFlow
@@ -66,7 +65,6 @@ import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
-import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.rememberRedo
 import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
@@ -260,9 +258,6 @@ fun EmployeeListItem(
     onEmployeeClick: (Employee) -> Unit,
 ) {
     val coroutineScope = rememberCoroutineScope()
-    var confirmDelete by remember {
-        mutableStateOf(false);
-    }
     LazyColumn(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -273,14 +268,6 @@ fun EmployeeListItem(
                 confirmValueChange = {
                     true
                 })
-            /*
-            val dismissState = rememberDismissState(
-                confirmValueChange = {
-                    true
-                },
-            )
-             */
-            //positionalThreshold =
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
@@ -419,7 +406,7 @@ fun ListScheduleInfo(
 ) {
     Row {
         val week = listOf(
-            Pair(employee.sunday, "S"),
+            Pair(employee.sunday, "U"),
             Pair(employee.monday, "M"),
             Pair(employee.tuesday, "T"),
             Pair(employee.wednesday, "W"),
@@ -512,10 +499,4 @@ fun FilterDialogue(
             )
         }
     }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun EmployeeListScreenPreview() {
-
 }

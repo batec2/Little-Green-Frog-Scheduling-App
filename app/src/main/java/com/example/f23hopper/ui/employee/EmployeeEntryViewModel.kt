@@ -1,11 +1,10 @@
 package com.example.f23hopper.ui.employee
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
@@ -14,6 +13,8 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -26,26 +27,42 @@ class EmployeeEntryViewModel @Inject constructor(
     var employeeUiState by mutableStateOf(EmployeeUiState())
         private set
 
-    private val activeShiftsInFuture: LiveData<List<Shift>> =
-        scheduleRepository.getShiftsFromDate(LocalDate.now().toSqlDate()).asLiveData()
+    private val _activeShiftsInFuture = MutableStateFlow<List<Shift>>(emptyList())
+    private val activeShiftsInFuture: StateFlow<List<Shift>> = _activeShiftsInFuture
+
+    init {
+        viewModelScope.launch {
+            scheduleRepository.getShiftsFromDate(LocalDate.now().toSqlDate()).collect {
+                _activeShiftsInFuture.value = it
+            }
+        }
+    }
 
     //updates current employee details
     fun updateUiState(employeeDetails: EmployeeDetails) {
+        Log.d("critical", "replaced")
         employeeUiState =
             EmployeeUiState(
+                employee = employeeUiState.employee,
                 employeeDetails = employeeDetails,
                 isEmployeeValid = validateInput(employeeDetails)
             )
     }
 
     fun employeeOnlyOpenerCloserCheck(employeeUiState: EmployeeUiState): Boolean {
+        // why is this null here?
         val employee = employeeUiState.employee ?: return false
-        val allShifts = activeShiftsInFuture.value ?: return false
+
+        if (activeShiftsInFuture.value.isEmpty()) return false
+        Log.d("critical", "Shift Count: ${activeShiftsInFuture.value.size}")
+        val allShifts = activeShiftsInFuture.value
+        Log.d("critical", "Shifts in future valid")
         val intendedChanges = employeeUiState.employeeDetails
 
         if (employee.canOpen == intendedChanges.canOpen && employee.canClose == intendedChanges.canClose) {
             return false
         }
+        Log.d("critical", "Shift Cert changed")
 
         return hasCriticalShifts(employee, allShifts)
     }

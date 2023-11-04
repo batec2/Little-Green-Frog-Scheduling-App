@@ -85,7 +85,7 @@ fun EmployeeEntryScreen(
                 viewModel.saveEmployee()
             }
         },
-        navigateToEmployeeList = navigateToEmployeeList
+        navigateToEmployeeList = navigateToEmployeeList,
     )
 }
 
@@ -96,7 +96,8 @@ fun EmployeeEntryBody(
     employeeDetails: EmployeeDetails,
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
     onSaveClick: () -> Unit,
-    navigateToEmployeeList: () -> Unit
+    navigateToEmployeeList: () -> Unit,
+    showConfirmationDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
 ) {
 
 //    StatusBarColorUpdateEffect(toolbarColor)
@@ -112,16 +113,20 @@ fun EmployeeEntryBody(
             navigationIcon = {
                 IconButton(onClick = { navigateToEmployeeList() }) {
                     Icon(
-                        imageVector = Icons.Filled.ArrowBack,
-                        contentDescription = "Back To list"
+                        imageVector = Icons.Filled.ArrowBack, contentDescription = "Back To list"
                     )
                 }
             },
             actions = {
                 ElevatedButton(
                     modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                        // trigger the onSaveClick action
                         onSaveClick()
-                        navigateToEmployeeList()
+
+                        // only navigate back if the confirmation dialog is not shown
+                        if (!showConfirmationDialog.value) {
+                            navigateToEmployeeList()
+                        }
                     }, enabled = employeeUiState.isEmployeeValid
                 ) {
                     Text(text = "Done")
@@ -289,8 +294,7 @@ fun verifyEmail(email: String): Boolean {
 
 @Composable
 fun ValidatedOutlinedTextField(
-    field: FieldDetail,
-    hasError: MutableState<Boolean>
+    field: FieldDetail, hasError: MutableState<Boolean>
 ) {
     // state to hold the current text field value
     var textFieldValue by remember { mutableStateOf(TextFieldValue(text = field.value)) }
@@ -311,8 +315,7 @@ fun ValidatedOutlinedTextField(
 
             // update the text field value with the formatted text
             textFieldValue = TextFieldValue(
-                text = formattedValue,
-                selection = TextRange(formattedValue.length)
+                text = formattedValue, selection = TextRange(formattedValue.length)
             )
 
             // validate the text field value
@@ -574,10 +577,9 @@ fun DayButton(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DayFilter() {
-    val openDialog = remember { mutableStateOf(true) }
+    remember { mutableStateOf(true) }
     val week = listOf("M", "T", "W", "R", "F", "S", "U")
     Dialog(onDismissRequest = { /*TODO*/ }) {
         Column {
