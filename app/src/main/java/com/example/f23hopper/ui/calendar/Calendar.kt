@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -16,6 +19,7 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
+import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.rememberFirstCompletelyVisibleMonth
@@ -31,11 +35,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
-
-data class ViewItem(
-    val empItem: Employee,
-    val color: ShiftViewColors,
-)
+import java.util.Date
 
 @Composable
 fun Calendar(
@@ -54,22 +54,12 @@ fun Calendar(
 
     val shiftsByDay =
         shifts.groupBy { it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate() }
-    val colors = listOf(
-        ShiftViewColors.COLOR1,
-        ShiftViewColors.COLOR2,
-        ShiftViewColors.COLOR3,
-        ShiftViewColors.COLOR4,
-        ShiftViewColors.COLOR5,
-        ShiftViewColors.COLOR6)
 
     //Holds employee id for shift highlighting
-    val viewItemList = remember {mutableStateListOf<ViewItem>()}
-    //val employee = remember { mutableStateListOf<Long>() }
-
-    /*all shifts dates for the current month for employees selected for shift view*/
-    val employeeShifts = shifts.filter { shift ->
-        (viewItemList.any { emp -> emp.empItem == shift.employee })}
-        .map { it.schedule.date.toJavaLocalDate() }
+    val employee = remember { mutableStateListOf<Long>() }
+    /*all shifts dates for the current montt for employees selected for shift view*/
+    val employeeShifts = shifts.filter { shift -> employee.contains(shift.employee.employeeId)}
+                .map { it.schedule.date.toJavaLocalDate() }
 
     val shiftsOnSelectedDate = selection?.date?.let { selectedDate ->
         shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
@@ -134,7 +124,7 @@ fun Calendar(
             ,
             viewModel = viewModel,
             employeeShift = employeeShifts,
-            viewItemList = viewItemList
+            employeesSelected = employee
         )
 
         CalendarPager(
@@ -147,32 +137,19 @@ fun Calendar(
             viewModel = viewModel,
             //Employee selected limit is 6, if employee already in list it gets removed
             //else if the list is less than 6 entries then it gets added
-            employee =
-            {
-                if(viewItemList.any { emp -> emp.empItem == it }) {
-                    viewItemList.removeIf {emp->emp.empItem == it}
-                }
-                else if(viewItemList.size<=6) {
-                    viewItemList.add(ViewItem(empItem = it,color = getColor(viewItemList,colors)))
-                }
-            },
-            viewItemList = viewItemList,
+            employee = { if (employee.contains(it)) employee.remove(it)
+                        else if(employee.size<=6) employee.add(it) },
+            employees = employee,
             employeeList = employees,
             clearList = {
-                viewItemList.clear()
+                //selected.clear()
+                //Clears list of employee ids for shiftview
+                employee.clear()
             }
         )
     }
 }
 
-fun getColor(viewList:List<ViewItem>,colorList:List<ShiftViewColors>):ShiftViewColors{
-    return if(viewList.isNotEmpty()){
-        (colorList.filter {item-> viewList.none { emp -> emp.color == item } }).first()
-    }
-    else{
-        colorList.first()
-    }
-}
 
 @Composable
 fun CalendarBody(
@@ -184,7 +161,7 @@ fun CalendarBody(
     selection: CalendarDay?,
     onSelectionChanged: (CalendarDay?) -> Unit,
     viewModel: CalendarViewModel,
-    viewItemList: List<ViewItem>
+    employeesSelected: List<Long>
 ) {
     HorizontalCalendar(
         modifier = modifier,
@@ -200,7 +177,7 @@ fun CalendarBody(
                 isSpecialDay = isSpecialDay,
                 isSelected = selection == day,
                 employeeShiftSelected = employeeShiftSelected,
-                viewItemList = viewItemList
+                employeesSelected = employeesSelected
             )
             Day(
                 context,
