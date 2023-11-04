@@ -76,3 +76,14 @@ fun verifyEmail(email: String): Boolean {
     return localPart.matches(localPartRegex) && domainPart.matches(domainPartRegex)
 }
 
+fun generateNickname(): String {
+    return listOf(
+        "Sparky", "Ace", "Shadow", "Gizmo", "Maverick", "Rogue", "Zeus", "Bandit",
+        "Bolt", "Chief", "Dash", "Echo", "Falcon", "Gadget", "Hawk", "Iceman",
+        "Jester", "Krypto", "Lynx", "Mystic", "Nebula", "Orion", "Phantom", "Quicksilver",
+        "Racer", "Saber", "Titan", "Ulysses", "Vortex", "Wizard", "Xenon", "Yoda",
+        "Zephyr", "Blaze", "Cosmo", "Drift", "Eclipse", "Flame", "Glitch", "Hurricane",
+        "Inferno", "Jolt", "Knight", "Laser", "Mirage", "Nova", "Omega", "Pulse", "Quantum",
+        "Rift"
+    ).random()
+}

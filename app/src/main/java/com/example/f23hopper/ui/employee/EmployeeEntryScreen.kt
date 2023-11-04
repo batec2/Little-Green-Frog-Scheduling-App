@@ -57,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
@@ -71,18 +70,19 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun EmployeeEntryScreen(
-    navigateToEmployeeList: () -> Unit
+    navigateToEmployeeList: () -> Unit,
+    sharedViewModel: EmployeeListViewModel,
 ) {
     StatusBarColorUpdateEffect(toolbarColor)//top status bar colour
     val coroutineScope = rememberCoroutineScope()
-    val viewModel = hiltViewModel<EmployeeEntryViewModel>()
     EmployeeEntryBody(
-        employeeUiState = viewModel.employeeUiState,
-        employeeDetails = viewModel.employeeUiState.employeeDetails,
-        onEmployeeValueChange = viewModel::updateUiState,
+        viewModel = sharedViewModel,
+        employeeUiState = sharedViewModel.employeeUiState,
+        employeeDetails = sharedViewModel.employeeUiState.employeeDetails,
+        onEmployeeValueChange = sharedViewModel::updateUiState,
         onSaveClick = {
             coroutineScope.launch {
-                viewModel.saveEmployee()
+                sharedViewModel.saveEmployee()
             }
         },
         navigateToEmployeeList = navigateToEmployeeList,
@@ -92,7 +92,7 @@ fun EmployeeEntryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeEntryBody(
-
+    viewModel: EmployeeListViewModel,
     employeeUiState: EmployeeUiState,
     employeeDetails: EmployeeDetails,
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
@@ -150,7 +150,7 @@ fun EmployeeEntryBody(
                 onCertValueChange = onEmployeeValueChange, employeeDetails = employeeDetails
             )
             ScheduleSelector(
-                onScheduleValueChange = onEmployeeValueChange, employeeDetails = employeeDetails
+                onDaySelected = viewModel::onDaySelected, employeeDetails = employeeDetails
             )
         }
     }
@@ -395,7 +395,9 @@ fun CertificationButton(
 
 @Composable
 fun ScheduleSelector(
-    onScheduleValueChange: (EmployeeDetails) -> Unit = {}, employeeDetails: EmployeeDetails
+
+    onDaySelected: (DayOfWeek, ShiftType) -> Unit,
+    employeeDetails: EmployeeDetails
 ) {
     Column(
         modifier = Modifier.padding(10.dp)
@@ -413,20 +415,12 @@ fun ScheduleSelector(
                     DayOfWeek.SUNDAY -> employeeDetails.sunday
                 }
             ) { updatedDay ->
-                val updatedEmployeeDetails = when (day) {
-                    DayOfWeek.MONDAY -> employeeDetails.copy(monday = updatedDay)
-                    DayOfWeek.TUESDAY -> employeeDetails.copy(tuesday = updatedDay)
-                    DayOfWeek.WEDNESDAY -> employeeDetails.copy(wednesday = updatedDay)
-                    DayOfWeek.THURSDAY -> employeeDetails.copy(thursday = updatedDay)
-                    DayOfWeek.FRIDAY -> employeeDetails.copy(friday = updatedDay)
-                    DayOfWeek.SATURDAY -> employeeDetails.copy(saturday = updatedDay)
-                    DayOfWeek.SUNDAY -> employeeDetails.copy(sunday = updatedDay)
-                }
-                onScheduleValueChange(updatedEmployeeDetails)
+                onDaySelected(day, updatedDay)
             }
         }
     }
 }
+
 
 @Composable
 fun DaySelector(

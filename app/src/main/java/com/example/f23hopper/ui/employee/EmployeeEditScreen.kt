@@ -24,6 +24,7 @@ fun EmployeeEditScreen(
     val showConfirmationDialog = remember { mutableStateOf(false) }
 
     EmployeeEntryBody(
+        viewModel = sharedViewModel,
         employeeUiState = sharedViewModel.employeeUiState,
         employeeDetails = sharedViewModel.employeeUiState.employeeDetails,
         onEmployeeValueChange = sharedViewModel::updateUiState,

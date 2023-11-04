@@ -349,8 +349,9 @@ fun getEmployeeDisplayNameLong(employee: Employee): String {
     val displayName = employee.nickname.ifEmpty {
         "${employee.firstName} ${employee.lastName}"
     }
-    val truncatedName = if (displayName.length > 20) {
-        "${displayName.take(20)}..."
+    val len = 20
+    val truncatedName = if (displayName.length > len) {
+        "${displayName.take(len)}..."
     } else {
         displayName
     }
@@ -359,7 +360,7 @@ fun getEmployeeDisplayNameLong(employee: Employee): String {
 
 fun getEmployeeDisplayNameShort(employee: Employee): String {
     val displayName = employee.nickname.ifEmpty {
-        "${employee.firstName.take(1)} ${employee.lastName}"
+        "${employee.firstName.take(6)} ${employee.lastName.take(4)}..."
     }
     return displayName
 }
@@ -377,7 +378,7 @@ fun EmployeeList(
 
     employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
         val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
-        val displayName = getEmployeeDisplayNameLong(employee)
+        val displayName = getEmployeeDisplayNameShort(employee)
 
         Row(
             modifier = Modifier

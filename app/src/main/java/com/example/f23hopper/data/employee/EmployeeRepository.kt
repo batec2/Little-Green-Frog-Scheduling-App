@@ -1,5 +1,7 @@
 package com.example.f23hopper.data.employee
 
+import android.util.Log
+import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -29,6 +31,22 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
 
     fun getCanClose(): Flow<List<Employee>> {
         return employeeDao.getCanClose()
+    }
+
+    suspend fun isNicknameUsed(nickname: String): Boolean {
+        return employeeDao.getEmployeeByNickname(nickname) != null
+    }
+
+    @Transaction
+    suspend fun upsertEmployee(employee: Employee) {
+        // Attempt to update the employee
+        val rowsUpdated = employeeDao.update(employee)
+
+        Log.d("upsert", "rows received:${rowsUpdated}")
+        // If no rows were updated, the employee doesn't exist, so insert a new one
+        if (rowsUpdated == 0) {
+            employeeDao.insert(employee)
+        }
     }
 
     suspend fun insertEmployee(employee: Employee): Long {
