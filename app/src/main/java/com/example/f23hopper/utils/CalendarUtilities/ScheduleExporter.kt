@@ -11,20 +11,31 @@ import java.time.YearMonth
 class ScheduleExporter {
 
     fun formatFileData(shifts: List<Shift>, curMonth: YearMonth): String {
-        val header = "Date,Shift Type,Employee Name\n"
         val filteredShifts = shifts.filter { shift ->
             val scheduleDate = shift.schedule.date.toKotlinxLocalDate()
             scheduleDate.year == curMonth.year && scheduleDate.month == curMonth.month
         }
-        val rows = filteredShifts.groupBy { it.schedule.date }
+
+        val groupedShifts = filteredShifts.groupBy { it.schedule.date }
             .toList()
             .sortedBy { it.first }
-            .joinToString("\n") { (_, groupedShifts) ->
-                groupedShifts.joinToString("\n") { shift ->
-                    "${shift.schedule.date},${shift.schedule.shiftType},${shift.employee.firstName} ${shift.employee.lastName}"
+
+        val formattedShifts = groupedShifts.joinToString("\n") { (date, shiftsForDate) ->
+            val formattedDate = date.toString()
+            val hyphens = "----------\n"
+
+            val rows = shiftsForDate.groupBy { it.schedule.date }
+                .toList()
+                .sortedBy { it.first }
+                .joinToString("\n") { (_, groupedShifts) ->
+                    groupedShifts.joinToString("\n") { shift ->
+                        "${shift.schedule.shiftType},${shift.employee.firstName} ${shift.employee.lastName}"
+                    }
                 }
-            }
-        return header + rows
+            "$formattedDate\n$hyphens\n$rows\n"
+        }
+
+        return formattedShifts
     }
 
     fun createFile(content: String, context: Context, filename: String = "schedule.txt"): File {
