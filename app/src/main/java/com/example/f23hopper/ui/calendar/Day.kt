@@ -2,7 +2,6 @@ package com.example.f23hopper.ui.calendar
 
 import InvalidDayIcon
 import androidx.compose.animation.animateColor
-import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.infiniteRepeatable
@@ -17,7 +16,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +44,7 @@ data class DayContext(
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
     val employeeShiftSelected: Boolean,//For employee highlighting
-    val employeesSelected: List<Long>
+    val viewItemList: List<ViewItem>
 )
 
 @Composable
@@ -120,7 +117,6 @@ fun shiftViewIndicators(
 ){
     Row(
         modifier
-            //.background(Color.Blue)
             .fillMaxWidth()
             .height(15.dp)
             .padding(1.dp),
@@ -128,25 +124,14 @@ fun shiftViewIndicators(
         horizontalArrangement = Arrangement.SpaceAround
     ){
         val ids =
-            context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee.employeeId) } }.toSet()
+            context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee) } }.toSet()
 
-        context.employeesSelected.forEachIndexed{index, employee->
-            if(context.employeeShiftSelected && ids.contains(employee)){
+        context.viewItemList.forEachIndexed{ index, item->
+            if(context.employeeShiftSelected && ids.contains(item.empItem)){
                 Column(
                     Modifier
                         .size(6.dp)
-                        .background(
-                            //changes colour depending on index of item in list
-                            when(index){
-                                0->Color.Red
-                                1->Color.Blue
-                                2->Color.Cyan
-                                3->Color.Yellow
-                                4->Color.Green
-                                5->Color.White
-                                else-> Color.DarkGray
-                            }
-                        )
+                        .background(item.color.colVal)
                 ){}
             }
         }
