@@ -2,8 +2,8 @@ package com.example.f23hopper.ui.calendar
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,16 +17,19 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -41,6 +44,7 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.getShiftIcon
+import com.example.f23hopper.utils.getShiftRowColor
 import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
@@ -57,46 +61,47 @@ fun CalendarPager(
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
-    employee: (Employee) -> Unit,//passes employeeId to Calendar
-    viewItemList: List<ViewItem>,//list ids for employees selected for schedule view
+    employee: (Long) -> Unit,//passes employeeId to Calendar
+    employees: List<Long>,//list ids for employees selected for schedule view
     employeeList: List<Employee>,
-    clearList:()->Unit
+    clearList: () -> Unit
 ) {
     Column(
         modifier = modifier
     ) {
+        //        Divider(color = itemBackgroundColor)
         //List of current selected employees
         val pagerState = rememberPagerState(initialPage = 0)
         HorizontalPager(pageCount = 2, state = pagerState, modifier = Modifier.weight(1f)) { page ->
-            when(page) {
-                0->//shows employees scheduled to work on current day
-                if (selection != null) {
-                    //Divider(color = itemBackgroundColor)
-                    val isSpecialDay = specialDaysByDay[selection?.date!!] != null
-                    ShiftDetailsForPagerDay(
-                        shiftsOnSelectedDay = shiftsOnSelectedDate,
-                        selection.date,
-                        isSpecialDay = isSpecialDay,
-                        navigateToShiftView,
-                        toggleSpecialDay,
-                        viewModel = viewModel,
-                        employee = employee
-                    )
-                } else {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
+            when (page) {
+                0 ->//shows employees scheduled to work on current day
+                    if (selection != null) {
+                        //Divider(color = itemBackgroundColor)
+                        val isSpecialDay = specialDaysByDay[selection?.date!!] != null
+                        ShiftDetailsForPagerDay(
+                            shiftsOnSelectedDay = shiftsOnSelectedDate,
+                            selection.date,
+                            isSpecialDay = isSpecialDay,
+                            navigateToShiftView,
+                            toggleSpecialDay,
+                            viewModel = viewModel,
+                            employee = employee
+                        )
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
 
-                    ) {
-                        Text(text = "Select Day")
+                        ) {
+                            Text(text = "Select Day")
+                        }
                     }
-                }
-                1->//Shows employees selected for the employee shift view
-                ShiftViewPage(
-                    viewItemList = viewItemList
-                    , employeeList = employeeList
-                    , clearList = clearList)
+
+                1 ->//Shows employees selected for the employee shift view
+                    ShiftViewPage(
+                        employees = employees, employeeList = employeeList, clearList = clearList
+                    )
             }
 
         }
@@ -125,38 +130,50 @@ fun CalendarPager(
 
 @Composable
 fun ShiftViewPage(
-    viewItemList: List<ViewItem>,
+    employees: List<Long>,
     employeeList: List<Employee>,
-    clearList:()->Unit
-){
+    clearList: () -> Unit
+) {
     Row(
         modifier = Modifier.fillMaxSize(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
 
     ) {
-        if(viewItemList.isEmpty()){
+        if (employees.isEmpty()) {
             Text(text = "No Employees Selected for Shift View")
-        }
-        else{
+        } else {
             //Checks if employee id is in the list of selected employees for shift view
-            viewItemList.forEach{item ->
-                Column(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxHeight()
-                        .padding(
-                            start = 2.dp,
-                            end = 2.dp,
-                            top = 10.dp,
-                            bottom = 10.dp
-                        )
-                        .background(item.color.colVal),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ){
-                    Text(text = item.empItem.firstName)
-                    Text(text = item.empItem.lastName)
+            employeeList.forEach { item ->
+                if (employees.contains(item.employeeId)) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .padding(
+                                start = 2.dp,
+                                end = 2.dp,
+                                top = 10.dp,
+                                bottom = 10.dp
+                            )
+                            .background(
+                                //changes colour depending on index of item in list
+                                when (employees.indexOf(item.employeeId)) {
+                                    0 -> Color.Red
+                                    1 -> Color.Blue
+                                    2 -> Color.Cyan
+                                    3 -> Color.Yellow
+                                    4 -> Color.Green
+                                    5 -> Color.White
+                                    else -> Color.DarkGray
+                                }
+                            ),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(text = item.firstName)
+                        Text(text = item.lastName)
+                    }
                 }
             }
 
@@ -177,7 +194,7 @@ fun ShiftDetailsForPagerDay(
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
     viewModel: CalendarViewModel,
-    employee: (Employee) -> Unit//passes employeeId to next composable
+    employee: (Long) -> Unit//passes employeeId to next composable
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -188,7 +205,6 @@ fun ShiftDetailsForPagerDay(
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             modifier = Modifier.weight(0.8f), // 80% of the total width
-            viewModel = viewModel,
             employee = employee
         )
         Divider(
@@ -229,7 +245,6 @@ fun CalendarPagerActionBox(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             EditShiftButton(onClick = {
-
                 navigateToShiftView(date.toString())
             })
             ToggleSpecialDayButton(
@@ -248,8 +263,7 @@ fun ShiftContent(
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier,
-    viewModel: CalendarViewModel,
-    employee: (Employee) -> Unit //passes employeeId to next composable
+    employee: (Long) -> Unit //passes employeeId to next composable){}
 ) {
     Row(
         modifier = modifier
@@ -261,42 +275,28 @@ fun ShiftContent(
         // Build 2 rows if weekday, 1 row if weekend
         if (date.isWeekday()) {
             ShiftRow(
-                shiftType = ShiftType.DAY,
-                shiftsForType = shifts[ShiftType.DAY].orEmpty(),
                 date = date,
+                shiftsForType = shifts[ShiftType.DAY].orEmpty(),
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
                 maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel,
                 employee = employee
             )
-            /*
-            Spacer(
-                modifier = Modifier
-                    .height(1.dp)
-                    .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.outline)
-            )
-             */
             ShiftRow(
-                shiftType = ShiftType.NIGHT,
+                maxShifts = maxShifts(isSpecialDay),
                 shiftsForType = shifts[ShiftType.NIGHT].orEmpty(),
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel,
                 employee = employee
             )
         } else {
             ShiftRow(
-                shiftType = ShiftType.FULL,
+                maxShifts = maxShifts(isSpecialDay),
                 shiftsForType = shifts[ShiftType.FULL].orEmpty(),
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                maxShifts = maxShifts(isSpecialDay),
-                viewModel = viewModel,
                 employee = employee
             )
 
@@ -308,13 +308,11 @@ fun ShiftContent(
 @Composable
 fun ShiftRow(
     maxShifts: Int,
-    shiftType: ShiftType,
     shiftsForType: List<Shift>,
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: CalendarViewModel,
-    employee: (Employee) -> Unit
+    employee: (Long) -> Unit
 ) {
     Column(
         modifier = modifier
@@ -338,12 +336,25 @@ fun ShiftRow(
                         .fillMaxWidth()
                         .weight(1f)
                         .padding(2.dp)
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .border(1.dp, colorScheme.outline.copy(alpha = 0.4f))
                         .clickable {
                             navigateToShiftView(date.toString())
                         }
                 ) {
-                    // Empty row
+
+                    Spacer(Modifier.width(65.dp))// center the + in the row
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add Employee",
+                        tint = colorScheme.outline.copy(alpha = 0.4f),
+                        modifier = Modifier
+                            .size(30.dp) // size of the icon
+                            .wrapContentWidth(Alignment.CenterHorizontally) // Center horizontally
+                            .width(IntrinsicSize.Max)
+                            .height(IntrinsicSize.Max)
+                            .align(Alignment.CenterVertically) // This line centers the text vertically in the parent
+                    )
+
                 }
             }
         }
@@ -353,31 +364,15 @@ fun ShiftRow(
 @Composable
 fun ShiftRowEmployeeEntry(
     shift: Shift,
-    onEmployeeClick: (Employee) -> Unit,
+    onEmployeeClick: (Long) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .padding(2.dp)
-            .background(MaterialTheme.colorScheme.secondaryContainer)
-            .clickable { onEmployeeClick(shift.employee) }
-            .background(
-                if(shift.schedule.shiftType == ShiftType.DAY) {
-                    if(isSystemInDarkTheme()) {
-                        Color(0xFF72B9E0) //Day Dark
-                    } else {
-                        Color(0xFFB1C1F2) //Day Light
-                    }
-                } else {
-                    if(isSystemInDarkTheme()) {
-                        Color(0xFF2C8D76) //Evening Dark
-                    } else {
-                        Color(0xFFA18AB4) //Evening Light
-                    }
-                }
-            )
-            .clickable { onEmployeeClick(shift.employee) },
+            .background(getShiftRowColor(shiftType = shift.schedule.shiftType))
+            .clickable { onEmployeeClick(shift.employee.employeeId) },
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
 
@@ -396,6 +391,7 @@ fun ShiftRowEmployeeEntry(
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
                 .width(IntrinsicSize.Max)
+                .height(IntrinsicSize.Max)
         )
 
     }
