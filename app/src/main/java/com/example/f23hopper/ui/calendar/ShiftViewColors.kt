@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.calendar
 
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 
 enum class ShiftViewColors(val colVal:Color) {

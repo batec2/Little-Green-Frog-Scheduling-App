@@ -32,10 +32,11 @@ fun BottomNavigationBar(
         contentColor = MaterialTheme.colorScheme.onSurface,
         modifier = modifier
     ) {
-        items.forEachIndexed { index, item ->
+        items.forEachIndexed { _, item ->
             val selected = item.route == currentRoute
-            if(currentRoute != NavScreen.EmployeeEntry.route||
-                currentRoute != NavScreen.EmployeeEdit.route){
+            if (currentRoute != NavScreen.EmployeeEntry.route ||
+                currentRoute != NavScreen.EmployeeEdit.route
+            ) {
                 NavigationBarItem(
                     icon = {
                         when (item) {
@@ -43,11 +44,13 @@ fun BottomNavigationBar(
                                 Icons.Default.DateRange,
                                 contentDescription = item.toString()
                             )
+
                             NavScreen.EmployeeList -> Icon(
                                 Icons.Default.AccountBox,
                                 contentDescription = item.toString()
                             )
-                            else -> {}
+
+                            else -> {} // Do Nothing
                         }
                     },
                     selected = selected,

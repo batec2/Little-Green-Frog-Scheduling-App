@@ -50,7 +50,6 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.ToggleSpecialDayButton
 import com.example.f23hopper.ui.icons.rememberLock
-import com.example.f23hopper.ui.icons.rememberLockOpen
 import com.example.f23hopper.ui.icons.unlockIcon
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon

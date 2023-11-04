@@ -16,7 +16,6 @@ import androidx.compose.ui.Modifier
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.maxShifts
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -43,7 +42,7 @@ fun ToggleSpecialDayButton(
             if (isSpecialDay && maxedOutShiftTypes.isNotEmpty()) {
                 setShowAlert(true)
             } else {
-                coroutineScope.launch(Dispatchers.IO) {
+                coroutineScope.launch {
                     toggleSpecialDay()
                 }
             }
