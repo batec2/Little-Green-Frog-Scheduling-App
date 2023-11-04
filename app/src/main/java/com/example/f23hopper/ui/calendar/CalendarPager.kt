@@ -75,7 +75,6 @@ fun CalendarPager(
             when(page) {
                 0->//shows employees scheduled to work on current day
                 if (selection != null) {
-                    //Divider(color = itemBackgroundColor)
                     val isSpecialDay = specialDaysByDay[selection?.date!!] != null
                     ShiftDetailsForPagerDay(
                         shiftsOnSelectedDay = shiftsOnSelectedDate,
@@ -113,7 +112,8 @@ fun CalendarPager(
         ) {
             repeat(2) { iteration ->
                 val color =
-                    if (pagerState.currentPage == iteration) Color.DarkGray else Color.LightGray
+                    if (pagerState.currentPage == iteration) colorScheme.onSurface.copy(alpha = 0.8f)
+                    else colorScheme.onSurface.copy(alpha = 0.3f)
                 Box(
                     modifier = Modifier
                         .padding(2.dp)
