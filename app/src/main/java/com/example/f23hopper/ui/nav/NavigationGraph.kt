@@ -44,6 +44,7 @@ fun AppNavHost(
             ) {
                 EmployeeListScreen(
                     navigateToEmployeeAdd = {
+                        viewModel.resetUiState()
                         navController.navigate(NavScreen.EmployeeEntry.route)
                     },
                     navigateToEmployeeEdit = {
@@ -70,6 +71,7 @@ fun AppNavHost(
                 exitTransition = { slideOutHorizontally() + fadeOut() }
             ) {
                 EmployeeEntryScreen(
+                    sharedViewModel = viewModel,
                     navigateToEmployeeList = {
                         navController.popBackStack()
                     }

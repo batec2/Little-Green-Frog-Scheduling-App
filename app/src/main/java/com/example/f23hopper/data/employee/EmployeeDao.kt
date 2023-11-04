@@ -17,7 +17,7 @@ interface EmployeeDao {
     suspend fun insert(employee: Employee): Long  //return the Employee ID
 
     @Update
-    suspend fun update(employee: Employee)
+    suspend fun update(employee: Employee): Int
 
     @Delete
     suspend fun delete(employee: Employee)
@@ -27,6 +27,10 @@ interface EmployeeDao {
 
     @Query("SELECT * FROM employees WHERE employeeId = :id")
     fun getItem(id: Int): Flow<Employee>
+
+
+    @Query("SELECT * FROM employees WHERE nickname = :nickname LIMIT 1")
+    suspend fun getEmployeeByNickname(nickname: String): Employee?
 
     @Query("SELECT * FROM employees ORDER BY employees.lastName")
     fun getAllEmployees(): Flow<List<Employee>>

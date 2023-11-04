@@ -24,6 +24,7 @@ fun EmployeeEditScreen(
     val showConfirmationDialog = remember { mutableStateOf(false) }
 
     EmployeeEntryBody(
+        viewModel = sharedViewModel,
         employeeUiState = sharedViewModel.employeeUiState,
         employeeDetails = sharedViewModel.employeeUiState.employeeDetails,
         onEmployeeValueChange = sharedViewModel::updateUiState,
@@ -34,8 +35,9 @@ fun EmployeeEditScreen(
             } else {
                 // Save employee if not critical
                 coroutineScope.launch {
-                    sharedViewModel.saveEmployee()
-                    navigateToEmployeeList()
+                    if (validateInput(sharedViewModel.employeeUiState.employeeDetails)) {
+                        sharedViewModel.saveEmployee()
+                    }
                 }
             }
         },

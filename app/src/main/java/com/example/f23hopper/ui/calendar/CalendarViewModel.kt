@@ -12,6 +12,7 @@ import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.ScheduleExporter
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
@@ -20,6 +21,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.sql.Date
 import java.time.LocalDate
 import java.time.YearMonth
@@ -31,10 +33,12 @@ import javax.inject.Inject
 class CalendarViewModel @Inject constructor(
     private val scheduleRepo: ScheduleRepository,
     private val employeeRepository: EmployeeRepository,
-    private val specialDayRepo: SpecialDayRepository
+    private val specialDayRepo: SpecialDayRepository,
 ) : ViewModel() {
     // Exporting helper
     private val exporter: ScheduleExporter = ScheduleExporter()
+
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
     // Custom getters for startDate and endDate
     private val startDate: Date
@@ -78,10 +82,12 @@ class CalendarViewModel @Inject constructor(
     fun toggleSpecialDay(date: Date?) {
         viewModelScope.launch {
             if (date != null) {
-                specialDayRepo.toggleSpecialDay(date)
+                // Launch the operation in the IO dispatcher
+                withContext(defaultDispatcher) {
+                    specialDayRepo.toggleSpecialDay(date)
+                }
             }
         }
-
     }
 
     private fun fetchAllEmployees(): Flow<List<Employee>> {

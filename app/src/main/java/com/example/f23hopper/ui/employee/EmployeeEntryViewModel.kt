@@ -1,13 +1,8 @@
 package com.example.f23hopper.ui.employee
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
-import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -21,11 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EmployeeEntryViewModel @Inject constructor(
-    private val employeeRepository: EmployeeRepository,
     scheduleRepository: ScheduleRepository,
 ) : ViewModel() {
-    var employeeUiState by mutableStateOf(EmployeeUiState())
-        private set
 
     private val _activeShiftsInFuture = MutableStateFlow<List<Shift>>(emptyList())
     private val activeShiftsInFuture: StateFlow<List<Shift>> = _activeShiftsInFuture
@@ -38,51 +30,34 @@ class EmployeeEntryViewModel @Inject constructor(
         }
     }
 
-    //updates current employee details
-    fun updateUiState(employeeDetails: EmployeeDetails) {
-        Log.d("critical", "replaced")
-        employeeUiState =
-            EmployeeUiState(
-                employee = employeeUiState.employee,
-                employeeDetails = employeeDetails,
-                isEmployeeValid = validateInput(employeeDetails)
-            )
-    }
-
     fun employeeOnlyOpenerCloserCheck(employeeUiState: EmployeeUiState): Boolean {
-        // why is this null here?
+        val intendedChanges = employeeUiState.employeeDetails
         val employee = employeeUiState.employee ?: return false
 
-        if (activeShiftsInFuture.value.isEmpty()) return false
-        Log.d("critical", "Shift Count: ${activeShiftsInFuture.value.size}")
-        val allShifts = activeShiftsInFuture.value
-        Log.d("critical", "Shifts in future valid")
-        val intendedChanges = employeeUiState.employeeDetails
+        // check if either canOpen or canClose was turned ON
+        if ((intendedChanges.canOpen && !employee.canOpen) || (intendedChanges.canClose && !employee.canClose)) {
+            return false
+        }
 
+        // if both canOpen and canClose are true, return false
+        if (intendedChanges.canClose && intendedChanges.canOpen) {
+            return false
+        }
+
+        // if there are no active shifts in the future, return false
+        if (activeShiftsInFuture.value.isEmpty()) return false
+        val allShifts = activeShiftsInFuture.value
+
+        // if there are no changes in canOpen and canClose, return false
         if (employee.canOpen == intendedChanges.canOpen && employee.canClose == intendedChanges.canClose) {
             return false
         }
-        Log.d("critical", "Shift Cert changed")
 
+        // Check if there are critical shifts
         return hasCriticalShifts(employee, allShifts)
     }
 
-    //checks if fields: firstName,lastName,email,phone number is not blank
-    private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
-        return with(uiState) {
-            firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
-                    && phoneNumber.isNotBlank()
-        }
-    }
 
-    //inserts employee details into database
-    fun saveEmployee() {
-        viewModelScope.launch {
-            if (validateInput()) { //checks if inputs are not blank
-                employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
-            }
-        }
-    }
 }
 
 data class EmployeeUiState(
