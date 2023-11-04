@@ -185,8 +185,11 @@ fun ShiftViewPage(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text(text = item.empItem.firstName)
-                    Text(text = item.empItem.lastName)
+                    Text(
+                        text = item.empItem.nickname.ifEmpty {
+                            "${item.empItem.firstName}\n${item.empItem.lastName}"
+                        }
+                    )
                 }
             }
 
