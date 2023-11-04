@@ -1,8 +1,8 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.AccessTimeFilled
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
@@ -48,13 +48,13 @@ fun ToggleSpecialDayButton(
             }
         }
     ) {
-        if (isSpecialDay) {
-            Icon(imageVector = Icons.Outlined.Favorite, contentDescription = "Special Day")
-        } else {
+        if (!isSpecialDay) {
             Icon(
-                imageVector = Icons.Outlined.FavoriteBorder,
+                imageVector = Icons.Outlined.AccessTime,
                 contentDescription = "Not Special Day"
             )
+        } else {
+            Icon(imageVector = Icons.Outlined.AccessTimeFilled, contentDescription = "Special Day")
         }
     }
 

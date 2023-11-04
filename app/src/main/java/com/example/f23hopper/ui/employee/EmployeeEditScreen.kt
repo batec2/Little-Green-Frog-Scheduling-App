@@ -34,8 +34,9 @@ fun EmployeeEditScreen(
             } else {
                 // Save employee if not critical
                 coroutineScope.launch {
-                    sharedViewModel.saveEmployee()
-                    navigateToEmployeeList()
+                    if (validateInput(sharedViewModel.employeeUiState.employeeDetails)) {
+                        sharedViewModel.saveEmployee()
+                    }
                 }
             }
         },

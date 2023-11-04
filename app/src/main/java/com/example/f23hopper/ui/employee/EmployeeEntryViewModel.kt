@@ -40,7 +40,6 @@ class EmployeeEntryViewModel @Inject constructor(
 
     //updates current employee details
     fun updateUiState(employeeDetails: EmployeeDetails) {
-        Log.d("critical", "replaced")
         employeeUiState =
             EmployeeUiState(
                 employee = employeeUiState.employee,
@@ -54,9 +53,7 @@ class EmployeeEntryViewModel @Inject constructor(
         val employee = employeeUiState.employee ?: return false
 
         if (activeShiftsInFuture.value.isEmpty()) return false
-        Log.d("critical", "Shift Count: ${activeShiftsInFuture.value.size}")
         val allShifts = activeShiftsInFuture.value
-        Log.d("critical", "Shifts in future valid")
         val intendedChanges = employeeUiState.employeeDetails
 
         if (employee.canOpen == intendedChanges.canOpen && employee.canClose == intendedChanges.canClose) {
@@ -67,18 +64,11 @@ class EmployeeEntryViewModel @Inject constructor(
         return hasCriticalShifts(employee, allShifts)
     }
 
-    //checks if fields: firstName,lastName,email,phone number is not blank
-    private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
-        return with(uiState) {
-            firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
-                    && phoneNumber.isNotBlank()
-        }
-    }
 
     //inserts employee details into database
     fun saveEmployee() {
         viewModelScope.launch {
-            if (validateInput()) { //checks if inputs are not blank
+            if (validateInput(employeeUiState.employeeDetails)) { //checks if inputs are valid
                 employeeRepository.insertEmployee(employeeUiState.employeeDetails.toEmployee())
             }
         }

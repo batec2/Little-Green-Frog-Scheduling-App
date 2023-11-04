@@ -90,16 +90,9 @@ class EmployeeListViewModel @Inject constructor(
         }
     }
 
-    private fun validateInput(uiState: EmployeeDetails = employeeUiState.employeeDetails): Boolean {
-        return with(uiState) {
-            firstName.isNotBlank() && lastName.isNotBlank() && email.isNotBlank()
-                    && phoneNumber.isNotBlank()
-        }
-    }
-
     fun saveEmployee() {
         viewModelScope.launch {
-            if (validateInput()) { //checks if inputs are not blank
+            if (validateInput(employeeUiState.employeeDetails)) { //checks if inputs are not blank
                 employeeRepository.updateEmployee(employeeUiState.employeeDetails.toEmployee())
             }
         }

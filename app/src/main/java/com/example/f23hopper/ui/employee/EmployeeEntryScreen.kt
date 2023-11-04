@@ -92,6 +92,7 @@ fun EmployeeEntryScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeEntryBody(
+
     employeeUiState: EmployeeUiState,
     employeeDetails: EmployeeDetails,
     onEmployeeValueChange: (EmployeeDetails) -> Unit,
@@ -184,7 +185,6 @@ fun EmployeeInfo(
             else -> false
         }
     }
-    val alphaRegex = Regex("^[a-zA-Z-'. ]+$")
     val hasAnyError = remember { mutableStateOf(false) }
 
     val fields = listOf(
@@ -266,31 +266,6 @@ fun EmployeeInfo(
     fields.forEach { field -> ValidatedOutlinedTextField(field, hasAnyError) }
 }
 
-fun verifyEmail(email: String): Boolean {
-    //  Internet Message Format (RFC 5322) and the domain name criteria defined in RFC 1034 and RFC 1035.
-
-    // maximum length for the local part is 64 characters
-    // maximum length for the domain part is 255 characters
-    // maximum total length is 320 characters
-    if (email.length > 320) return false
-
-    val parts = email.split("@")
-    if (parts.size != 2) return false
-
-    val localPart = parts[0]
-    val domainPart = parts[1]
-
-    if (localPart.length > 64 || domainPart.length > 255) return false
-
-    // check if the domain part contains at least one dot and doesn't start/end with a dot
-    if (!domainPart.contains(".") || domainPart.startsWith(".") || domainPart.endsWith(".")) return false
-
-    // enhanced regex for local part and domain part validation
-    val localPartRegex = Regex("^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+\$")
-    val domainPartRegex = Regex("^[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\$")
-
-    return localPart.matches(localPartRegex) && domainPart.matches(domainPartRegex)
-}
 
 @Composable
 fun ValidatedOutlinedTextField(
@@ -317,6 +292,7 @@ fun ValidatedOutlinedTextField(
             textFieldValue = TextFieldValue(
                 text = formattedValue, selection = TextRange(formattedValue.length)
             )
+            field.onValueChange(formattedValue)
 
             // validate the text field value
             val isValid = field.validate(formattedValue)
