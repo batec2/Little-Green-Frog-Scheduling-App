@@ -3,7 +3,6 @@ package com.example.f23hopper.data.employee
 import android.util.Log
 import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
 import kotlinx.coroutines.flow.Flow
 
@@ -65,20 +64,6 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         return employeeDao.getItem(id)
     }
 
-    fun getEmployeesByDayAndShiftType(day: DayOfWeek, shiftType: ShiftType): Flow<List<Employee>> {
-        val query = when (shiftType) {
-            ShiftType.DAY, ShiftType.NIGHT -> SimpleSQLiteQuery(
-                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?",
-                arrayOf(shiftType.name, ShiftType.FULL.name)
-            )
-
-            else -> SimpleSQLiteQuery(
-                "SELECT * FROM employees WHERE ${day.name.lowercase()} = ?",
-                arrayOf(shiftType.name)
-            )
-        }
-        return employeeDao.getEmployeesByDayAndShiftType(query)
-    }
 
     fun getEmployeesByDayAndShiftType(
         day: kotlinx.datetime.DayOfWeek,

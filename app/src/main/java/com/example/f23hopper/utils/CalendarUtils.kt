@@ -16,13 +16,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -33,7 +29,6 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -52,6 +47,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.dayShiftIcon
 import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
+import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.kizitonwose.calendar.compose.CalendarLayoutInfo
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.weekcalendar.WeekCalendarState
@@ -157,25 +153,6 @@ fun StatusBarColorUpdateEffect(color: Color) {
     }
     LaunchedEffect(lifecycleOwner) {
         lifecycleOwner.lifecycle.addObserver(observer)
-    }
-}
-
-@Composable
-fun NavigationIcon(onBackClick: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxHeight()
-            .aspectRatio(1f)
-            .padding(8.dp)
-            .clip(shape = CircleShape)
-            .clickable(role = Role.Button, onClick = onBackClick),
-    ) {
-        Icon(
-            tint = Color.White,
-            modifier = Modifier.align(Alignment.Center),
-            imageVector = Icons.Default.ArrowBack,
-            contentDescription = "Back",
-        )
     }
 }
 

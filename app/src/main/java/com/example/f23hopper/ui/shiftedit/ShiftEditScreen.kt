@@ -50,11 +50,11 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.ToggleSpecialDayButton
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.unlockIcon
+import com.example.f23hopper.utils.CalendarUtilities.isWeekday
+import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.ShiftCircles
 import com.example.f23hopper.utils.ShiftIcon
-import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShifts
-import com.example.f23hopper.utils.toSqlDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.toJavaLocalDate
@@ -363,7 +363,7 @@ fun getEmployeeDisplayNameLong(employee: Employee): String {
 
 fun getEmployeeDisplayNameShort(employee: Employee): String {
     val displayName = employee.nickname.ifEmpty {
-        "${employee.firstName.take(6)} ${employee.lastName.take(4)}..."
+        "${employee.firstName.take(15)} ${employee.lastName.take(10)}"
     }
     return displayName
 }

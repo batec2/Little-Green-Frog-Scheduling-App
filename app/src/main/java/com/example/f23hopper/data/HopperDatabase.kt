@@ -19,7 +19,7 @@ import com.example.f23hopper.utils.DateTypeConverter
     version = 1,
     exportSchema = false/*disable schema ver history*/
 )
-@TypeConverters(WeekDayConverter::class, ShiftTypeConverter::class, DateTypeConverter::class)
+@TypeConverters(ShiftTypeConverter::class, DateTypeConverter::class)
 abstract class HopperDatabase : RoomDatabase()/*Extends RoomDatabase class*/ {
 
     abstract fun employeeDao(): EmployeeDao//tells database about dao

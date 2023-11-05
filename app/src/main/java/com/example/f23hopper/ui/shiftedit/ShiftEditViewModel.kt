@@ -10,7 +10,6 @@ import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
-import com.example.f23hopper.utils.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
