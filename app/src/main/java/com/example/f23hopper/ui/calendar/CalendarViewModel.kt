@@ -25,8 +25,6 @@ import kotlinx.coroutines.withContext
 import java.sql.Date
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -112,8 +110,15 @@ class CalendarViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
-    fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
+    fun exportSchedule(
+        shifts: List<Shift>,
+        curMonth: YearMonth,
+        context: Context,
+        onExportComplete: (String) -> Unit
+    ) {
         val content = exporter.formatData(shifts, curMonth)
-        exporter.export(curMonth, content, context)
+        val filename = "${curMonth.year}_${curMonth.month.value}_schedule.txt"
+        exporter.export(filename, content, context)
+        onExportComplete("$filename saved to Downloads folder")
     }
 }
