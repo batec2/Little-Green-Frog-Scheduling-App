@@ -29,18 +29,18 @@ fun java.time.LocalDate.toShortMonthAndDay(): String {
 fun Date.toLongDate(): String {
 
     val date = this.toKotlinxLocalDate()
-    val day = date.dayOfWeek
-    val suffix =
-        if (date.dayOfMonth in 11..13)
-            return "th"
-        else when (date.dayOfMonth % 10) {
+    val day = date.dayOfWeek.toString().lowercase().replaceFirstChar { it.titlecase() }
+    val dayNum = date.dayOfMonth
+    val suffix = if (dayNum in 11..13) "th" else {
+        when (dayNum % 10) {
             1 -> "st"
             2 -> "nd"
             3 -> "rd"
             else -> "th"
         }
+    }
 
-    val month = date.month
+    val month = date.month.toString().lowercase().replaceFirstChar { it.titlecase() }
     val year = date.year
     return "$day, $month ${date.dayOfMonth}$suffix, $year"
 }
