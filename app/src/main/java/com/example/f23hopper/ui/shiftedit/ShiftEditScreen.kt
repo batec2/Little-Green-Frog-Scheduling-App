@@ -407,6 +407,7 @@ fun EmployeeList(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
                 if (employee.canOpen && shiftType != ShiftType.NIGHT) {
                     CanOpenIcon()
                 } else if (employee.canClose && shiftType != ShiftType.DAY) {
