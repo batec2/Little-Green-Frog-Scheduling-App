@@ -49,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -311,11 +312,36 @@ fun EmployeeListItem(
     }
 }
 
-//Need to names and nickname position
 @Composable
-fun ListEmployeeInfo(
-    employee: Employee
-) {
+fun EmployeeNameDisplay(employee: Employee) {
+    if (employee.nickname.isNotBlank()) {
+        // nickname exists, show it in italics
+        Text(
+            text = "${employee.nickname} ",
+            style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 20.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    } else {
+        // no nickname, show the first name (not in italics)
+        Text(
+            text = "${employee.firstName} ",
+            style = TextStyle(fontSize = 20.sp),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+    // Last Name
+    Text(
+        text = employee.lastName,
+        style = TextStyle(fontSize = 20.sp),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+    )
+}
+
+@Composable
+fun ListEmployeeInfo(employee: Employee) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -324,15 +350,7 @@ fun ListEmployeeInfo(
             modifier = Modifier.weight(2f),
             horizontalArrangement = Arrangement.Start
         ) {
-            Text(
-                text = if (employee.nickname.isNotBlank()) ("${employee.firstName} \"${employee.nickname}\" ${employee.lastName}")
-                else (employee.firstName + " " + employee.lastName),
-                style = TextStyle(fontSize = 20.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f),
-            )
-
+            EmployeeNameDisplay(employee = employee)
         }
         Row(
             modifier = Modifier.weight(1f)
@@ -352,9 +370,7 @@ fun ListEmployeeInfo(
                     contentDescription = "Can Close"
                 )
             }
-
         }
-
     }
 }
 

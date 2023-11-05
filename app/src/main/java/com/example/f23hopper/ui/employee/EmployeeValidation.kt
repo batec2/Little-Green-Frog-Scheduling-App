@@ -44,10 +44,32 @@ fun validateInput(uiState: EmployeeDetails): Boolean {
     val isLastNameValid = uiState.lastName.matches(alphaRegex)
     val isNicknameValid = uiState.nickname.isBlank() || uiState.nickname.matches(alphaRegex)
     val isEmailValid = verifyEmail(uiState.email)
-    val isPhoneNumberValid = uiState.phoneNumber.matches(Regex("^\\+?[0-9\\-() ]+$"))
+    val isPhoneNumberValid = verifyPhoneNumber(uiState.phoneNumber)
 
     // Return true only if all validations pass
     return isFirstNameValid && isLastNameValid && isNicknameValid && isEmailValid && isPhoneNumberValid
+}
+
+
+// https://en.wikipedia.org/wiki/E.164
+// International standard defines max phone number as 15 digits
+fun verifyPhoneNumber(phoneNumber: String): Boolean {
+    // maximum and minimum length for a phone number
+    val maxDigits = 15
+    val minDigits = 7
+
+    // count the number of digits in the phone number
+    val digitCount = phoneNumber.count { it.isDigit() }
+
+    // check for length constraints
+    if (digitCount !in minDigits..maxDigits) return false
+
+    // this pattern allows optional '+' at the beginning, numbers, optional spaces, hyphens, or parentheses
+    // common international phone regex
+    val phoneNumberRegex =
+        Regex("^\\+?[0-9]{1,3}?[-.\\s]?\\(?[0-9]{1,3}?\\)?[-.\\s]?[0-9]{1,4}?[-.\\s]?[0-9]{1,4}?[-.\\s]?[0-9]{1,9}\$")
+
+    return phoneNumber.matches(phoneNumberRegex)
 }
 
 fun verifyEmail(email: String): Boolean {
