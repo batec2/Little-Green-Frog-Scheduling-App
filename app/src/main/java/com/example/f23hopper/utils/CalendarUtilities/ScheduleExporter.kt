@@ -21,7 +21,7 @@ class ScheduleExporter {
             .sortedBy { it.first }
 
         val formattedShifts = groupedShifts.joinToString("\n") { (date, shiftsOnDate) ->
-            val formattedDate = DateTimeFormatter.formatDate(date.toKotlinxLocalDate())
+            val formattedDate = date.toLongDate()
             val hyphens = "${"_".repeat(30)}\n"
 
             val rows = shiftsOnDate.joinToString("\n") { shift ->

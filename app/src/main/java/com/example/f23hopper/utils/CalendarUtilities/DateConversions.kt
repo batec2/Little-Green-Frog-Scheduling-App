@@ -25,3 +25,22 @@ fun java.time.LocalDate.toShortMonthAndDay(): String {
         )
     } ${this.dayOfMonth}"
 }
+
+fun Date.toLongDate(): String {
+
+    val date = this.toKotlinxLocalDate()
+    val day = date.dayOfWeek
+    val suffix =
+        if (date.dayOfMonth in 11..13)
+            return "th"
+        else when (date.dayOfMonth % 10) {
+            1 -> "st"
+            2 -> "nd"
+            3 -> "rd"
+            else -> "th"
+        }
+
+    val month = date.month
+    val year = date.year
+    return "$day, $month ${date.dayOfMonth}$suffix, $year"
+}
