@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -33,11 +32,12 @@ fun BaseDialog(
     showDialog: Boolean = true,
     confirmButtonText: String = "Yes",
     dismissButtonText: String = "No",
-    confirmButtonColor: Color = MaterialTheme.colorScheme.primary,
-    dismissButtonColor: Color = MaterialTheme.colorScheme.primary,
-    confirmTextColor: Color = MaterialTheme.colorScheme.onPrimary,
-    dismissTextColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
+    //unused atm
+    val confirmButtonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
+    val dismissButtonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
+    val confirmTextColor: Color = MaterialTheme.colorScheme.onTertiaryContainer
+    val dismissTextColor: Color = MaterialTheme.colorScheme.onTertiaryContainer
     if (showDialog) {
         AlertDialog(
             onDismissRequest = onDismiss,
@@ -62,17 +62,17 @@ fun BaseDialog(
                             Button(
                                 onClick = onDismiss,
                                 shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(containerColor = dismissButtonColor)
+//                                colors = ButtonDefaults.buttonColors(containerColor = dismissButtonColor)
                             ) {
-                                Text(dismissButtonText, color = dismissTextColor)
+                                Text(dismissButtonText /*color = dismissTextColor*/)
                             }
                             Spacer(modifier = Modifier.width(16.dp))
                             Button(
                                 onClick = onConfirm,
                                 shape = RoundedCornerShape(50),
-                                colors = ButtonDefaults.buttonColors(containerColor = confirmButtonColor)
+//                                colors = ButtonDefaults.buttonColors(containerColor = confirmButtonColor)
                             ) {
-                                Text(confirmButtonText, color = confirmTextColor)
+                                Text(confirmButtonText /*color = confirmTextColor*/)
                             }
                         }
                     }
