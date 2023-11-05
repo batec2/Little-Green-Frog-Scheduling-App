@@ -101,7 +101,6 @@ fun EmployeeEntryBody(
     showConfirmationDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
 ) {
 
-//    StatusBarColorUpdateEffect(toolbarColor)
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
@@ -258,8 +257,9 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { it.matches(Regex("^\\+?[0-9\\-() ]+$")) },
-            errorMessage = "Only numbers are allowed"
+            validate = { verifyPhoneNumber(it) },
+            errorMessage = "Between 7-15 numbers accepted",
+            showErrorChars = false,
         ),
     )
 

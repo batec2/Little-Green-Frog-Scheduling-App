@@ -157,25 +157,34 @@ fun determineShiftType(
     }
 }
 
+//https://en.wikipedia.org/wiki/E.164
+// International standard defines max phone number as 15 digits
 fun formatPhoneNumber(input: String): String {
-    val digits = input.filter { it.isDigit() }.take(11)
+    val digits = input.filter { it.isDigit() }.take(15) // Take only the first 15 digits
 
-    // US & Canada, e.g +1
-    if (digits.startsWith("1") && digits.length == 11) {
-        return "+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}"
-    }
-
-    // international numbers with country codes
-    if (digits.length > 10) {
-        // assumption: if longer than 10, it has country code
-        return "+${digits.substring(0, digits.length - 10)} ${digits.substring(digits.length - 10)}"
-    }
-
-    // Default, CA/US without country code
     return when {
-        digits.length <= 3 -> digits
-        digits.length <= 6 -> "${digits.substring(0, 3)}-${digits.substring(3)}"
-        else -> "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+        // US & Canada, e.g., +1
+        digits.startsWith("1") && digits.length == 11 -> {
+            "+1 (${digits.substring(1, 4)}) ${digits.substring(4, 7)}-${digits.substring(7)}"
+        }
+        // international numbers with country codes
+        digits.length > 10 -> {
+            "+${digits.substring(0, digits.length - 10)} ${digits.substring(digits.length - 10)}"
+        }
+        // if exactly 7 digits, formatted as "555-5555"
+        digits.length == 7 -> {
+            "${digits.substring(0, 3)}-${digits.substring(3)}"
+        }
+        // default, CA/US without country code
+        digits.length in 4..6 -> {
+            "${digits.substring(0, 3)}-${digits.substring(3)}"
+        }
+
+        digits.length > 6 -> {
+            "${digits.substring(0, 3)}-${digits.substring(3, 6)}-${digits.substring(6)}"
+        }
+
+        else -> digits
     }
 }
 
