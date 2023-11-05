@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -32,6 +33,7 @@ fun BaseDialog(
     showDialog: Boolean = true,
     confirmButtonText: String = "Yes",
     dismissButtonText: String = "No",
+    headerSize: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
     //unused atm
     val confirmButtonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
@@ -52,7 +54,7 @@ fun BaseDialog(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(title, style = MaterialTheme.typography.headlineMedium)
+                        Text(title, style = headerSize)
                         Spacer(modifier = Modifier.height(24.dp))
                         Text(message)
                         Spacer(modifier = Modifier.height(32.dp))
