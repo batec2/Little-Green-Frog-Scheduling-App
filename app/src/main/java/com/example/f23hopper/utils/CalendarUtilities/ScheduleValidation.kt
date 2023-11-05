@@ -37,9 +37,9 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberError
+import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toShortMonthAndDay
-import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShifts
 import java.time.LocalDate
 import java.time.YearMonth

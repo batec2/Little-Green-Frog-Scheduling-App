@@ -57,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.dayShiftIcon
@@ -65,8 +64,10 @@ import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.unlockIcon
+import com.example.f23hopper.utils.CalendarUtilities.isWeekend
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 
 @Composable
 fun EmployeeEntryScreen(
@@ -454,6 +455,7 @@ fun DaySelector(
         }
     }
 }
+
 
 @Composable
 fun WeekendButtonRow(

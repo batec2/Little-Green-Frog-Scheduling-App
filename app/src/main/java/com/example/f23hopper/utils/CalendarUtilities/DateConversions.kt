@@ -2,6 +2,7 @@ package com.example.f23hopper.utils.CalendarUtilities
 
 import kotlinx.datetime.LocalDate
 import java.sql.Date
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
@@ -44,3 +45,13 @@ fun Date.toLongDate(): String {
     val year = date.year
     return "$day, $month ${date.dayOfMonth}$suffix, $year"
 }
+
+fun DayOfWeek.isWeekend(): Boolean = (this == DayOfWeek.SATURDAY || this == DayOfWeek.SUNDAY)
+
+fun java.time.LocalDate.isWeekday() =
+    !(this.dayOfWeek == DayOfWeek.SATURDAY || this.dayOfWeek == DayOfWeek.SUNDAY)
+
+fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
+
+fun LocalDate.isWeekday(): Boolean =
+    !(this.dayOfWeek == DayOfWeek.SUNDAY || this.dayOfWeek == DayOfWeek.SATURDAY)
