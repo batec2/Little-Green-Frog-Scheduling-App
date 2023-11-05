@@ -68,6 +68,7 @@ import com.example.f23hopper.utils.CalendarUtilities.isWeekend
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 import kotlinx.datetime.DayOfWeek
+import java.util.Locale
 
 @Composable
 fun EmployeeEntryScreen(
@@ -504,7 +505,10 @@ fun WeekdayButtonRow(
 @Composable
 fun DayOfWeekTextBox(dayOfWeek: DayOfWeek, currentShiftType: ShiftType) {
     OutlinedTextField(
-        value = dayOfWeek.toString(),
+        value = dayOfWeek.getDisplayName(
+            java.time.format.TextStyle.FULL,
+            Locale.getDefault()
+        ), // Shows "Sunday" instead of "SUNDAY"
         onValueChange = {}, // no action as this shouldn't be editable
         label = { Text(text = currentShiftType.toString(), fontSize = 16.sp) },
         enabled = false,
