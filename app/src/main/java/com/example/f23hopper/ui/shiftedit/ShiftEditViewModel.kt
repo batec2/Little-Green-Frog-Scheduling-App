@@ -12,10 +12,13 @@ import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalDate
 import java.sql.Date
 import java.time.DayOfWeek
@@ -28,6 +31,8 @@ class ShiftEditViewModel @Inject constructor(
     private val specialDayRepo: SpecialDayRepository,
     private val employeeRepo: EmployeeRepository
 ) : ViewModel() {
+
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
     fun getShiftsForDay(date: LocalDate): Flow<List<Shift>> {
         return scheduleRepo.getShiftsByDate(date.toSqlDate())
     }
@@ -90,7 +95,10 @@ class ShiftEditViewModel @Inject constructor(
     fun toggleSpecialDay(date: Date?) {
         viewModelScope.launch {
             if (date != null) {
-                specialDayRepo.toggleSpecialDay(date)
+                // Launch the operation in the IO dispatcher
+                withContext(defaultDispatcher) {
+                    specialDayRepo.toggleSpecialDay(date)
+                }
             }
         }
     }
