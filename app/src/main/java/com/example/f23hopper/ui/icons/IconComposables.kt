@@ -22,8 +22,6 @@ import com.example.f23hopper.R
 @Composable
 fun fullShiftIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.fullshift)
 
-@Composable
-fun unlockIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.lock_open_variant_outline)
 
 @Composable
 fun FullShiftIcon(modifier: Modifier = Modifier, tint: Color = Color.Black, size: Dp = 40.dp) {
@@ -34,6 +32,7 @@ fun FullShiftIcon(modifier: Modifier = Modifier, tint: Color = Color.Black, size
         tint = tint
     )
 }
+
 
 @Composable
 fun dayShiftIcon(): ImageVector {
@@ -263,78 +262,8 @@ fun nightShiftIcon(): ImageVector {
 }
 
 @Composable
-fun rememberLockOpen(): ImageVector {
-    return remember {
-        ImageVector.Builder(
-            name = "lock_open",
-            defaultWidth = 40.0.dp,
-            defaultHeight = 40.0.dp,
-            viewportWidth = 40.0f,
-            viewportHeight = 40.0f
-        ).apply {
-            path(
-                fill = SolidColor(Color.Black),
-                fillAlpha = 1f,
-                stroke = null,
-                strokeAlpha = 1f,
-                strokeLineWidth = 1.0f,
-                strokeLineCap = StrokeCap.Butt,
-                strokeLineJoin = StrokeJoin.Miter,
-                strokeLineMiter = 1f,
-                pathFillType = PathFillType.NonZero
-            ) {
-                moveTo(9.542f, 36.375f)
-                quadToRelative(-1.084f, 0f, -1.855f, -0.771f)
-                quadToRelative(-0.77f, -0.771f, -0.77f, -1.854f)
-                verticalLineTo(16.292f)
-                quadToRelative(0f, -1.084f, 0.77f, -1.854f)
-                quadToRelative(0.771f, -0.771f, 1.855f, -0.771f)
-                horizontalLineToRelative(15.666f)
-                verticalLineToRelative(-3.75f)
-                quadToRelative(0f, -2.167f, -1.5f, -3.688f)
-                quadToRelative(-1.5f, -1.521f, -3.708f, -1.521f)
-                quadToRelative(-1.875f, 0f, -3.271f, 1.125f)
-                reflectiveQuadToRelative(-1.812f, 2.834f)
-                quadToRelative(-0.125f, 0.583f, -0.521f, 0.937f)
-                quadToRelative(-0.396f, 0.354f, -0.896f, 0.354f)
-                quadToRelative(-0.583f, 0f, -0.958f, -0.416f)
-                quadToRelative(-0.375f, -0.417f, -0.292f, -0.959f)
-                quadToRelative(0.5f, -2.791f, 2.667f, -4.645f)
-                quadTo(17.083f, 2.083f, 20f, 2.083f)
-                quadToRelative(3.25f, 0f, 5.562f, 2.292f)
-                quadToRelative(2.313f, 2.292f, 2.313f, 5.583f)
-                verticalLineToRelative(3.709f)
-                horizontalLineToRelative(2.583f)
-                quadToRelative(1.084f, 0f, 1.854f, 0.771f)
-                quadToRelative(0.771f, 0.77f, 0.771f, 1.854f)
-                verticalLineTo(33.75f)
-                quadToRelative(0f, 1.083f, -0.771f, 1.854f)
-                quadToRelative(-0.77f, 0.771f, -1.854f, 0.771f)
-                close()
-                moveToRelative(0f, -2.625f)
-                horizontalLineToRelative(20.916f)
-                verticalLineTo(16.292f)
-                horizontalLineTo(9.542f)
-                verticalLineTo(33.75f)
-                close()
-                moveTo(20f, 28.208f)
-                quadToRelative(1.292f, 0f, 2.229f, -0.916f)
-                quadToRelative(0.938f, -0.917f, 0.938f, -2.209f)
-                quadToRelative(0f, -1.25f, -0.938f, -2.229f)
-                quadToRelative(-0.937f, -0.979f, -2.229f, -0.979f)
-                reflectiveQuadToRelative(-2.229f, 0.979f)
-                quadToRelative(-0.938f, 0.979f, -0.938f, 2.229f)
-                quadToRelative(0f, 1.292f, 0.938f, 2.209f)
-                quadToRelative(0.937f, 0.916f, 2.229f, 0.916f)
-                close()
-                moveTo(9.542f, 16.292f)
-                verticalLineTo(33.75f)
-                verticalLineTo(16.292f)
-                close()
-            }
-        }.build()
-    }
-}
+fun unlockIcon(): ImageVector =
+    ImageVector.vectorResource(id = R.drawable.lock_open_variant_outline)
 
 @Composable
 fun rememberLock(): ImageVector {

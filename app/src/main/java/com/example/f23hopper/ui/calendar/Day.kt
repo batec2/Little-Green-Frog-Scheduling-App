@@ -10,7 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,7 +30,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.compose.CustomColor
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.kizitonwose.calendar.core.CalendarDay
@@ -53,11 +51,13 @@ fun Day(
     onClick: (CalendarDay) -> Unit = {},
 ) {
     val dayBackgroundColor = when {
-        context.isSpecialDay -> CustomColor.specialDay
-        context.day.position != DayPosition.MonthDate -> if (isSystemInDarkTheme()) Color.DarkGray else MaterialTheme.colorScheme.tertiaryContainer
+        context.isSpecialDay -> specialDayColor
+        context.day.position != DayPosition.MonthDate -> inActiveDayBackgroundColor
         else -> itemBackgroundColor
     }
     val infiniteTransition = rememberInfiniteTransition(label = "")
+
+    // TODO is this to be used? @Crush
     val color by infiniteTransition.animateColor(
         initialValue = MaterialTheme.colorScheme.primary,
         targetValue = MaterialTheme.colorScheme.secondaryContainer,
@@ -80,8 +80,8 @@ fun Day(
                 onClick = { onClick(context.day) })
     ) {
         val textColor = when (context.day.position) {
-            DayPosition.MonthDate -> MaterialTheme.colorScheme.onBackground
-            DayPosition.InDate, DayPosition.OutDate -> inActiveTextColor // Grey out days not in current month
+            DayPosition.MonthDate -> dayTextColor
+            DayPosition.InDate, DayPosition.OutDate -> inActiveDayTextColor // Grey out days not in current month
         }
         InvalidDayIcon(
             context.shiftsOnDay,
@@ -101,8 +101,8 @@ fun Day(
             color = textColor,
             fontSize = 12.sp
         )
-        shiftViewIndicators(
-            context=context,
+        ShiftViewIndicators(
+            context = context,
             modifier = Modifier.align(Alignment.Center)
         )
         val groupedColors = generateGroupedColors(context.shiftsOnDay)
@@ -111,10 +111,10 @@ fun Day(
 }
 
 @Composable
-fun shiftViewIndicators(
+fun ShiftViewIndicators(
     context: DayContext,
     modifier: Modifier
-){
+) {
     Row(
         modifier
             .fillMaxWidth()
