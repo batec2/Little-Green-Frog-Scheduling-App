@@ -20,22 +20,21 @@ class ScheduleExporter {
             .toList()
             .sortedBy { it.first }
 
-        val formattedShifts = groupedShifts.joinToString("\n") { (date, shiftsForDate) ->
-            val formattedDate = date.toString()
-            val hyphens = "----------\n"
+        val formattedShifts = groupedShifts.joinToString("\n") { (date, shiftsOnDate) ->
+            val formattedDate = DateTimeFormatter.formatDate(date.toKotlinxLocalDate())
+            val hyphens = "${"_".repeat(30)}\n"
 
-            val rows = shiftsForDate.groupBy { it.schedule.date }
-                .toList()
-                .sortedBy { it.first }
-                .joinToString("\n") { (_, groupedShifts) ->
-                    groupedShifts.joinToString("\n") { shift ->
-                        "${shift.schedule.shiftType},${shift.employee.firstName} ${shift.employee.lastName}"
-                    }
-                }
+            val rows = shiftsOnDate.joinToString("\n") { shift ->
+                val fullName = "${shift.employee.firstName} ${shift.employee.lastName}"
+                val shiftType = "${shift.schedule.shiftType} shift:"
+                "%-15s %-30s".format(shiftType, fullName)
+            }
+
             "$formattedDate\n$hyphens\n$rows\n"
         }
 
         return formattedShifts
+
     }
 
     fun createFile(content: String, context: Context, filename: String = "schedule.txt"): File {
