@@ -6,6 +6,8 @@ import android.util.Log
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.shifttype.ShiftTypeConverter
+import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.generatePdfCalendar
 import java.io.File
 import java.time.YearMonth
 
@@ -71,7 +73,7 @@ class ScheduleExporter {
         return rows
     }
 
-    private fun shareFile(filename: String, content: String, context: Context) {
+    private fun shareFile(filename: String, content: String) {
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
@@ -80,9 +82,36 @@ class ScheduleExporter {
         file.writeText(content)
     }
 
-    fun export(filename: String, content: String, context: Context) {
+
+    private fun shareFile(file: File) {
+
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+
+        val destinationFile = File(downloadsDir, file.name)
+
+        file.copyTo(destinationFile, overwrite = true)
+    }
+
+    fun export(
+        filename: String,
+        content: String,
+        context: Context,
+        shifts: List<Shift>,
+        specialDays: List<SpecialDay>,
+        month: YearMonth,
+    ) {
         try {
-            shareFile(filename, content, context)
+            // TODO Add user choice if they want to download text or pdf
+            val pdf = generatePdfCalendar(
+                context = context,
+                filename = "$filename.pdf",
+                yearMonth = month,
+                shifts = shifts,
+                specialDays = specialDays
+            )
+            shareFile("$filename.txt", content)
+            shareFile(pdf)
         } catch (e: Exception) {
             Log.e("Error", "Error saving or sharing file: ${e.message}")
         }

@@ -114,7 +114,8 @@ fun Calendar(
                 onExportClick = {
                     calendarContext.viewModel.exportSchedule(
                         calendarContext.shifts,
-                        currentMonth,
+                        calendarContext.specialDays,
+                        visibleMonth.yearMonth,
                         context,
                         onExportComplete = { message ->
                             coroutineScope.launch {
@@ -152,7 +153,7 @@ fun Calendar(
                         viewItemList.add(
                             ViewItem(
                                 empItem = it,
-                                color = getColor(viewItemList, colors)
+                                color = getColorForShiftView(viewItemList, colors)
                             )
                         )
                     }
@@ -175,7 +176,10 @@ fun Calendar(
 }
 
 
-fun getColor(viewList: List<ViewItem>, colorList: List<ShiftViewColors>): ShiftViewColors {
+fun getColorForShiftView(
+    viewList: List<ViewItem>,
+    colorList: List<ShiftViewColors>
+): ShiftViewColors {
     return if (viewList.isNotEmpty()) {
         (colorList.filter { item -> viewList.none { emp -> emp.color == item } }).first()
     } else {
