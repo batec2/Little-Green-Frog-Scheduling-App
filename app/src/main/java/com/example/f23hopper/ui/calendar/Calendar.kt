@@ -1,14 +1,18 @@
 package com.example.f23hopper.ui.calendar
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -41,7 +45,7 @@ fun Calendar(
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(10) }
     val endMonth = remember { currentMonth.plusMonths(10) }
-
+    val snackbarHostState = remember { SnackbarHostState() }
     val shiftsByDay = calendarContext.shifts.groupBy {
         it.schedule.date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
     }
@@ -71,81 +75,101 @@ fun Calendar(
     }
     StatusBarColorUpdateEffect(toolbarColor)
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(pageBackgroundColor),
+            .background(pageBackgroundColor)
     ) {
-        val state = rememberCalendarState(
-            startMonth = startMonth,
-            endMonth = endMonth,
-            firstVisibleMonth = currentMonth,
-            firstDayOfWeek = daysOfWeek().first(),
-            outDateStyle = OutDateStyle.EndOfGrid,
-        )
-        val coroutineScope = rememberCoroutineScope()
-        val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
-
-
-        CalendarTitle(
-            employees = calendarContext.employees,
-            shifts = calendarContext.shifts,
+        Column(
             modifier = Modifier
-                .background(toolbarColor)
-                .padding(horizontal = 8.dp, vertical = 0.dp),
-            currentMonth = visibleMonth.yearMonth,
-            goToPrevious = {
-                coroutineScope.launch {
-                    state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
+                .fillMaxSize()
+                .background(pageBackgroundColor),
+        ) {
+            val state = rememberCalendarState(
+                startMonth = startMonth,
+                endMonth = endMonth,
+                firstVisibleMonth = currentMonth,
+                firstDayOfWeek = daysOfWeek().first(),
+                outDateStyle = OutDateStyle.EndOfGrid,
+            )
+            val coroutineScope = rememberCoroutineScope()
+            val visibleMonth = rememberFirstCompletelyVisibleMonth(state)
+
+
+            CalendarTitle(
+                employees = calendarContext.employees,
+                shifts = calendarContext.shifts,
+                modifier = Modifier
+                    .background(toolbarColor)
+                    .padding(horizontal = 8.dp, vertical = 0.dp),
+                currentMonth = visibleMonth.yearMonth,
+                goToPrevious = {
+                    coroutineScope.launch {
+                        state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.previousMonth)
+                    }
+                },
+                goToNext = {
+                    coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth) }
+                },
+                onExportClick = {
+                    calendarContext.viewModel.exportSchedule(
+                        calendarContext.shifts,
+                        currentMonth,
+                        context,
+                        onExportComplete = { message ->
+                            coroutineScope.launch {
+                                snackbarHostState.showSnackbar(message)
+                            }
+                        }
+                    )
                 }
-            },
-            goToNext = {
-                coroutineScope.launch { state.animateScrollToMonth(state.firstVisibleMonth.yearMonth.nextMonth) }
-            },
-            onExportClick = {
-                calendarContext.viewModel.exportSchedule(
-                    calendarContext.shifts,
-                    currentMonth,
-                    context
-                )
-            }
-        )
+            )
 
+            CalendarBody(
+                modifier = Modifier.wrapContentWidth(),
+                calendarState = state,
+                calendarContext = calendarContext,
+                viewItemList = viewItemList
+            )
 
-        CalendarBody(
-            modifier = Modifier.wrapContentWidth(),
-            calendarState = state,
-            calendarContext = calendarContext,
-            viewItemList = viewItemList
-        )
+            val calendarPagerContext = CalendarPagerContext(
+                selection = calendarContext.selection,
+                shiftsOnSelectedDate = shiftsOnSelectedDate,
+                specialDaysByDay = specialDaysByDay,
+                navigateToShiftView = calendarContext.navigateToShiftView,
+                toggleSpecialDay = {
+                    coroutineScope.launch {
+                        calendarContext.viewModel.toggleSpecialDay(calendarContext.selection?.date?.toSqlDate())
+                    }
 
-        val calendarPagerContext = CalendarPagerContext(
-            selection = calendarContext.selection,
-            shiftsOnSelectedDate = shiftsOnSelectedDate,
-            specialDaysByDay = specialDaysByDay,
-            navigateToShiftView = calendarContext.navigateToShiftView,
-            toggleSpecialDay = {
-                coroutineScope.launch {
-                    calendarContext.viewModel.toggleSpecialDay(calendarContext.selection?.date?.toSqlDate())
-                }
+                },
+                //Employee selected limit is 6, if employee already in list it gets removed
+                //else if the list is less than 6 entries then it gets added
+                employeeAction = {
+                    if (viewItemList.any { emp -> emp.empItem == it }) {
+                        viewItemList.removeIf { emp -> emp.empItem == it }
+                    } else if (viewItemList.size <= 6) {
+                        viewItemList.add(
+                            ViewItem(
+                                empItem = it,
+                                color = getColor(viewItemList, colors)
+                            )
+                        )
+                    }
+                },
+                viewItemList = viewItemList,
+                employeeList = calendarContext.employees,
+                clearList = { viewItemList.clear() }
+            )
+            CalendarPager(
+                modifier = Modifier.fillMaxSize(),
+                calendarPagerContext,
+            )
+        }
 
-            },
-            //Employee selected limit is 6, if employee already in list it gets removed
-            //else if the list is less than 6 entries then it gets added
-            employeeAction = {
-                if (viewItemList.any { emp -> emp.empItem == it }) {
-                    viewItemList.removeIf { emp -> emp.empItem == it }
-                } else if (viewItemList.size <= 6) {
-                    viewItemList.add(ViewItem(empItem = it, color = getColor(viewItemList, colors)))
-                }
-            },
-            viewItemList = viewItemList,
-            employeeList = calendarContext.employees,
-            clearList = { viewItemList.clear() }
-        )
-        CalendarPager(
-            modifier = Modifier.fillMaxSize(),
-            calendarPagerContext,
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter)
         )
     }
 }
