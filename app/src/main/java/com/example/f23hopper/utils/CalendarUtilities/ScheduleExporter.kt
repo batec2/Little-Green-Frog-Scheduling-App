@@ -74,13 +74,7 @@ class ScheduleExporter {
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-        val filename = "${curMonth.year}_${
-            curMonth.month.getDisplayName(
-                TextStyle.SHORT,
-                Locale.getDefault()
-            )
-        }_schedule.txt"
-
+        val filename = "${curMonth.year}_${curMonth.month.value}_schedule.txt"
         val file = File(downloadsDir, filename)
 
         file.writeText(content)
