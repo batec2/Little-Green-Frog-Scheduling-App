@@ -38,7 +38,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -109,6 +108,7 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                     navController.popBackStack()
                 }
                 .size(30.dp)
+                .align(Alignment.CenterVertically)
         )
 
         Box(
@@ -136,7 +136,7 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                 context.date.toJavaLocalDate(),
                 context.isSpecialDay,
                 modifier = Modifier
-                    .padding(start = 18.dp)
+                    .padding(start = 10.dp, top = 10.dp)
                     .size(30.dp, 30.dp),
                 showDialogueOnClick = true
             )
@@ -144,11 +144,10 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                 shiftsOnDay = context.shiftsOnDay,
                 toggleSpecialDay = { context.viewModel.toggleSpecialDay(context.date.toSqlDate()) },
                 isSpecialDay = context.isSpecialDay,
-
                 modifier = Modifier
                     .align(Alignment.TopEnd)
-                    .padding(2.dp)
-                    .size(30.dp, 30.dp),
+                    .padding(start = 10.dp),
+                iconSize = 40.dp
             )
 
         }
@@ -164,11 +163,7 @@ fun DisplayShifts(
     LazyColumn {
         val rowCount = maxShifts(context.isSpecialDay)
         if (context.date.isWeekday()) {
-            addShiftTypeSection(
-                context,
-                ShiftType.DAY,
-                rowCount
-            )
+            addShiftTypeSection(context, ShiftType.DAY, rowCount)
             addShiftTypeSection(context, ShiftType.NIGHT, rowCount)
         } else {
             addShiftTypeSection(context, ShiftType.FULL, rowCount)
@@ -253,8 +248,12 @@ fun FilledShiftRow(
         Icon(
             imageVector = Icons.Default.AccountBox,
             contentDescription = "Shift Icon",
-            modifier = Modifier.size(30.dp)
+            modifier = Modifier
+                .align(Alignment.Top)
+                .padding(top = 3.dp)
+                .size(30.dp)
         )
+        Spacer(modifier = Modifier.width(35.dp))
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -269,6 +268,8 @@ fun FilledShiftRow(
             imageVector = Icons.Default.Delete,
             contentDescription = "Delete Shift",
             modifier = Modifier
+                .align(Alignment.Top)
+                .padding(top = 3.dp)
                 .size(24.dp)
                 .clickable { viewModel.deleteShift(shift.schedule) }
         )
@@ -290,7 +291,6 @@ fun EmployeeText(shift: Shift) {
         CanCloseIcon(text = true)
     }
 }
-
 @Composable
 fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: LocalDate) {
     var showEmployeeList by remember { mutableStateOf(false) }
@@ -312,12 +312,15 @@ fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: Loc
                 Icon(
                     imageVector = Icons.Default.AccountBox,
                     contentDescription = "Shift Icon",
-                    modifier = Modifier.size(30.dp)
+                    modifier = Modifier
+                        .align(Alignment.Top)
+                        .padding(top = 3.dp)
+                        .size(30.dp)
                 )
                 Text(
                     text = "Add Employee",
                     style = MaterialTheme.typography.headlineSmall,
-                    color = Color.LightGray
+                    color = MaterialTheme.colorScheme.outline
                 )
                 Icon(
                     imageVector = if (showEmployeeList) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowRight,
@@ -406,10 +409,10 @@ fun EmployeeList(
             ) {
                 if (employee.canOpen && shiftType != ShiftType.NIGHT) {
                     CanOpenIcon()
-                }
-
-                if (employee.canClose && shiftType != ShiftType.DAY) {
+                } else if (employee.canClose && shiftType != ShiftType.DAY) {
                     CanCloseIcon()
+                } else {
+                    Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
                 }
 
                 Icon(
@@ -430,13 +433,13 @@ fun CanOpenIcon(text: Boolean = false) {
     ) {
         Icon(
             imageVector = unlockIcon(),
-            contentDescription = "Can Open",
+            contentDescription = "Opener",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
         if (text) {
             Text(
-                text = "Can Open",
+                text = "Opener",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                 )
@@ -453,13 +456,13 @@ fun CanCloseIcon(text: Boolean = false) {
     ) {
         Icon(
             imageVector = rememberLock(),
-            contentDescription = "Can Close",
+            contentDescription = "Closer",
             modifier = Modifier.size(24.dp),
             tint = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
         )
         if (text) {
             Text(
-                text = "Can Close",
+                text = "Closer",
                 style = MaterialTheme.typography.bodyMedium.copy(
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                 )

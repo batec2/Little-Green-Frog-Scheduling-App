@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.calendar
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.StarBorder
@@ -26,9 +27,9 @@ fun ToggleSpecialDayButton(
     isSpecialDay: Boolean,
     modifier: Modifier = Modifier,
     shiftsOnDay: Map<ShiftType, List<Shift>>,
-    iconSize: Dp = 30.dp,
+    iconSize: Dp = (28.dp)
 
-    ) {
+) {
     val coroutineScope = rememberCoroutineScope()
 
     // add shift types to a list if they max out shifts on special days
@@ -55,13 +56,14 @@ fun ToggleSpecialDayButton(
         if (!isSpecialDay) {
             Icon(
                 imageVector = Icons.Filled.StarBorder,
-                contentDescription = "Not Special Day"
+                contentDescription = "Not Special Day",
+                modifier.size(iconSize)
             )
-        } else {
+        } else
             Icon(
-                imageVector = Icons.Filled.Star, contentDescription = "Special Day"
+                imageVector = Icons.Filled.Star, contentDescription = "Special Day",
+                modifier.size(iconSize)
             )
-        }
     }
 
     if (showAlert) {
