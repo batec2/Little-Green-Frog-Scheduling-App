@@ -113,16 +113,7 @@ class CalendarViewModel @Inject constructor(
     }
 
     fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
-        val content = exporter.formatFileData(shifts, curMonth)
-        val filename = "${curMonth.year}_${
-            curMonth.month.getDisplayName(
-                TextStyle.SHORT,
-                Locale.getDefault()
-            )
-        }_schedule.txt"
-        val file = exporter.createFile(content, context, filename = filename)
-        exporter.shareFile(file, context)
-
-
+        val content = exporter.formatData(shifts, curMonth)
+        exporter.export(curMonth, content, context)
     }
 }
