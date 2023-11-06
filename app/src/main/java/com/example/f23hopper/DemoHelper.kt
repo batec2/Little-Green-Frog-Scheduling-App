@@ -3,9 +3,12 @@ package com.example.f23hopper
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.employee.Employee
+import com.example.f23hopper.data.employee.EmployeeDao
 import com.example.f23hopper.data.schedule.Schedule
+import com.example.f23hopper.data.schedule.ScheduleDao
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.data.specialDay.SpecialDayDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -16,331 +19,319 @@ import java.util.Calendar
 // Adds two employees, and fills out every other day of the current month with their shifts.
 // Will likely need to be tweaked as we go along, but good for keeping our data at a shared state
 // until we're further.
+
 suspend fun activateDemoDatabase(db: HopperDatabase) {
     withContext(Dispatchers.IO) {
-        val employeeDao = db.employeeDao()
-        val scheduleDao = db.scheduleDao()
-        val specialDayDao = db.specialDayDao()
+        val (employeeDao, scheduleDao, specialDayDao) = initializeDaos(db)
 
         // Clear existing data
         wipeDatabase(db)
 
         // Populate Employees
-        val employee1 = Employee(
-            firstName = "John",
-            lastName = "Doe",
-            nickname = "",
-            email = "john.doe@example.com",
-            phoneNumber = "1234567890",
-            canOpen = true,
-            canClose = false,
-            sunday = ShiftType.DAY,
-            monday = ShiftType.DAY,
-            tuesday = ShiftType.DAY,
-            wednesday = ShiftType.DAY,
-            thursday = ShiftType.DAY,
-            friday = ShiftType.DAY,
-            saturday = ShiftType.DAY,
-            active = true
-        )
-        val employee2 = Employee(
-            firstName = "Jane",
-            lastName = "Doe",
-            nickname = "",
-            email = "jane.doe@example.com",
-            phoneNumber = "0987654321",
-            canOpen = false,
-            canClose = true,
-            sunday = ShiftType.NIGHT,
-            monday = ShiftType.NIGHT,
-            tuesday = ShiftType.NIGHT,
-            wednesday = ShiftType.NIGHT,
-            thursday = ShiftType.NIGHT,
-            friday = ShiftType.NIGHT,
-            saturday = ShiftType.NIGHT,
-            active = true
-        )
+        val employees = createEmployees()
 
-
-        val employee3 = Employee(
-            firstName = "John",
-            lastName = "Smith",
-            nickname = "JoJo",
-            email = "John.Smith@example.com",
-            phoneNumber = "52344442134",
-            canOpen = true,
-            canClose = false,
-            sunday = ShiftType.FULL,
-            monday = ShiftType.DAY,
-            tuesday = ShiftType.DAY,
-            wednesday = ShiftType.DAY,
-            thursday = ShiftType.DAY,
-            friday = ShiftType.DAY,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee4 = Employee(
-            firstName = "Charlie",
-            lastName = "Brown",
-            nickname = "",
-            email = "charlie.brown@example.com",
-            phoneNumber = "5566778899",
-            canOpen = false,
-            canClose = true,
-            sunday = ShiftType.FULL,
-            monday = ShiftType.NIGHT,
-            tuesday = ShiftType.NIGHT,
-            wednesday = ShiftType.NIGHT,
-            thursday = ShiftType.NIGHT,
-            friday = ShiftType.NIGHT,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee5 = Employee(
-            firstName = "Bob",
-            lastName = "Builder",
-            nickname = "",
-            email = "Bob.Builder@example.com",
-            phoneNumber = "0000000000",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.FULL,
-            monday = ShiftType.FULL,
-            tuesday = ShiftType.FULL,
-            wednesday = ShiftType.FULL,
-            thursday = ShiftType.FULL,
-            friday = ShiftType.FULL,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee6 = Employee(
-            firstName = "Steve",
-            lastName = "Crafter",
-            nickname = "",
-            email = "steve.miner@example.com",
-            phoneNumber = "4566575242",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.CANT_WORK,
-            monday = ShiftType.CANT_WORK,
-            tuesday = ShiftType.CANT_WORK,
-            wednesday = ShiftType.CANT_WORK,
-            thursday = ShiftType.FULL,
-            friday = ShiftType.FULL,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee7 = Employee(
-            firstName = "AJ",
-            lastName = "Bruningham",
-            nickname = "",
-            email = "AJ@example.com",
-            phoneNumber = "1245777777",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.FULL,
-            monday = ShiftType.CANT_WORK,
-            tuesday = ShiftType.CANT_WORK,
-            wednesday = ShiftType.CANT_WORK,
-            thursday = ShiftType.CANT_WORK,
-            friday = ShiftType.CANT_WORK,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee8 = Employee(
-            firstName = "Victoria",
-            lastName = "Secretur",
-            nickname = "Vicky",
-            email = "VickyVic@example.com",
-            phoneNumber = "7802342342",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.FULL,
-            monday = ShiftType.NIGHT,
-            tuesday = ShiftType.FULL,
-            wednesday = ShiftType.DAY,
-            thursday = ShiftType.FULL,
-            friday = ShiftType.DAY,
-            saturday = ShiftType.FULL,
-            active = true
-        )
-
-        val employee9 = Employee(
-            firstName = "Jason",
-            lastName = "Todd",
-            nickname = "Red",
-            email = "BatmanFan#1@example.com",
-            phoneNumber = "3242346757",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.CANT_WORK,
-            monday = ShiftType.FULL,
-            tuesday = ShiftType.FULL,
-            wednesday = ShiftType.FULL,
-            thursday = ShiftType.FULL,
-            friday = ShiftType.FULL,
-            saturday = ShiftType.CANT_WORK,
-            active = true
-        )
-
-        val employee10 = Employee(
-            firstName = "Jason",
-            lastName = "Bourne",
-            nickname = "",
-            email = "itsJasonBourne@example.com",
-            phoneNumber = "2342347567",
-            canOpen = true,
-            canClose = true,
-            sunday = ShiftType.CANT_WORK,
-            monday = ShiftType.FULL,
-            tuesday = ShiftType.FULL,
-            wednesday = ShiftType.FULL,
-            thursday = ShiftType.FULL,
-            friday = ShiftType.FULL,
-            saturday = ShiftType.CANT_WORK,
-            active = true
-        )
-
-
-
-
-        employee1.employeeId = employeeDao.insert(employee1)
-        employee2.employeeId = employeeDao.insert(employee2)
-        employee3.employeeId = employeeDao.insert(employee3)
-        employee4.employeeId = employeeDao.insert(employee4)
-        employee5.employeeId = employeeDao.insert(employee5)
-        employee6.employeeId = employeeDao.insert(employee6)
-        employee7.employeeId = employeeDao.insert(employee7)
-        employee8.employeeId = employeeDao.insert(employee8)
-        employee9.employeeId = employeeDao.insert(employee9)
-        employee10.employeeId = employeeDao.insert(employee10)
-
-        val calendar = Calendar.getInstance()
-        val currentYear = calendar.get(Calendar.YEAR)
-        val currentMonth = calendar.get(Calendar.MONTH) + 1
-        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+        // Insert Employees
+        insertEmployees(employees, employeeDao)
 
         // Populate Schedules for the current month
-        for (day in 1..daysInMonth) {
-            val monthStr = currentMonth.toString().padStart(2, '0')
-            val dayStr = day.toString().padStart(2, '0')
+        populateSchedules(scheduleDao, specialDayDao, employees)
+    }
+}
 
-            val dateStr = "$currentYear-$monthStr-$dayStr"
-            val date = Date.valueOf(dateStr)
+fun createEmployees(): List<Employee> {
 
-            calendar.time = date
-            val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
+    // Populate Employees
+    val employee1 = Employee(
+        firstName = "John",
+        lastName = "Doe",
+        nickname = "Johnny",
+        email = "john.doe@example.com",
+        phoneNumber = "1234567890",
+        canOpen = true,
+        canClose = false,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+    val employee2 = Employee(
+        firstName = "Jane",
+        lastName = "Doe",
+        nickname = "Janey",
+        email = "jane.doe@example.com",
+        phoneNumber = "0987654321",
+        canOpen = false,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
 
-            if (day == 10) {
-                // Special Day in October
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee1.employeeId,
-                        shiftType = ShiftType.DAY
+
+    val employee3 = Employee(
+        firstName = "John",
+        lastName = "Smith",
+        nickname = "JoJo",
+        email = "John.Smith@example.com",
+        phoneNumber = "52344442134",
+        canOpen = true,
+        canClose = false,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee4 = Employee(
+        firstName = "Charlie",
+        lastName = "Brown",
+        nickname = "",
+        email = "charlie.brown@example.com",
+        phoneNumber = "5566778899",
+        canOpen = false,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee5 = Employee(
+        firstName = "Bob",
+        lastName = "Builder",
+        nickname = "Bobby",
+        email = "Bob.Builder@example.com",
+        phoneNumber = "20389201",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee6 = Employee(
+        firstName = "Steve",
+        lastName = "Crafter",
+        nickname = "Blockhead",
+        email = "steve.miner@example.com",
+        phoneNumber = "4566575242",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee7 = Employee(
+        firstName = "AJ",
+        lastName = "Bruningham",
+        nickname = "AJ",
+        email = "AJ@example.com",
+        phoneNumber = "1245777777",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee8 = Employee(
+        firstName = "Victoria",
+        lastName = "Secretur",
+        nickname = "Vicky",
+        email = "VickyVic@example.com",
+        phoneNumber = "7802342342",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee9 = Employee(
+        firstName = "Jason",
+        lastName = "Todd",
+        nickname = "Red",
+        email = "BatmanFan#1@example.com",
+        phoneNumber = "3242346757",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    val employee10 = Employee(
+        firstName = "Jason",
+        lastName = "Bourne",
+        nickname = "",
+        email = "itsJasonBourne@example.com",
+        phoneNumber = "2342347567",
+        canOpen = true,
+        canClose = true,
+        sunday = ShiftType.FULL,
+        monday = ShiftType.FULL,
+        tuesday = ShiftType.FULL,
+        wednesday = ShiftType.FULL,
+        thursday = ShiftType.FULL,
+        friday = ShiftType.FULL,
+        saturday = ShiftType.FULL,
+        active = true
+    )
+
+    return listOf(
+        employee1,
+        employee2,
+        employee3,
+        employee4,
+        employee5,
+        employee6,
+        employee7,
+        employee8,
+        employee9,
+        employee10,
+    )
+}
+
+suspend fun initializeDaos(db: HopperDatabase): Triple<EmployeeDao, ScheduleDao, SpecialDayDao> {
+    val employeeDao = db.employeeDao()
+    val scheduleDao = db.scheduleDao()
+    val specialDayDao = db.specialDayDao()
+    return Triple(employeeDao, scheduleDao, specialDayDao)
+}
+
+suspend fun insertEmployees(employees: List<Employee>, employeeDao: EmployeeDao) {
+    employees.forEach { employee ->
+        employee.employeeId = employeeDao.insert(employee)
+
+    }
+}
+
+suspend fun populateSchedules(
+    scheduleDao: ScheduleDao,
+    specialDayDao: SpecialDayDao,
+    employees: List<Employee>
+) {
+    val calendar = Calendar.getInstance()
+    val currentYear = calendar[Calendar.YEAR]
+    val currentMonth = calendar[Calendar.MONTH] + 1
+    val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+    // Create a rotating index for employees
+    var rotatingIndex = 0
+
+    (1..daysInMonth).forEach { day ->
+        val monthStr = currentMonth.toString().padStart(2, '0')
+        val dayStr = day.toString().padStart(2, '0')
+        val dateStr = "$currentYear-$monthStr-$dayStr"
+        val date = Date.valueOf(dateStr)
+        calendar.time = date
+        val dayOfWeek = calendar[Calendar.DAY_OF_WEEK]
+        val isWeekend = dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY
+
+        when {
+            day == 10 -> {
+                // Special Day handling
+                employees.subList(0, 6).forEachIndexed { index, employee ->
+                    val shiftType = if (index < 3) ShiftType.DAY else ShiftType.NIGHT
+                    scheduleDao.insert(
+                        Schedule(
+                            date = date,
+                            employeeId = employee.employeeId,
+                            shiftType = shiftType
+                        )
                     )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee2.employeeId,
-                        shiftType = ShiftType.DAY
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee3.employeeId,
-                        shiftType = ShiftType.DAY
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee1.employeeId,
-                        shiftType = ShiftType.NIGHT
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee2.employeeId,
-                        shiftType = ShiftType.NIGHT
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee3.employeeId,
-                        shiftType = ShiftType.NIGHT
-                    )
-                )
+                }
                 specialDayDao.insert(SpecialDay(date = date))
-            } else if (day == 13) {
-                // Incomplete weekday shift
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee2.employeeId,
-                        shiftType = ShiftType.DAY
-                    )
-                )
             }
-//            else if (day == 12) {
-//                // Incomplete weekend shift
-//                scheduleDao.insert(Schedule(date = date, employeeId = employee3.employeeId, shiftType = ShiftType.FULL))
-//            }
-            else if (dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY) {
-                // Completed weekend shifts
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee1.employeeId,
-                        shiftType = ShiftType.FULL
+            day == 2 -> {
+                // Only 3 employees scheduled on day 2
+                (0 until 3).forEach { i ->
+                    val employee = employees[(rotatingIndex + i -1) % employees.size]
+                    val shiftType = if (i < 2) ShiftType.DAY else ShiftType.NIGHT
+                    scheduleDao.insert(
+                        Schedule(
+                            date = date,
+                            employeeId = employee.employeeId,
+                            shiftType = shiftType
+                        )
                     )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee2.employeeId,
-                        shiftType = ShiftType.FULL
+                }
+                // Increment rotatingIndex by 3 for the next day
+                rotatingIndex += 3
+            }
+            isWeekend -> {
+                // Only two full shifts needed on weekends
+                (0 until 2).forEach { i ->
+                    val employee = employees[(rotatingIndex + i) % employees.size]
+                    scheduleDao.insert(
+                        Schedule(
+                            date = date,
+                            employeeId = employee.employeeId,
+                            shiftType = ShiftType.FULL
+                        )
                     )
-                )
-            } else {
-                // Regular weekdays
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee1.employeeId,
-                        shiftType = ShiftType.DAY
+                }
+                // Increment rotatingIndex by 2 for the next day
+                rotatingIndex += 2
+            }
+            else -> {
+                // Assign two day shifts and two night shifts for each regular weekday
+                (0 until 4).forEach { i ->
+                    val employee = employees[(rotatingIndex + i) % employees.size]
+                    val shiftType = if (i < 2) ShiftType.DAY else ShiftType.NIGHT
+                    scheduleDao.insert(
+                        Schedule(
+                            date = date,
+                            employeeId = employee.employeeId,
+                            shiftType = shiftType
+                        )
                     )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee2.employeeId,
-                        shiftType = ShiftType.DAY
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee3.employeeId,
-                        shiftType = ShiftType.NIGHT
-                    )
-                )
-                scheduleDao.insert(
-                    Schedule(
-                        date = date,
-                        employeeId = employee4.employeeId,
-                        shiftType = ShiftType.NIGHT
-                    )
-                )
+                }
+                // Increment rotatingIndex by 4 for the next day
+                rotatingIndex += 4
             }
         }
     }
@@ -372,8 +363,6 @@ suspend fun wipeDatabase(db: HopperDatabase) {
 
     // full reset on tables (resets auto-increment)
     val query =
-        // TODO: Will including 'specialdays' cause an issue here?
         SimpleSQLiteQuery("DELETE FROM sqlite_sequence WHERE name IN ('employees', 'schedules')")
     generalDao.executeRawQuery(query)
 }
-
