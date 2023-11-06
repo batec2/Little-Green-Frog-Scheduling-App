@@ -216,6 +216,7 @@ fun ShiftViewPage(
         ShiftViewPagerActionBox(
             modifier = Modifier.weight(0.1f),
             employeeList=employeeList ,
+            viewItemList = viewItemList,
             clearList=clearList,
             selected = {employeeAction(it)})
     }
@@ -225,6 +226,7 @@ fun ShiftViewPage(
 fun ShiftViewPagerActionBox(
     modifier: Modifier,
     employeeList: List<Employee>,
+    viewItemList: List<ViewItem>,
     clearList: ()->Unit,
     selected: (Employee) -> Unit,
 ) {
@@ -253,6 +255,7 @@ fun ShiftViewPagerActionBox(
     if(showDialog){
         ShiftViewEmployeeList (
             employeeList = employeeList,
+            viewItemList = viewItemList,
             onDismissRequest = { showDialog = false },
             selected = {selected(it)}
         )
@@ -261,6 +264,7 @@ fun ShiftViewPagerActionBox(
 @Composable
 fun ShiftViewEmployeeList(
     employeeList: List<Employee>,
+    viewItemList: List<ViewItem>,
     onDismissRequest: () -> Unit,
     selected: (Employee) -> Unit
 ){
@@ -306,7 +310,16 @@ fun ShiftViewEmployeeList(
                                     text = item.firstName+" "+item.lastName,
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis)
+
+                                if(viewItemList.any { emp -> emp.empItem == item }){
+                                    ShiftViewIndicator(
+                                        modifier = Modifier.size(10.dp),
+                                        item = item,
+                                        viewItemList = viewItemList
+                                    )
+                                }
                             }
+
                         }
                     }
                 }
@@ -325,6 +338,20 @@ fun ShiftViewEmployeeList(
             }
         }
     }
+}
+
+@Composable
+fun ShiftViewIndicator(
+    modifier: Modifier,
+    item: Employee,
+    viewItemList: List<ViewItem>
+){
+    Box(
+        modifier = modifier
+            .padding(2.dp)
+            .clip(CircleShape)
+            .background(viewItemList.first { emp -> emp.empItem == item }.color.colVal)
+    )
 }
 
 @Composable
@@ -527,7 +554,6 @@ fun ShiftRowEmployeeEntry(
         )
         Spacer(Modifier.weight(.7f))
         Text(
-
             text = shift.employee.nickname.ifBlank { shift.employee.firstName + " " + shift.employee.lastName },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
