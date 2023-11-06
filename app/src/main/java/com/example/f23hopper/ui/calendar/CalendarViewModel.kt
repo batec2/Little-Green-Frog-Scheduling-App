@@ -25,8 +25,6 @@ import kotlinx.coroutines.withContext
 import java.sql.Date
 import java.time.LocalDate
 import java.time.YearMonth
-import java.time.format.TextStyle
-import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
@@ -40,7 +38,6 @@ class CalendarViewModel @Inject constructor(
 
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
-    // Custom getters for startDate and endDate
     private val startDate: Date
         get() {
             val currentDate = LocalDate.now()
@@ -54,7 +51,6 @@ class CalendarViewModel @Inject constructor(
                 .toSqlDate()
         }
 
-    // Other properties and methods remain unchanged
     val shifts: StateFlow<List<Shift>> by lazy { parseShifts(fetchRawShifts()) }
     val employees: StateFlow<List<Employee>> by lazy { parseEmployees(fetchAllEmployees()) }
     val days: StateFlow<List<SpecialDay>> by lazy { parseSpecialDays(fetchRawSpecialDays()) }
@@ -112,17 +108,33 @@ class CalendarViewModel @Inject constructor(
             .stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
     }
 
-    fun exportSchedule(shifts: List<Shift>, curMonth: YearMonth, context: Context) {
-        val content = exporter.formatFileData(shifts, curMonth)
-        val filename = "${curMonth.year}_${
-            curMonth.month.getDisplayName(
-                TextStyle.SHORT,
-                Locale.getDefault()
-            )
-        }_schedule.txt"
-        val file = exporter.createFile(content, context, filename = filename)
-        exporter.shareFile(file, context)
+    fun exportSchedule(
+        shifts: List<Shift>,
+        specialDays: List<SpecialDay>,
+        curMonth: YearMonth,
+        context: Context,
+        onExportComplete: (String) -> Unit
+    ) {
+        val content = exporter.formatData(shifts, curMonth)
+        val filename = "${curMonth.year}_${curMonth.month.value}_schedule"
+        exporter.export(filename, content, context, shifts, specialDays, curMonth)
+        onExportComplete("$filename saved to Downloads folder")
+    }
 
 
+    private fun fetchShiftsForMonth(month: YearMonth): Flow<List<Shift>> {
+        val startDate = month.atDay(1).toSqlDate()
+        val endDate = month.atEndOfMonth().toSqlDate()
+        return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
+    }
+
+    private fun fetchAllActiveEmployees(month: YearMonth): Flow<List<Employee>> {
+        return employeeRepository.getAllActiveEmployees()
+    }
+
+    private fun fetchSpecialDaysForMonth(month: YearMonth): Flow<List<SpecialDay>> {
+        val startDate = month.atDay(1).toSqlDate()
+        val endDate = month.atEndOfMonth().toSqlDate()
+        return specialDayRepo.getSpecialDaysByDateRange(startDate, endDate)
     }
 }

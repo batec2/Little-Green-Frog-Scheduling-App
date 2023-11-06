@@ -26,6 +26,10 @@ class SpecialDayRepository(private val specialDayDao: SpecialDayDao) {
         return specialDayDao.getSpecialDays()
     }
 
+    fun getSpecialDaysByDateRange(startDate: Date, endDate: Date): Flow<List<SpecialDay>> {
+        return specialDayDao.getSpecialDaysByDateRange(startDate, endDate)
+    }
+
     suspend fun toggleSpecialDay(date: Date) {
         val specialDay = specialDayDao.getSpecialDay(date)
         if (specialDay != null)

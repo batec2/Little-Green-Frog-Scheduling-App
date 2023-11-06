@@ -44,9 +44,9 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.example.f23hopper.utils.getShiftIcon
 import com.example.f23hopper.utils.getShiftRowColor
-import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShiftRows
 import com.example.f23hopper.utils.maxShifts
 import com.kizitonwose.calendar.core.CalendarDay

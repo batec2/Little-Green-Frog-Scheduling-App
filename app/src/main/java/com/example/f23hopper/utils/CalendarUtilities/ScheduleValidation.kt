@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,9 +36,10 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.rememberError
+import com.example.f23hopper.ui.shiftedit.getEmployeeDisplayNameShort
+import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toShortMonthAndDay
-import com.example.f23hopper.utils.isWeekday
 import com.example.f23hopper.utils.maxShifts
 import java.time.LocalDate
 import java.time.YearMonth
@@ -281,7 +281,7 @@ fun AbsentEmployeeIcon(
         )
     }
 
-    if (absentEmployeesByWeek.isNotEmpty()) {
+    if (absentEmployeesByWeek.any { entry -> entry.value.isNotEmpty() }) {
         Icon(
             imageVector = rememberError(),
             tint = MaterialTheme.colorScheme.error,
@@ -363,7 +363,7 @@ fun AbsentEmployeePager(
                 )
                 employeesForWeek?.forEach { employee ->
                     Text(
-                        text = "- ${employee.firstName} ${employee.lastName}",
+                        text = getEmployeeDisplayNameShort(employee),
                         style = TextStyle(fontSize = 18.sp),
                         modifier = Modifier.padding(top = 10.dp, start = 0.dp)
                     )

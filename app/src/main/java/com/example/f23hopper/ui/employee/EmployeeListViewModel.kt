@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
@@ -14,6 +13,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
 import java.sql.Date
 import javax.inject.Inject
 

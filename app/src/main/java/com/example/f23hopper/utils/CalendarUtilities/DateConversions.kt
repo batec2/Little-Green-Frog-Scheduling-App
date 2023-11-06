@@ -2,6 +2,7 @@ package com.example.f23hopper.utils.CalendarUtilities
 
 import kotlinx.datetime.LocalDate
 import java.sql.Date
+import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
@@ -27,20 +28,28 @@ fun java.time.LocalDate.toShortMonthAndDay(): String {
 }
 
 fun Date.toLongDate(): String {
-
-    val date = this.toKotlinxLocalDate()
-    val day = date.dayOfWeek
-    val suffix =
-        if (date.dayOfMonth in 11..13)
-            return "th"
-        else when (date.dayOfMonth % 10) {
+    val date   = this.toKotlinxLocalDate()
+    val dayNum = date.dayOfMonth
+    val day    = date.dayOfWeek.toString().lowercase().replaceFirstChar { it.titlecase() }
+    val month  = date.month.toString().lowercase().replaceFirstChar { it.titlecase() }
+    val year   = date.year
+    val suffix = if (dayNum in 11..13) "th" else {
+        when (dayNum % 10) {
             1 -> "st"
             2 -> "nd"
             3 -> "rd"
             else -> "th"
         }
-
-    val month = date.month
-    val year = date.year
+    }
     return "$day, $month ${date.dayOfMonth}$suffix, $year"
 }
+
+fun DayOfWeek.isWeekend(): Boolean = (this == DayOfWeek.SATURDAY || this == DayOfWeek.SUNDAY)
+
+fun java.time.LocalDate.isWeekday() =
+    !(this.dayOfWeek == DayOfWeek.SATURDAY || this.dayOfWeek == DayOfWeek.SUNDAY)
+
+fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
+
+fun LocalDate.isWeekday(): Boolean =
+    !(this.dayOfWeek == DayOfWeek.SUNDAY || this.dayOfWeek == DayOfWeek.SATURDAY)

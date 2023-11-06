@@ -110,6 +110,12 @@ class CustomColor {
             } else
                 md_theme_light_shift_row_full
 
+        val inactiveMonthDayBackground: Color
+            @Composable get() = if (isSystemInDarkTheme()) {
+                Color.DarkGray
+            } else
+                md_theme_light_inactive_month_days
+
     }
 
 }

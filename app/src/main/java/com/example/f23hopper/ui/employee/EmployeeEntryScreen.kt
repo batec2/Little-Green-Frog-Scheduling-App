@@ -57,7 +57,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
-import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.dayShiftIcon
@@ -65,8 +64,11 @@ import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.unlockIcon
+import com.example.f23hopper.utils.CalendarUtilities.isWeekend
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
+import kotlinx.datetime.DayOfWeek
+import java.util.Locale
 
 @Composable
 fun EmployeeEntryScreen(
@@ -101,7 +103,6 @@ fun EmployeeEntryBody(
     showConfirmationDialog: MutableState<Boolean> = remember { mutableStateOf(false) }
 ) {
 
-//    StatusBarColorUpdateEffect(toolbarColor)
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
@@ -258,8 +259,9 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { it.matches(Regex("^\\+?[0-9\\-() ]+$")) },
-            errorMessage = "Only numbers are allowed"
+            validate = { verifyPhoneNumber(it) },
+            errorMessage = "Between 7-15 numbers accepted",
+            showErrorChars = false,
         ),
     )
 
@@ -455,6 +457,7 @@ fun DaySelector(
     }
 }
 
+
 @Composable
 fun WeekendButtonRow(
     shiftStatus: ShiftType,
@@ -502,7 +505,10 @@ fun WeekdayButtonRow(
 @Composable
 fun DayOfWeekTextBox(dayOfWeek: DayOfWeek, currentShiftType: ShiftType) {
     OutlinedTextField(
-        value = dayOfWeek.toString(),
+        value = dayOfWeek.getDisplayName(
+            java.time.format.TextStyle.FULL,
+            Locale.getDefault()
+        ), // Shows "Sunday" instead of "SUNDAY"
         onValueChange = {}, // no action as this shouldn't be editable
         label = { Text(text = currentShiftType.toString(), fontSize = 16.sp) },
         enabled = false,
