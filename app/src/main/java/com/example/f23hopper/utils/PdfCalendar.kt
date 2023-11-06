@@ -153,18 +153,22 @@ private fun drawEmployeeNames(
 
         val canOpen = employee.canOpen
         val canClose = employee.canClose
-        val isDayOrFullShift =
-            shift.schedule.shiftType == ShiftType.DAY || shift.schedule.shiftType == ShiftType.FULL
+        val isDayShift = shift.schedule.shiftType == ShiftType.DAY
         val isNightShift = shift.schedule.shiftType == ShiftType.NIGHT
+        val isFullShift = shift.schedule.shiftType == ShiftType.FULL
 
+        val openSym = "🔑"
+        val closeSym = "🔒"
         val lockSymbols = when {
-            canOpen && isDayOrFullShift -> "🔑"
-            canClose && isNightShift -> "🔒"
-            else -> "        " //space out to even the text
+            canOpen && canClose && isFullShift -> openSym + closeSym
+            canOpen && isDayShift -> openSym
+            canClose && isNightShift -> closeSym
+            isDayShift || isNightShift -> "        " //space out to even the text
+            else -> "      " //space out to even the text on full days
         }
 
         paint.color = when {
-            isDayOrFullShift -> morningShiftColor.toArgb()
+            isDayShift -> morningShiftColor.toArgb()
             isNightShift -> eveningShiftColor.toArgb()
             else -> weekendShiftColor.toArgb()
         }

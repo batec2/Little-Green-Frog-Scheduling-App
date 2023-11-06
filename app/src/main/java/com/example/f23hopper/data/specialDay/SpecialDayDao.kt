@@ -22,6 +22,9 @@ interface SpecialDayDao {
     @Query("SELECT * FROM specialdays WHERE date = :date")
     fun getSpecialDay(date: Date): SpecialDay?
 
+    @Query("SELECT * FROM specialdays WHERE date > :startDate and date < :endDate")
+    fun getSpecialDaysByDateRange(startDate: Date, endDate: Date): Flow<List<SpecialDay>>
+
     @Query("SELECT EXISTS(SELECT 1 FROM specialdays WHERE date = :date)")
     fun observeIsSpecialDay(date: Date): Flow<Boolean>
 
