@@ -184,7 +184,6 @@ fun getColorForShiftView(
     colorList: List<ShiftViewColors>
 ): ShiftViewColors {
     return if (viewList.isNotEmpty()) {
-        (colorList.filter { item -> viewList.none { emp -> emp.shiftViewColor == item } }).first()
         //Gets a list of colors not not already assigned to the viewlist
         (colorList.filter { item -> viewList.none { emp -> emp.shiftViewColor == item } }).first()
     } else {
