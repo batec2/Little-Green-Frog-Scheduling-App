@@ -18,7 +18,7 @@ import java.time.ZoneId
 
 val backgroundColor = Color(0xFFFBFDF9)
 val currentMonthDayColor = Color(0xFFCEE9DB)
-val notCurrentMonthDayColor = Color(0xFFC9E6FF)
+val notCurrentMonthDayColor = Color(0xFFDADADA)
 val offMonthTextColor = Color(0xFFA0A0A0)
 val specialDayColor = Color(0xFFFDC559)
 val textColor = Color(0xFF191C1A)

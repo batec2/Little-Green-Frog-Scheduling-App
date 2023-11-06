@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.employee
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,7 +48,7 @@ fun EmployeeEditScreen(
 
     // Confirmation dialog
     if (showConfirmationDialog.value) {
-        ConfirmationDialog(
+        CriticalShiftDialog(
             onConfirm = {
                 coroutineScope.launch {
                     sharedViewModel.saveEmployee()
@@ -63,7 +64,7 @@ fun EmployeeEditScreen(
 }
 
 @Composable
-fun ConfirmationDialog(
+fun CriticalShiftDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -71,6 +72,7 @@ fun ConfirmationDialog(
         title = "Active Open/Close Shifts",
         message = "Employee is closer/opener on active shifts, are you sure you want to remove their certification?",
         onConfirm = onConfirm,
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
+        headerSize = MaterialTheme.typography.headlineSmall
     )
 }
