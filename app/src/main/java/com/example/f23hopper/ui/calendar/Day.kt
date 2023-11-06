@@ -24,10 +24,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.f23hopper.data.schedule.Shift
@@ -128,8 +131,15 @@ fun ShiftViewIndicators(
 
         context.viewItemList.forEachIndexed { _, item ->
             if (context.employeeShiftSelected && ids.contains(item.empItem)) {
+                val alphaAnimation = remember {
+                    androidx.compose.animation.core.Animatable(0f)
+                }
+                LaunchedEffect(Unit) {
+                    alphaAnimation.animateTo(1f)
+                }
                 Column(
                     Modifier
+                        .graphicsLayer { alpha = alphaAnimation.value }
                         .size(6.dp)
                         .background(item.shiftViewColor.color)
                 ) {}
@@ -137,6 +147,7 @@ fun ShiftViewIndicators(
         }
     }
 }
+
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {

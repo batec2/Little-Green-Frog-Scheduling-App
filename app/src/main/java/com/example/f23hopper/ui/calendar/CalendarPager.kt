@@ -18,27 +18,40 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.compose.ui.window.Dialog
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -81,7 +94,8 @@ fun CalendarPager(
                 1 -> ShiftViewPage(
                     viewItemList = context.viewItemList,
                     employeeList = context.employeeList,
-                    clearList = context.clearList
+                    clearList = context.clearList,
+                    employeeAction = { context.employeeAction(it) }
                 )
             }
         }
@@ -153,22 +167,24 @@ fun IndicatorDot(isActive: Boolean) {
 fun ShiftViewPage(
     viewItemList: List<ViewItem>,
     employeeList: List<Employee>,
-    clearList: () -> Unit
+    clearList: () -> Unit,
+    employeeAction: (Employee) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
-
     ) {
         if (viewItemList.isEmpty()) {
-            Text(text = "No Employees Selected for Shift View")
+            Text(modifier = Modifier.weight(0.8f),text = "No Employees Selected for Shift View")
         } else {
             //Checks if employee id is in the list of selected employees for shift view
             viewItemList.forEach { item ->
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight((0.8 / viewItemList.size).toFloat())
                         .fillMaxHeight()
                         .padding(
                             start = 2.dp,
@@ -176,25 +192,166 @@ fun ShiftViewPage(
                             top = 10.dp,
                             bottom = 10.dp
                         )
-                        .background(item.shiftViewColor.color),
+                        .background(item.shiftViewColor.color)
+                        .clickable { employeeAction(item.empItem) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = item.empItem.nickname.ifEmpty {
                             "${item.empItem.firstName}\n${item.empItem.lastName}"
-                        }
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
+        }
+        Divider(
+            color = Color.Gray, modifier = Modifier
+                .width(1.dp)
+                .fillMaxHeight()
+        )
+        //Clears list of employees for shift view
+        ShiftViewPagerActionBox(
+            modifier = Modifier.weight(0.1f),
+            employeeList=employeeList ,
+            viewItemList = viewItemList,
+            clearList=clearList,
+            selected = {employeeAction(it)})
+    }
+}
 
-            //Clears list of employees for shift view
-            //Temporary replace later
-            Button(onClick = (clearList)) {
-                Text(text = "Clear")
+@Composable
+fun ShiftViewPagerActionBox(
+    modifier: Modifier,
+    employeeList: List<Employee>,
+    viewItemList: List<ViewItem>,
+    clearList: ()->Unit,
+    selected: (Employee) -> Unit,
+) {
+    var showDialog by remember{ mutableStateOf(false) }
+    Box(
+        modifier = modifier
+            .width(80.dp)
+            .height(2 * 55.dp)
+            .background(pageBackgroundColor)
+        , contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            IconButton(
+                onClick = {showDialog = true}
+            )
+            {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add shift view")
+            }
+            IconButton(onClick = clearList ) {
+                Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear shift view")
             }
         }
     }
+    if(showDialog){
+        ShiftViewEmployeeList (
+            employeeList = employeeList,
+            viewItemList = viewItemList,
+            onDismissRequest = { showDialog = false },
+            selected = {selected(it)}
+        )
+    }
+}
+@Composable
+fun ShiftViewEmployeeList(
+    employeeList: List<Employee>,
+    viewItemList: List<ViewItem>,
+    onDismissRequest: () -> Unit,
+    selected: (Employee) -> Unit
+){
+    Dialog(
+        onDismissRequest = {onDismissRequest()}
+    ){
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            )
+        )
+        {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+                ){
+                Row(
+                    modifier = Modifier.weight(0.9f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    LazyColumn(
+                        modifier = Modifier,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        items(employeeList){item->
+                            Row(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                                    .clip(shape = RoundedCornerShape(5.dp))
+                                    .background(colorScheme.primary)
+                                    .clickable
+                                    {
+                                        selected(item)
+                                        onDismissRequest()
+                                    },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(fontSize = 30.sp,
+                                    text = item.firstName+" "+item.lastName,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis)
+
+                                if(viewItemList.any { emp -> emp.empItem == item }){
+                                    ShiftViewIndicator(
+                                        modifier = Modifier.size(10.dp),
+                                        item = item,
+                                        viewItemList = viewItemList
+                                    )
+                                }
+                            }
+
+                        }
+                    }
+                }
+                Row(
+                    modifier = Modifier.weight(0.1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+
+                    Button(
+                        onClick = { onDismissRequest() }
+                    ){
+                        Text(text = "Cancel")
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ShiftViewIndicator(
+    modifier: Modifier,
+    item: Employee,
+    viewItemList: List<ViewItem>
+){
+    Box(
+        modifier = modifier
+            .padding(2.dp)
+            .clip(CircleShape)
+            .background(viewItemList.first { emp -> emp.empItem == item }.shiftViewColor.color)
+    )
 }
 
 @Composable
@@ -397,7 +554,6 @@ fun ShiftRowEmployeeEntry(
         )
         Spacer(Modifier.weight(.7f))
         Text(
-
             text = shift.employee.nickname.ifBlank { shift.employee.firstName + " " + shift.employee.lastName },
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
