@@ -192,7 +192,7 @@ fun ShiftViewPage(
                             top = 10.dp,
                             bottom = 10.dp
                         )
-                        .background(item.color.colVal)
+                        .background(item.shiftViewColor.color)
                         .clickable { employeeAction(item.empItem) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
@@ -350,7 +350,7 @@ fun ShiftViewIndicator(
         modifier = modifier
             .padding(2.dp)
             .clip(CircleShape)
-            .background(viewItemList.first { emp -> emp.empItem == item }.color.colVal)
+            .background(viewItemList.first { emp -> emp.empItem == item }.shiftViewColor.color)
     )
 }
 
