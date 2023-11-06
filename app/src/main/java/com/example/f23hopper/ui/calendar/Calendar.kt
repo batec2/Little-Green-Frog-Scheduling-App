@@ -34,8 +34,11 @@ import java.time.ZoneId
 
 data class ViewItem(
     val empItem: Employee,
-    val color: ShiftViewColors,
+    val shiftViewColor: ShiftViewColors,
 )
+
+@Composable
+fun ViewItem.getColor() = this.shiftViewColor.color
 
 @Composable
 fun Calendar(
@@ -152,7 +155,8 @@ fun Calendar(
                     } else if (viewItemList.size <= 6) {
                         viewItemList.add(
                             ViewItem(
-                                empItem = it, color = getColorForShiftView(viewItemList, colors)
+                                empItem = it,
+                                shiftViewColor = getColorForShiftView(viewItemList, colors)
                             )
                         )
                     }
@@ -177,7 +181,7 @@ fun getColorForShiftView(
     viewList: List<ViewItem>, colorList: List<ShiftViewColors>
 ): ShiftViewColors {
     return if (viewList.isNotEmpty()) {
-        (colorList.filter { item -> viewList.none { emp -> emp.color == item } }).first()
+        (colorList.filter { item -> viewList.none { emp -> emp.shiftViewColor == item } }).first()
     } else {
         colorList.first()
     }
