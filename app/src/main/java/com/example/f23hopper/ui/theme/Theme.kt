@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.graphics.Color
 
 
@@ -116,6 +117,47 @@ class CustomColor {
             } else
                 md_theme_light_inactive_month_days
 
+        val shiftView1: Color
+            @ReadOnlyComposable
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift1
+            } else
+                md_theme_light_shift1
+
+        val shiftView2: Color
+            @ReadOnlyComposable
+            @Composable get() = if (isSystemInDarkTheme()) {
+                md_theme_dark_shift2
+            } else
+                md_theme_light_shift2
+
+        val shiftView3: Color
+            @ReadOnlyComposable
+            @Composable get() = if(isSystemInDarkTheme()) {
+                md_theme_dark_shift3
+            } else
+                md_theme_light_shift3
+
+        val shiftView4: Color
+            @ReadOnlyComposable
+            @Composable get() = if(isSystemInDarkTheme()) {
+                md_theme_dark_shift4
+            } else
+                md_theme_light_shift4
+
+        val shiftView5: Color
+            @ReadOnlyComposable
+            @Composable get() = if(isSystemInDarkTheme()) {
+                md_theme_dark_shift5
+            } else
+                md_theme_light_shift5
+
+        val shiftView6: Color
+            @ReadOnlyComposable
+            @Composable get() = if(isSystemInDarkTheme()) {
+                md_theme_dark_shift6
+            } else
+                md_theme_light_shift6
     }
 
 }

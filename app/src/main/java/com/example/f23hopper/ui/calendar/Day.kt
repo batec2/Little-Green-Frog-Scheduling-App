@@ -131,7 +131,7 @@ fun ShiftViewIndicators(
                 Column(
                     Modifier
                         .size(6.dp)
-                        .background(item.color.colVal)
+                        .background(item.shiftViewColor.color)
                 ) {}
             }
         }
