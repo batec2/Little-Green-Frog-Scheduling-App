@@ -31,6 +31,7 @@ import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -268,41 +269,58 @@ fun ShiftViewEmployeeList(
     ){
         Card(
             shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            )
         )
         {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
                 ){
-                LazyColumn(
-                    modifier = Modifier,
-                    horizontalAlignment = Alignment.CenterHorizontally
+                Row(
+                    modifier = Modifier.weight(0.9f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ){
-                    items(employeeList){item->
-                        Row(
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .fillMaxWidth()
-                                .background(colorScheme.secondaryContainer)
-                                .clickable
-                                {
-                                    selected(item)
-                                    onDismissRequest()
-                                },
-                            horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically
-                        ){
-                            Text(fontSize = 20.sp,
-                                text = item.firstName+" "+item.lastName,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis)
+                    LazyColumn(
+                        modifier = Modifier,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ){
+                        items(employeeList){item->
+                            Row(
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .fillMaxWidth()
+                                    .clip(shape = RoundedCornerShape(5.dp))
+                                    .background(colorScheme.primary)
+                                    .clickable
+                                    {
+                                        selected(item)
+                                        onDismissRequest()
+                                    },
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+                                Text(fontSize = 30.sp,
+                                    text = item.firstName+" "+item.lastName,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis)
+                            }
                         }
                     }
                 }
-                Button(
-                    onClick = { onDismissRequest() }
+                Row(
+                    modifier = Modifier.weight(0.1f),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
                 ){
-                    Text(text = "Cancel")
+
+                    Button(
+                        onClick = { onDismissRequest() }
+                    ){
+                        Text(text = "Cancel")
+                    }
                 }
             }
         }
