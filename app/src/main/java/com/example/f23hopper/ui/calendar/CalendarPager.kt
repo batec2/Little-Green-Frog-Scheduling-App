@@ -192,7 +192,7 @@ fun ShiftViewPage(
                             top = 10.dp,
                             bottom = 10.dp
                         )
-                        .background(item.shiftViewColor.color)
+                        .background(item.getColor())
                         .clickable { employeeAction(item.empItem) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally

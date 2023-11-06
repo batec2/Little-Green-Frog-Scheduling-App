@@ -138,7 +138,7 @@ private fun canAssignMoreShifts(
 ): Boolean {
     // future logic to determine max shifts per month for an employee
     val currentCount = shiftCounts.getOrDefault(employee.employeeId, 0)
-    //TODO implement max count in empeloyee and use it here
+    //TODO implement max count in employee and use it here
     // val maxShiftsPerMonth = employee.maxCount // or something
     val maxShiftsPerMonth = 1000 // TEMP LOGIC UNTIL WE HAVE MAX COUNT
     return currentCount < maxShiftsPerMonth
