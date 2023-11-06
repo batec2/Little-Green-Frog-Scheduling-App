@@ -1,11 +1,18 @@
 package com.example.f23hopper.ui.calendar
 
 import InvalidDayIcon
+import androidx.compose.animation.Animatable
+import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.animateColor
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,10 +32,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.compose.CustomColor
@@ -101,7 +112,7 @@ fun Day(
             color = textColor,
             fontSize = 12.sp
         )
-        shiftViewIndicators(
+        ShiftViewIndicators(
             context=context,
             modifier = Modifier.align(Alignment.Center)
         )
@@ -111,7 +122,7 @@ fun Day(
 }
 
 @Composable
-fun shiftViewIndicators(
+fun ShiftViewIndicators(
     context: DayContext,
     modifier: Modifier
 ){
@@ -128,15 +139,23 @@ fun shiftViewIndicators(
 
         context.viewItemList.forEachIndexed { _, item ->
             if (context.employeeShiftSelected && ids.contains(item.empItem)) {
+                val alphaAnimation = remember {
+                    androidx.compose.animation.core.Animatable(0f)
+                }
+                LaunchedEffect(Unit) {
+                    alphaAnimation.animateTo(1f)
+                }
                 Column(
                     Modifier
+                        .graphicsLayer { alpha = alphaAnimation.value }
                         .size(6.dp)
-                        .background(item.color.colVal)
+                        .background(item.color.colVal, CircleShape)
                 ) {}
             }
         }
     }
 }
+
 
 @Composable
 fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier = Modifier) {
