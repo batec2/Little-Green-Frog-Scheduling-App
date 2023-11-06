@@ -6,16 +6,17 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
-import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
-import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
 import com.example.f23hopper.utils.CalendarUtilities.ScheduleExporter
+import com.example.f23hopper.utils.CalendarUtilities.assignShifts
+import com.example.f23hopper.utils.CalendarUtilities.calculateRequiredShifts
+import com.example.f23hopper.utils.CalendarUtilities.datesUntil
+import com.example.f23hopper.utils.CalendarUtilities.isDayFullyScheduled
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
-import com.example.f23hopper.utils.maxShifts
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +30,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.sql.Date
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import javax.inject.Inject
@@ -66,10 +66,6 @@ class CalendarViewModel @Inject constructor(
         return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
     }
 
-    private fun getShifts(): Flow<List<Shift>> {
-        return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
-    }
-
     private fun parseShifts(rawShifts: Flow<List<Shift>>): StateFlow<List<Shift>> {
         return rawShifts.map { shifts -> shifts.sortedBy { it.schedule.shiftType } }
             .flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.Lazily, emptyList())
@@ -88,10 +84,6 @@ class CalendarViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun fetchAllActiveEmployees(): Flow<List<Employee>> {
-        return employeeRepository.getAllActiveEmployees()
     }
 
     private fun fetchAllEmployees(): Flow<List<Employee>> {
@@ -140,38 +132,6 @@ class CalendarViewModel @Inject constructor(
 
     //----Schedule Generation--------------------
 
-    private fun isDayFullyScheduled(
-        day: LocalDate, schedule: Map<LocalDate, List<Shift>>, isSpecialDay: Boolean
-    ): Boolean {
-        Log.d("ScheduleCheck", "Checking if day $day is fully scheduled.")
-        val assignedShifts = schedule[day] ?: run {
-            Log.d("ScheduleCheck", "Day $day has no assigned shifts.")
-            return false
-        }
-
-        // get the required number of shifts for each shift type
-        val requiredShifts = maxShiftsPerType(day, isSpecialDay)
-
-        // count the number of assigned shifts for each type
-        val assignedShiftCounts = assignedShifts.groupingBy { it.schedule.shiftType }.eachCount()
-
-        // log assigned shift counts
-        Log.d("ScheduleCheck", "Assigned shift counts for day $day: $assignedShiftCounts")
-
-        // check if all required shifts are assigned
-        val isFullyScheduled = requiredShifts.all { (shiftType, requiredCount) ->
-            val assignedCount = assignedShiftCounts[shiftType] ?: 0
-            val result = assignedCount >= requiredCount
-            Log.d(
-                "ScheduleCheck",
-                "Day $day has $assignedCount/$requiredCount assigned for $shiftType. Fully scheduled: $result"
-            )
-            result
-        }
-
-        Log.d("ScheduleCheck", "Day $day is fully scheduled: $isFullyScheduled")
-        return isFullyScheduled
-    }
 
     fun generateScheduleForMonth(month: YearMonth) {
         viewModelScope.launch {
@@ -229,6 +189,7 @@ class CalendarViewModel @Inject constructor(
                             shiftType,
                             day,
                             shiftCounts,
+                            schedule
                         )
 
                         assignedShifts.addAll(shiftsForDay)
@@ -256,151 +217,6 @@ class CalendarViewModel @Inject constructor(
                 scheduleRepo.upsert(shift)
             }
         }
-    }
-
-    private fun assignShifts(
-        availableEmployees: List<Employee>,
-        remainingCount: Int,
-        shiftType: ShiftType,
-        day: LocalDate,
-        shiftCounts: MutableMap<Long, Int>
-    ): List<Shift> {
-        val shiftsForDay = mutableListOf<Shift>()
-        var remaining = remainingCount
-
-        Log.d("Generator", "Assigning $remaining $shiftType shifts for day $day")
-
-        // separate employees by certification
-        val openers = availableEmployees.filter { it.canOpen }
-            .sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
-        val closers = availableEmployees.filter { it.canClose }
-            .sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
-
-        // assign opener for day shifts
-        if ((shiftType == ShiftType.DAY || shiftType == ShiftType.FULL) && openers.isNotEmpty()) {
-            val opener = openers.first()
-            shiftsForDay.add(createShift(opener, shiftType, day, shiftCounts))
-            remaining--
-        }
-
-        // assign closer for night shifts
-        if ((shiftType == ShiftType.NIGHT || shiftType == ShiftType.FULL) && closers.isNotEmpty()) {
-            val closer = closers.first()
-            shiftsForDay.add(createShift(closer, shiftType, day, shiftCounts))
-            remaining--
-        }
-
-        // sort the rest of the employees by shift count, ascending
-        val sortedEmployees =
-            availableEmployees.sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
-
-        // assign the remaining shifts
-        for (employee in sortedEmployees) {
-            if (remaining == 0) {
-                Log.d("Generator", "Assigned all required $shiftType shifts for day $day")
-                break
-            }
-
-            if (!canAssignMoreShifts(employee, shiftCounts)) {
-                Log.d("Generator", "Employee ${employee.employeeId} cannot be assigned more shifts")
-                continue
-            }
-
-            shiftsForDay.add(createShift(employee, shiftType, day, shiftCounts))
-            remaining--
-        }
-
-        return shiftsForDay
-    }
-
-    private fun createShift(
-        employee: Employee,
-        shiftType: ShiftType,
-        day: LocalDate,
-        shiftCounts: MutableMap<Long, Int>
-    ): Shift {
-        val newShift = Shift(
-            schedule = Schedule(
-                date = day.toSqlDate(),
-                employeeId = employee.employeeId,
-                shiftType = shiftType
-            ), employee = employee
-        )
-        Log.d(
-            "Generator",
-            "Assigned $shiftType shift to employee ${employee.employeeId} on day $day"
-        )
-
-        // update the shift count for the employee
-        shiftCounts[employee.employeeId] = shiftCounts.getOrDefault(employee.employeeId, 0) + 1
-        return newShift
-    }
-
-
-    private fun canAssignMoreShifts(
-        employee: Employee, shiftCounts: MutableMap<Long, Int>
-    ): Boolean {
-        // future logic to determine max shifts per month for an employee
-        val currentCount = shiftCounts.getOrDefault(employee.employeeId, 0)
-        //TODO implement max count in empeloyee and use it here
-        // val maxShiftsPerMonth = employee.maxCount // or something
-        val maxShiftsPerMonth = 1000 // TEMP LOGIC UNTIL WE HAVE MAX COUNT
-        return currentCount < maxShiftsPerMonth
-    }
-
-    private fun calculateRequiredShifts(
-        isSpecialDay: Boolean, assignedShifts: List<Shift>, day: LocalDate
-    ): Map<ShiftType, Int> {
-        // get shift counts then subtract by shifts already filled
-        // this gives the amt of spots to be filled
-
-        Log.d(
-            "Generator",
-            "Calculating required shifts for ${if (isSpecialDay) "special" else "regular"} day"
-        )
-        val baseRequirements = maxShiftsPerType(day, isSpecialDay)
-
-        // calculate the remaining required shifts for each type
-        val remainingRequirements = baseRequirements.toMutableMap()
-        Log.d("Generator", "Base requirements: $baseRequirements")
-
-        assignedShifts.forEach { shift ->
-            remainingRequirements[shift.schedule.shiftType]?.let {
-                val updatedCount = it - 1
-                remainingRequirements[shift.schedule.shiftType] = updatedCount
-                Log.d(
-                    "Generator",
-                    "Reduced requirement for ${shift.schedule.shiftType}: $updatedCount"
-                )
-            }
-        }
-
-        // remove shift types that are fully booked
-        val finalRequirements = remainingRequirements.filter { it.value > 0 }
-        Log.d("Generator", "Final required shifts: $finalRequirements")
-        return finalRequirements
-    }
-}
-
-private fun maxShiftsPerType(day: LocalDate, isSpecialDay: Boolean): Map<ShiftType, Int> {
-    val isWeekend = day.dayOfWeek == DayOfWeek.SATURDAY || day.dayOfWeek == DayOfWeek.SUNDAY
-    val shiftCountPerDay = maxShifts(isSpecialDay)
-
-    return if (isWeekend) {
-        mapOf(
-            ShiftType.FULL to shiftCountPerDay
-        )
-    } else {
-        mapOf(
-            ShiftType.DAY to shiftCountPerDay,
-            ShiftType.NIGHT to shiftCountPerDay
-        )
-    }
-}
-
-private fun LocalDate.datesUntil(endExclusive: LocalDate): Sequence<LocalDate> {
-    return generateSequence(this) { currentDate ->
-        currentDate.plusDays(1).takeIf { it.isBefore(endExclusive) }
     }
 }
 
