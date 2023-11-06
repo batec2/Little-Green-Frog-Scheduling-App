@@ -176,7 +176,7 @@ fun ShiftViewPage(
                             top = 10.dp,
                             bottom = 10.dp
                         )
-                        .background(item.color.colVal),
+                        .background(item.shiftViewColor.color),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {

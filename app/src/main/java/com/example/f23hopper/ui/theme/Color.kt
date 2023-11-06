@@ -82,5 +82,22 @@ val md_theme_dark_shift_row_day = Color(0xFF609AB9)
 val md_theme_dark_shift_row_night = Color(0xFF2C8D76)
 val md_theme_dark_shift_row_full = Color(0xFF4C6359)
 
+//Shift View Colors
+//Dark
+val md_theme_dark_shift1 = Color(0xFFEB3223)
+val md_theme_dark_shift2 = Color(0xFF6F82FE)
+val md_theme_dark_shift3 = Color(0xFFFFFFFF)
+val md_theme_dark_shift4 = Color(0xFFE7E4F0)
+val md_theme_dark_shift5 = Color(0xFFDFC514)
+val md_theme_dark_shift6 = Color(0xFF000000)
+//Light
+val md_theme_light_shift1 = Color(0xFFEB3223)
+val md_theme_light_shift2 = Color(0xFF0021F5)
+val md_theme_light_shift3 = Color(0xFFEC56D4)
+val md_theme_light_shift4 = Color(0xFF449798)
+val md_theme_light_shift5 = Color(0xFFF6CB31)
+val md_theme_light_shift6 = Color(0xFF000000)
+
+
 
 val seed = Color(0xFF007154)
