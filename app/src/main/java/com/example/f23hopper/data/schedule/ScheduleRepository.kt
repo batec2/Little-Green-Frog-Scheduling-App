@@ -12,6 +12,19 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
         scheduleDao.update(schedule)
     }
 
+
+    suspend fun upsert(shift: Shift) {
+        if (exists(shift)) {
+            update(shift.schedule)
+        } else {
+            insert(shift.schedule)
+        }
+    }
+
+    private fun exists(shift: Shift): Boolean {
+        return scheduleDao.scheduleExistsById(shift.schedule.id)
+    }
+
     suspend fun delete(schedule: Schedule) {
         scheduleDao.delete(schedule)
     }

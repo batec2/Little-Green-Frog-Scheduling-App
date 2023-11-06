@@ -210,7 +210,7 @@ fun ShowErrorDialog(errors: List<DayValidationError>, onDismiss: () -> Unit) {
 }
 
 
-fun validateMonthForEmployeeAbsence(
+fun getEmployeesWithNoShifts(
     shifts: List<Shift>,
     month: YearMonth,
     allEmployees: List<Employee>
@@ -269,15 +269,17 @@ fun AbsentEmployeeIcon(
     month: YearMonth,
     allEmployees: List<Employee>,
     modifier: Modifier = Modifier,
+    onGenerationClick: () -> Unit,
     showDialogueOnClick: Boolean = true
 ) {
-    val absentEmployeesByWeek = validateMonthForEmployeeAbsence(shifts, month, allEmployees)
+    val absentEmployeesByWeek = getEmployeesWithNoShifts(shifts, month, allEmployees)
     var showDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
         ShowEmployeeAbsenceDialog(
             absentEmployees = absentEmployeesByWeek,
-            onDismiss = { showDialog = false }
+            onDismiss = { showDialog = false },
+            onGenerationClick = onGenerationClick
         )
     }
 
@@ -302,7 +304,8 @@ fun AbsentEmployeeIcon(
 @Composable
 fun ShowEmployeeAbsenceDialog(
     absentEmployees: Map<LocalDate, List<Employee>>,
-    onDismiss: () -> Unit
+    onGenerationClick: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     if (absentEmployees.isNotEmpty()) {
         AlertDialog(
@@ -316,10 +319,13 @@ fun ShowEmployeeAbsenceDialog(
                 }
             },
             confirmButton = {
-                Box(
+                Row(
                     modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
+                    horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
+                    Button(onClick = { onGenerationClick(); onDismiss() }) {
+                        Text("Fix")
+                    }
                     Button(onClick = onDismiss) {
                         Text("Close")
                     }

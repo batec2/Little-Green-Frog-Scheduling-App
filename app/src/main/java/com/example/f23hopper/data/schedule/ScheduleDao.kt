@@ -100,5 +100,8 @@ interface ScheduleDao {
     )
     fun getShiftFromDate(date: Date): Flow<List<Shift>>
 
+    @Query("SELECT EXISTS( SELECT 1 FROM schedules WHERE id = :id )")
+    fun scheduleExistsById(id: Long): Boolean
+
 
 }
