@@ -6,8 +6,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
-import com.example.f23hopper.data.employee.availableDays
-import com.example.f23hopper.data.employee.shiftTypeForDay
 import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
@@ -19,7 +17,6 @@ import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.maxShifts
 import dagger.hilt.android.lifecycle.HiltViewModel
-import getEmployeesWithNoShifts
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -181,7 +178,6 @@ class CalendarViewModel @Inject constructor(
             Log.d("Generator", "Starting Generation")
             // fetch data to be used
             val preAssignedShifts = fetchShiftsForMonth(month).first()
-            val allEmployees = fetchAllEmployees().first()
             val specialDaysForMonth = fetchSpecialDaysForMonth(month).first()
 
             // shifts by employee list
@@ -194,8 +190,6 @@ class CalendarViewModel @Inject constructor(
                 .toMutableMap()
 
             Log.d("Generator", "Built PreSchedule")
-            val employeesNeedingShifts =
-                getEmployeesWithNoShifts(preAssignedShifts, month, allEmployees)
 
             // check each day in the month
             for (day in month.atDay(1).datesUntil(month.atEndOfMonth().plusDays(1))) {
@@ -240,11 +234,6 @@ class CalendarViewModel @Inject constructor(
                         assignedShifts.addAll(shiftsForDay)
                     }
 
-                    // check if there are employees needing shifts and perform swaps if necessary
-//                    val employeesNeedingShiftsForDay = employeesNeedingShifts[day] ?: listOf()
-//                    if (employeesNeedingShiftsForDay.isNotEmpty()) {
-//                        performShiftSwaps(schedule, shiftCounts, employeesNeedingShiftsForDay, day)
-//                    }
 
                     // update the schedule with the newly assigned shifts
                     schedule[day] = assignedShifts
@@ -259,103 +248,6 @@ class CalendarViewModel @Inject constructor(
             insertNewSchedules(schedule)
             Log.d("Generator", "Finished Generation")
         }
-    }
-
-    // Currently bugged, discrepency when adding FULL shifts.
-    private fun performShiftSwaps(
-        schedule: MutableMap<LocalDate, MutableList<Shift>>,
-        shiftCounts: MutableMap<Long, Int>,
-        employeesNeedingShifts: List<Employee>,
-        day: LocalDate
-    ) {
-        Log.d("ShiftSwap", "Starting shift swaps for day: $day")
-
-        // iterate through employees who need shifts
-        for (employeeNeedingShift in employeesNeedingShifts) {
-            Log.d(
-                "ShiftSwap",
-                "Looking for shifts for employee: ${employeeNeedingShift.employeeId}"
-            )
-
-            // determine the shift type needed for the employeeNeedingShift on the day
-            val neededShiftType = employeeNeedingShift.shiftTypeForDay(day.dayOfWeek)
-            Log.d(
-                "ShiftSwap",
-                "Needed shift type for employee ${employeeNeedingShift.employeeId} on day $day is $neededShiftType"
-            )
-
-            // find a suitable employee to swap with
-            for ((scheduledDay, shifts) in schedule) {
-                // skip the current day as we're looking for a swap
-                if (scheduledDay == day) continue
-
-                Log.d("ShiftSwap", "Looking at scheduled day: $scheduledDay for possible swaps")
-
-                // look for an employee who has a shift on a different day and can work on the current day with the correct shift type
-                val employeeToSwap = shifts.find { shift ->
-                    val canEmployeeNeedingShiftWork =
-                        employeeNeedingShift.shiftTypeForDay(day.dayOfWeek) == shift.schedule.shiftType
-                    val canEmployeeToSwapWork =
-                        shift.employee.shiftTypeForDay(day.dayOfWeek) == neededShiftType
-
-                    shift.employee.availableDays().contains(day.dayOfWeek) &&
-                            employeeNeedingShift.availableDays().contains(scheduledDay.dayOfWeek) &&
-                            canEmployeeNeedingShiftWork && canEmployeeToSwapWork
-                }?.employee
-
-                // if a suitable employee is found, perform the swap
-                if (employeeToSwap != null) {
-                    Log.d(
-                        "ShiftSwap",
-                        "Found employee to swap. Employee ID: ${employeeToSwap.employeeId}"
-                    )
-
-                    // log the shift type before the swap
-                    val shiftToSwap = shifts.first { it.employee == employeeToSwap }
-                    Log.d("ShiftSwap", "Shift type before swap: ${shiftToSwap.schedule.shiftType}")
-
-                    // remove the shift from the original day
-                    shifts.removeAt(shifts.indexOfFirst { it.employee == employeeToSwap })
-
-                    // update the shift to the new day and employee
-                    val newShift = shiftToSwap.copy(
-                        schedule = shiftToSwap.schedule.copy(
-                            date = day.toSqlDate(),
-                            employeeId = employeeNeedingShift.employeeId,
-                            // set correctly?
-                            shiftType = employeeNeedingShift.shiftTypeForDay(day.dayOfWeek)
-                        ),
-                        employee = employeeNeedingShift
-                    )
-
-                    Log.d("ShiftSwap", "Shift type after swap: ${newShift.schedule.shiftType}")
-
-                    // add the new shift to the current day
-                    schedule[day]?.add(newShift)
-
-                    Log.d(
-                        "ShiftSwap",
-                        "Swapped shift of employee ${employeeToSwap.employeeId} to employee ${employeeNeedingShift.employeeId} for day $day"
-                    )
-
-                    // update the shift count for both employees
-                    shiftCounts[employeeToSwap.employeeId] =
-                        shiftCounts.getOrDefault(employeeToSwap.employeeId, 0) - 1
-                    shiftCounts[employeeNeedingShift.employeeId] =
-                        shiftCounts.getOrDefault(employeeNeedingShift.employeeId, 0) + 1
-
-                    // exit the inner loop as the swap is complete
-                    break
-                } else {
-                    Log.d(
-                        "ShiftSwap",
-                        "No suitable employee found to swap with for employee ${employeeNeedingShift.employeeId} on day $scheduledDay"
-                    )
-                }
-            }
-        }
-
-        Log.d("ShiftSwap", "Completed shift swaps for day: $day")
     }
 
     private fun insertNewSchedules(newSchedule: Map<LocalDate, List<Shift>>) {
@@ -378,46 +270,70 @@ class CalendarViewModel @Inject constructor(
 
         Log.d("Generator", "Assigning $remaining $shiftType shifts for day $day")
 
-        // sort employees by the number of shifts they've been assigned, ascending
+        // separate employees by certification
+        val openers = availableEmployees.filter { it.canOpen }
+            .sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
+        val closers = availableEmployees.filter { it.canClose }
+            .sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
+
+        // assign opener for day shifts
+        if ((shiftType == ShiftType.DAY || shiftType == ShiftType.FULL) && openers.isNotEmpty()) {
+            val opener = openers.first()
+            shiftsForDay.add(createShift(opener, shiftType, day, shiftCounts))
+            remaining--
+        }
+
+        // assign closer for night shifts
+        if ((shiftType == ShiftType.NIGHT || shiftType == ShiftType.FULL) && closers.isNotEmpty()) {
+            val closer = closers.first()
+            shiftsForDay.add(createShift(closer, shiftType, day, shiftCounts))
+            remaining--
+        }
+
+        // sort the rest of the employees by shift count, ascending
         val sortedEmployees =
             availableEmployees.sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
 
+        // assign the remaining shifts
         for (employee in sortedEmployees) {
-            // immediately check if we have assigned enough shifts
             if (remaining == 0) {
                 Log.d("Generator", "Assigned all required $shiftType shifts for day $day")
                 break
             }
 
-            // Check if the employee can be assigned more shifts
             if (!canAssignMoreShifts(employee, shiftCounts)) {
                 Log.d("Generator", "Employee ${employee.employeeId} cannot be assigned more shifts")
                 continue
             }
 
-            // create a new shift and add to the shifts for the day
-            shiftsForDay.add(
-                Shift(
-                    schedule = Schedule(
-                        date = day.toSqlDate(),
-                        employeeId = employee.employeeId,
-                        shiftType = shiftType
-                    ), employee = employee
-                )
-            )
-
-            Log.d(
-                "Generator",
-                "Assigned $shiftType shift to employee ${employee.employeeId} on day $day"
-            )
-
-            // update the shift count for the employee
-            shiftCounts[employee.employeeId] = shiftCounts.getOrDefault(employee.employeeId, 0) + 1
-
+            shiftsForDay.add(createShift(employee, shiftType, day, shiftCounts))
             remaining--
         }
 
         return shiftsForDay
+    }
+
+    private fun createShift(
+        employee: Employee,
+        shiftType: ShiftType,
+        day: LocalDate,
+        shiftCounts: MutableMap<Long, Int>
+    ): Shift {
+        val newShift = Shift(
+            schedule = Schedule(
+                date = day.toSqlDate(),
+                employeeId = employee.employeeId,
+                shiftType = shiftType
+            ), employee = employee
+        )
+        Log.d(
+            "Generator",
+            "Assigned $shiftType shift to employee ${employee.employeeId} on day $day"
+        )
+
+        // update the shift count for the employee
+        shiftCounts[employee.employeeId] = shiftCounts.getOrDefault(employee.employeeId, 0) + 1
+        return newShift
     }
 
 
@@ -426,6 +342,8 @@ class CalendarViewModel @Inject constructor(
     ): Boolean {
         // future logic to determine max shifts per month for an employee
         val currentCount = shiftCounts.getOrDefault(employee.employeeId, 0)
+        //TODO implement max count in empeloyee and use it here
+        // val maxShiftsPerMonth = employee.maxCount // or something
         val maxShiftsPerMonth = 1000 // TEMP LOGIC UNTIL WE HAVE MAX COUNT
         return currentCount < maxShiftsPerMonth
     }
@@ -433,6 +351,9 @@ class CalendarViewModel @Inject constructor(
     private fun calculateRequiredShifts(
         isSpecialDay: Boolean, assignedShifts: List<Shift>, day: LocalDate
     ): Map<ShiftType, Int> {
+        // get shift counts then subtract by shifts already filled
+        // this gives the amt of spots to be filled
+
         Log.d(
             "Generator",
             "Calculating required shifts for ${if (isSpecialDay) "special" else "regular"} day"
