@@ -152,7 +152,7 @@ fun Calendar(
                 employeeAction = {
                     if (viewItemList.any { emp -> emp.empItem == it }) {
                         viewItemList.removeIf { emp -> emp.empItem == it }
-                    } else if (viewItemList.size <= 6) {
+                    } else if (viewItemList.size < 6) {
                         viewItemList.add(
                             ViewItem(
                                 empItem = it,
@@ -176,11 +176,12 @@ fun Calendar(
     }
 }
 
-
+/*Gets a color that hasn't been used yet in the colorList*/
 fun getColorForShiftView(
     viewList: List<ViewItem>, colorList: List<ShiftViewColors>
 ): ShiftViewColors {
     return if (viewList.isNotEmpty()) {
+        //Gets a list of colors not not already assigned to the viewlist
         (colorList.filter { item -> viewList.none { emp -> emp.shiftViewColor == item } }).first()
     } else {
         colorList.first()
