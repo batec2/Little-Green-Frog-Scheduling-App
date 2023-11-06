@@ -38,7 +38,6 @@ class CalendarViewModel @Inject constructor(
 
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
-    // Custom getters for startDate and endDate
     private val startDate: Date
         get() {
             val currentDate = LocalDate.now()
@@ -52,7 +51,6 @@ class CalendarViewModel @Inject constructor(
                 .toSqlDate()
         }
 
-    // Other properties and methods remain unchanged
     val shifts: StateFlow<List<Shift>> by lazy { parseShifts(fetchRawShifts()) }
     val employees: StateFlow<List<Employee>> by lazy { parseEmployees(fetchAllEmployees()) }
     val days: StateFlow<List<SpecialDay>> by lazy { parseSpecialDays(fetchRawSpecialDays()) }
@@ -121,5 +119,22 @@ class CalendarViewModel @Inject constructor(
         val filename = "${curMonth.year}_${curMonth.month.value}_schedule"
         exporter.export(filename, content, context, shifts, specialDays, curMonth)
         onExportComplete("$filename saved to Downloads folder")
+    }
+
+
+    private fun fetchShiftsForMonth(month: YearMonth): Flow<List<Shift>> {
+        val startDate = month.atDay(1).toSqlDate()
+        val endDate = month.atEndOfMonth().toSqlDate()
+        return scheduleRepo.getActiveShiftsByDateRange(startDate, endDate)
+    }
+
+    private fun fetchAllActiveEmployees(month: YearMonth): Flow<List<Employee>> {
+        return employeeRepository.getAllActiveEmployees()
+    }
+
+    private fun fetchSpecialDaysForMonth(month: YearMonth): Flow<List<SpecialDay>> {
+        val startDate = month.atDay(1).toSqlDate()
+        val endDate = month.atEndOfMonth().toSqlDate()
+        return specialDayRepo.getSpecialDaysByDateRange(startDate, endDate)
     }
 }
