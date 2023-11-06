@@ -40,6 +40,7 @@ val md_theme_light_secondaryBackground = Color(0xFFECEFEB)
 val md_theme_light_shift_row_day = Color(0xFFDBE2F7)
 val md_theme_light_shift_row_night = Color(0xFFC9B4DB)
 val md_theme_light_shift_row_full = Color(0xFF93C2AD)
+val md_theme_light_inactive_month_days = Color(0xFFDADADA)
 
 val md_theme_dark_primary = Color(0xFF67DBB1)
 val md_theme_dark_onPrimary = Color(0xFF003828)
