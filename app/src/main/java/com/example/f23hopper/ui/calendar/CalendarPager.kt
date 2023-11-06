@@ -24,6 +24,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
@@ -156,19 +157,18 @@ fun ShiftViewPage(
     clearList: () -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().padding(10.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
-
     ) {
         if (viewItemList.isEmpty()) {
-            Text(text = "No Employees Selected for Shift View")
+            Text(modifier = Modifier.weight(0.8f),text = "No Employees Selected for Shift View")
         } else {
             //Checks if employee id is in the list of selected employees for shift view
             viewItemList.forEach { item ->
                 Column(
                     modifier = Modifier
-                        .weight(1f)
+                        .weight((0.8/viewItemList.size).toFloat())
                         .fillMaxHeight()
                         .padding(
                             start = 2.dp,
@@ -187,11 +187,37 @@ fun ShiftViewPage(
                     )
                 }
             }
+        }
+        Divider(
+            color = Color.Gray, modifier = Modifier
+                .width(1.dp)
+                .fillMaxHeight()
+        )
+        //Clears list of employees for shift view
+        ShiftViewPagerActionBox(modifier = Modifier.weight(0.1f), clearList=clearList)
+    }
+}
 
-            //Clears list of employees for shift view
-            //Temporary replace later
-            Button(onClick = (clearList)) {
-                Text(text = "Clear")
+@Composable
+fun ShiftViewPagerActionBox(
+    modifier: Modifier,
+    clearList: ()->Unit,
+) {
+    Box(
+        modifier = modifier
+            .width(80.dp)
+            .height(2 * 55.dp)
+            .background(pageBackgroundColor)
+        , contentAlignment = Alignment.Center
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            IconButton(onClick = { /*TODO*/ }) {
+                Icon(imageVector = Icons.Default.Add, contentDescription = "Add shift view")
+            }
+            IconButton(onClick = clearList ) {
+                Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear shift view")
             }
         }
     }

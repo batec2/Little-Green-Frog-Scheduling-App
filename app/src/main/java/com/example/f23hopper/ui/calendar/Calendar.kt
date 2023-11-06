@@ -150,9 +150,10 @@ fun Calendar(
     }
 }
 
-
+/*Gets a color that hasn't been used yet in the colorList*/
 fun getColor(viewList: List<ViewItem>, colorList: List<ShiftViewColors>): ShiftViewColors {
     return if (viewList.isNotEmpty()) {
+        //Gets a list of colors not not already assigned to the viewlist
         (colorList.filter { item -> viewList.none { emp -> emp.color == item } }).first()
     } else {
         colorList.first()
