@@ -18,28 +18,39 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.compose.ui.window.Dialog
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
@@ -82,7 +93,8 @@ fun CalendarPager(
                 1 -> ShiftViewPage(
                     viewItemList = context.viewItemList,
                     employeeList = context.employeeList,
-                    clearList = context.clearList
+                    clearList = context.clearList,
+                    employeeAction = { context.employeeAction(it) }
                 )
             }
         }
@@ -154,10 +166,13 @@ fun IndicatorDot(isActive: Boolean) {
 fun ShiftViewPage(
     viewItemList: List<ViewItem>,
     employeeList: List<Employee>,
-    clearList: () -> Unit
+    clearList: () -> Unit,
+    employeeAction: (Employee) -> Unit
 ) {
     Row(
-        modifier = Modifier.fillMaxSize().padding(10.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(10.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -168,7 +183,7 @@ fun ShiftViewPage(
             viewItemList.forEach { item ->
                 Column(
                     modifier = Modifier
-                        .weight((0.8/viewItemList.size).toFloat())
+                        .weight((0.8 / viewItemList.size).toFloat())
                         .fillMaxHeight()
                         .padding(
                             start = 2.dp,
@@ -176,14 +191,17 @@ fun ShiftViewPage(
                             top = 10.dp,
                             bottom = 10.dp
                         )
-                        .background(item.color.colVal),
+                        .background(item.color.colVal)
+                        .clickable { employeeAction(item.empItem) },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
                         text = item.empItem.nickname.ifEmpty {
                             "${item.empItem.firstName}\n${item.empItem.lastName}"
-                        }
+                        },
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -194,15 +212,22 @@ fun ShiftViewPage(
                 .fillMaxHeight()
         )
         //Clears list of employees for shift view
-        ShiftViewPagerActionBox(modifier = Modifier.weight(0.1f), clearList=clearList)
+        ShiftViewPagerActionBox(
+            modifier = Modifier.weight(0.1f),
+            employeeList=employeeList ,
+            clearList=clearList,
+            selected = {employeeAction(it)})
     }
 }
 
 @Composable
 fun ShiftViewPagerActionBox(
     modifier: Modifier,
+    employeeList: List<Employee>,
     clearList: ()->Unit,
+    selected: (Employee) -> Unit,
 ) {
+    var showDialog by remember{ mutableStateOf(false) }
     Box(
         modifier = modifier
             .width(80.dp)
@@ -213,11 +238,72 @@ fun ShiftViewPagerActionBox(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            IconButton(onClick = { /*TODO*/ }) {
+            IconButton(
+                onClick = {showDialog = true}
+            )
+            {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add shift view")
             }
             IconButton(onClick = clearList ) {
                 Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear shift view")
+            }
+        }
+    }
+    if(showDialog){
+        ShiftViewEmployeeList (
+            employeeList = employeeList,
+            onDismissRequest = { showDialog = false },
+            selected = {selected(it)}
+        )
+    }
+}
+@Composable
+fun ShiftViewEmployeeList(
+    employeeList: List<Employee>,
+    onDismissRequest: () -> Unit,
+    selected: (Employee) -> Unit
+){
+    Dialog(
+        onDismissRequest = {onDismissRequest()}
+    ){
+        Card(
+            shape = RoundedCornerShape(16.dp),
+        )
+        {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+                ){
+                LazyColumn(
+                    modifier = Modifier,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ){
+                    items(employeeList){item->
+                        Row(
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .fillMaxWidth()
+                                .background(colorScheme.secondaryContainer)
+                                .clickable
+                                {
+                                    selected(item)
+                                    onDismissRequest()
+                                },
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.CenterVertically
+                        ){
+                            Text(fontSize = 20.sp,
+                                text = item.firstName+" "+item.lastName,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis)
+                        }
+                    }
+                }
+                Button(
+                    onClick = { onDismissRequest() }
+                ){
+                    Text(text = "Cancel")
+                }
             }
         }
     }

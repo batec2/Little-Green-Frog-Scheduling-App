@@ -149,7 +149,7 @@ fun Calendar(
                 employeeAction = {
                     if (viewItemList.any { emp -> emp.empItem == it }) {
                         viewItemList.removeIf { emp -> emp.empItem == it }
-                    } else if (viewItemList.size <= 6) {
+                    } else if (viewItemList.size < 6) {
                         viewItemList.add(
                             ViewItem(
                                 empItem = it,
