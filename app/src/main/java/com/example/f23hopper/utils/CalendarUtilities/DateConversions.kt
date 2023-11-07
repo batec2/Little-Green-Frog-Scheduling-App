@@ -28,11 +28,11 @@ fun java.time.LocalDate.toShortMonthAndDay(): String {
 }
 
 fun Date.toLongDate(): String {
-    val date   = this.toKotlinxLocalDate()
+    val date = this.toKotlinxLocalDate()
     val dayNum = date.dayOfMonth
-    val day    = date.dayOfWeek.toString().lowercase().replaceFirstChar { it.titlecase() }
-    val month  = date.month.toString().lowercase().replaceFirstChar { it.titlecase() }
-    val year   = date.year
+    val day = date.dayOfWeek.toString().lowercase().replaceFirstChar { it.titlecase() }
+    val month = date.month.toString().lowercase().replaceFirstChar { it.titlecase() }
+    val year = date.year
     val suffix = if (dayNum in 11..13) "th" else {
         when (dayNum % 10) {
             1 -> "st"
@@ -53,3 +53,9 @@ fun LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
 
 fun LocalDate.isWeekday(): Boolean =
     !(this.dayOfWeek == DayOfWeek.SUNDAY || this.dayOfWeek == DayOfWeek.SATURDAY)
+
+fun java.time.LocalDate.datesUntil(endExclusive: java.time.LocalDate): Sequence<java.time.LocalDate> {
+    return generateSequence(this) { currentDate ->
+        currentDate.plusDays(1).takeIf { it.isBefore(endExclusive) }
+    }
+}

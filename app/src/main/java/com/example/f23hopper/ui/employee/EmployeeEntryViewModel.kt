@@ -157,6 +157,7 @@ fun determineShiftType(
     }
 }
 
+
 //https://en.wikipedia.org/wiki/E.164
 // International standard defines max phone number as 15 digits
 fun formatPhoneNumber(input: String): String {
@@ -189,7 +190,4 @@ fun formatPhoneNumber(input: String): String {
 }
 
 
-fun formatName(input: String): String {
-    return input.filter { it.isLetter() || it == '-' }
-}
-
+fun formatName(input: String): String = input.filter { it.isLetter() || it == '-' }.take(25)

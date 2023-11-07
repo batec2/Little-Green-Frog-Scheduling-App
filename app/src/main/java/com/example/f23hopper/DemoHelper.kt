@@ -85,12 +85,12 @@ fun createEmployees(): List<Employee> {
         phoneNumber = "52344442134",
         canOpen = true,
         canClose = false,
-        sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
-        thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
+        sunday = ShiftType.CANT_WORK,
+        monday = ShiftType.DAY,
+        tuesday = ShiftType.DAY,
+        wednesday = ShiftType.CANT_WORK,
+        thursday = ShiftType.NIGHT,
+        friday = ShiftType.NIGHT,
         saturday = ShiftType.FULL,
         active = true
     )
@@ -104,12 +104,12 @@ fun createEmployees(): List<Employee> {
         canOpen = false,
         canClose = true,
         sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
-        thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        monday = ShiftType.NIGHT,
+        tuesday = ShiftType.NIGHT,
+        wednesday = ShiftType.DAY,
+        thursday = ShiftType.CANT_WORK,
+        friday = ShiftType.DAY,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 
@@ -121,13 +121,13 @@ fun createEmployees(): List<Employee> {
         phoneNumber = "20389201",
         canOpen = true,
         canClose = true,
-        sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
-        thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        sunday = ShiftType.CANT_WORK,
+        monday = ShiftType.DAY,
+        tuesday = ShiftType.CANT_WORK,
+        wednesday = ShiftType.DAY,
+        thursday = ShiftType.NIGHT,
+        friday = ShiftType.NIGHT,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 
@@ -139,13 +139,13 @@ fun createEmployees(): List<Employee> {
         phoneNumber = "4566575242",
         canOpen = true,
         canClose = true,
-        sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
-        thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        sunday = ShiftType.CANT_WORK,
+        monday = ShiftType.CANT_WORK,
+        tuesday = ShiftType.NIGHT,
+        wednesday = ShiftType.NIGHT,
+        thursday = ShiftType.CANT_WORK,
+        friday = ShiftType.CANT_WORK,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 
@@ -158,12 +158,12 @@ fun createEmployees(): List<Employee> {
         canOpen = true,
         canClose = true,
         sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
+        monday = ShiftType.NIGHT,
+        tuesday = ShiftType.CANT_WORK,
         wednesday = ShiftType.FULL,
         thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        friday = ShiftType.CANT_WORK,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 
@@ -175,13 +175,13 @@ fun createEmployees(): List<Employee> {
         phoneNumber = "7802342342",
         canOpen = true,
         canClose = true,
-        sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
-        thursday = ShiftType.FULL,
-        friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        sunday = ShiftType.CANT_WORK,
+        monday = ShiftType.DAY,
+        tuesday = ShiftType.DAY,
+        wednesday = ShiftType.NIGHT,
+        thursday = ShiftType.NIGHT,
+        friday = ShiftType.CANT_WORK,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 
@@ -193,13 +193,13 @@ fun createEmployees(): List<Employee> {
         phoneNumber = "3242346757",
         canOpen = true,
         canClose = true,
-        sunday = ShiftType.FULL,
-        monday = ShiftType.FULL,
-        tuesday = ShiftType.FULL,
-        wednesday = ShiftType.FULL,
+        sunday = ShiftType.CANT_WORK,
+        monday = ShiftType.DAY,
+        tuesday = ShiftType.DAY,
+        wednesday = ShiftType.NIGHT,
         thursday = ShiftType.FULL,
         friday = ShiftType.FULL,
-        saturday = ShiftType.FULL,
+        saturday = ShiftType.CANT_WORK,
         active = true
     )
 

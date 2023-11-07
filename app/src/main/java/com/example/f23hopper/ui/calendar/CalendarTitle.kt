@@ -41,7 +41,8 @@ fun CalendarTitle(
     employees: List<Employee> = emptyList(),
     goToPrevious: () -> Unit,
     goToNext: () -> Unit,
-    onExportClick: () -> Unit
+    onExportClick: () -> Unit,
+    onGenerateClick: () -> Unit
 ) {
     Row(
         modifier = modifier.height(40.dp),
@@ -56,7 +57,12 @@ fun CalendarTitle(
             modifier = Modifier
                 .weight(1f)
         ) {
-            AbsentEmployeeIcon(shifts = shifts, month = currentMonth, allEmployees = employees)
+            AbsentEmployeeIcon(
+                shifts = shifts,
+                month = currentMonth,
+                allEmployees = employees,
+                onGenerationClick = onGenerateClick
+            )
             Text(
                 text = currentMonth.displayText(),
                 fontSize = 22.sp,
