@@ -34,35 +34,21 @@ class ScheduleExporter {
     }
 
     private fun getRows(shifts: List<Shift>): String {
-        var openerFound = false
-        var closerFound = false
 
-        val (canOpenShifts, otherShifts) = shifts.partition {
-            it.employee.canOpen && it.schedule.shiftType == ShiftType.DAY
-        }
-        val (canCloseShifts, remainingShifts) = otherShifts.partition {
-            it.employee.canClose && it.schedule.shiftType == ShiftType.NIGHT
-        }
+        val sortedShifts = shifts.sortedWith(
+                 compareBy<Shift> { it.schedule.shiftType }
+                .thenByDescending { it.employee.canOpen }
+                .thenBy           { it.employee.canClose }
+        )
 
-        val rows = (canOpenShifts + remainingShifts + canCloseShifts).joinToString("\n") { shift ->
+        val rows = sortedShifts.joinToString("\n") { shift ->
             val type = ShiftTypeConverter().fromShiftType(shift.schedule.shiftType)
             val training = when {
-                type == "DAY" && !openerFound && shift.employee.canOpen -> {
-                    openerFound = true; " (O)"
-                }
-
-                type == "NIGHT" && !closerFound && shift.employee.canClose -> {
-                    closerFound = true; " (C)"
-                }
-
-                type == "FULL" && !openerFound && shift.employee.canOpen -> {
-                    openerFound = true; " (O)"
-                }
-
-                type == "FULL" && !closerFound && shift.employee.canClose -> {
-                    closerFound = true; " (C)"
-                }
-
+                type == "DAY" && shift.employee.canOpen -> " (O)"
+                type == "NIGHT" && shift.employee.canClose -> " (C)"
+                type == "FULL" && shift.employee.canOpen && shift.employee.canClose -> " (O, C)"
+                type == "FULL" && shift.employee.canOpen -> " (O)"
+                type == "FULL" && shift.employee.canClose -> " (C)"
                 else -> ""
             }
             val fullName = "${shift.employee.firstName} ${shift.employee.lastName}${training}"
