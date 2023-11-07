@@ -181,7 +181,7 @@ fun ShiftViewPage(
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (viewItemList.isEmpty()) {
-            Text(modifier = Modifier.weight(0.8f),text = "No Employees Selected for Shift View")
+            Text(modifier = Modifier.weight(0.8f), text = "No Employees Selected for Shift View")
         } else {
             //Checks if employee id is in the list of selected employees for shift view
             viewItemList.forEach { item ->
@@ -192,8 +192,8 @@ fun ShiftViewPage(
                         .padding(
                             start = 2.dp,
                             end = 2.dp,
-                            top = 10.dp,
-                            bottom = 10.dp
+//                            top = 2.dp,
+//                            bottom = 2.dp
                         )
                         .background(item.getColor())
                         .clickable { employeeAction(item.empItem) },
@@ -215,6 +215,7 @@ fun ShiftViewPage(
                     )
                 }
             }
+            Spacer(modifier = Modifier.width(1.dp))
         }
         Divider(
             color = Color.Gray, modifier = Modifier
@@ -223,11 +224,11 @@ fun ShiftViewPage(
         )
         //Clears list of employees for shift view
         ShiftViewPagerActionBox(
-            modifier = Modifier.weight(0.1f),
-            employeeList=employeeList ,
+            modifier = Modifier.weight(0.08f),
+            employeeList = employeeList,
             viewItemList = viewItemList,
-            clearList=clearList,
-            selected = {employeeAction(it)})
+            clearList = clearList,
+            selected = { employeeAction(it) })
     }
 }
 
@@ -236,50 +237,61 @@ fun ShiftViewPagerActionBox(
     modifier: Modifier,
     employeeList: List<Employee>,
     viewItemList: List<ViewItem>,
-    clearList: ()->Unit,
+    clearList: () -> Unit,
     selected: (Employee) -> Unit,
 ) {
-    var showDialog by remember{ mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
     Box(
         modifier = modifier
             .width(80.dp)
             .height(2 * 55.dp)
-            .background(pageBackgroundColor)
-        , contentAlignment = Alignment.Center
+            .background(pageBackgroundColor),
+        contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            modifier = modifier.padding(start = 9.dp)
         ) {
             IconButton(
-                onClick = {showDialog = true}
+                onClick = { showDialog = true }
             )
             {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add shift view")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add shift view",
+                    modifier = modifier.size(32.dp)
+                )
             }
-            IconButton(onClick = clearList ) {
-                Icon(imageVector = Icons.Default.Clear, contentDescription = "Clear shift view")
+            IconButton(onClick = clearList) {
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "Clear shift view",
+                    modifier = modifier.size(32.dp)
+                )
             }
         }
     }
-    if(showDialog){
-        ShiftViewEmployeeList (
+    if (showDialog) {
+        ShiftViewEmployeeList(
             employeeList = employeeList,
             viewItemList = viewItemList,
             onDismissRequest = { showDialog = false },
-            selected = {selected(it)}
+            selected = { selected(it) }
         )
     }
 }
+
 @Composable
 fun ShiftViewEmployeeList(
     employeeList: List<Employee>,
     viewItemList: List<ViewItem>,
     onDismissRequest: () -> Unit,
     selected: (Employee) -> Unit
-){
+) {
     Dialog(
-        onDismissRequest = {onDismissRequest()}
-    ){
+        onDismissRequest = { onDismissRequest() }
+    ) {
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
@@ -290,27 +302,28 @@ fun ShiftViewEmployeeList(
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
-                ){
+            ) {
                 Row(
                     modifier = Modifier.weight(0.9f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
                     LazyColumn(
                         modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally
-                    ){
-                        items(employeeList){item->
+                    ) {
+                        items(employeeList) { item ->
                             Row(
                                 modifier = Modifier
                                     .padding(5.dp)
                                     .fillMaxWidth()
                                     .clip(shape = RoundedCornerShape(5.dp))
                                     .background(colorScheme.secondaryContainer)
-                                    .border(2.dp,if (viewItemList.any { emp -> emp.empItem == item })
-                                        viewItemList.first { emp -> emp.empItem == item }.shiftViewColor.color
-                                    else
-                                        Color.Transparent
+                                    .border(
+                                        2.dp, if (viewItemList.any { emp -> emp.empItem == item })
+                                            viewItemList.first { emp -> emp.empItem == item }.shiftViewColor.color
+                                        else
+                                            Color.Transparent
                                     )
                                     .clickable
                                     {
@@ -318,7 +331,7 @@ fun ShiftViewEmployeeList(
                                     },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
-                            ){
+                            ) {
                                 Text(
                                     fontSize = 30.sp,
                                     text = getEmployeeDisplayNameShort(item),
@@ -327,7 +340,7 @@ fun ShiftViewEmployeeList(
                                     overflow = TextOverflow.Ellipsis
                                 )
 
-                                if(viewItemList.any { emp -> emp.empItem == item }){
+                                if (viewItemList.any { emp -> emp.empItem == item }) {
                                     ShiftViewIndicator(
                                         modifier = Modifier.size(10.dp),
                                         item = item,
@@ -343,11 +356,11 @@ fun ShiftViewEmployeeList(
                     modifier = Modifier.weight(0.1f),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.CenterVertically
-                ){
+                ) {
 
                     Button(
                         onClick = { onDismissRequest() }
-                    ){
+                    ) {
                         Text(text = "Close")
                     }
                 }
@@ -361,7 +374,7 @@ fun ShiftViewIndicator(
     modifier: Modifier,
     item: Employee,
     viewItemList: List<ViewItem>
-){
+) {
     Box(
         modifier = modifier
             .padding(2.dp)
@@ -392,9 +405,11 @@ fun ShiftDetailsForPagerDay(
             employee = employee,
             viewItemList = viewItemList,
         )
+        Spacer(modifier = Modifier.width(1.dp))
         Divider(
             color = Color.Gray, modifier = Modifier
                 .width(1.dp)
+                .padding(top = 10.dp, bottom = 10.dp)
                 .fillMaxHeight()
         )
         CalendarPagerActionBox(
@@ -403,7 +418,7 @@ fun ShiftDetailsForPagerDay(
             navigateToShiftView = navigateToShiftView,
             toggleSpecialDay = toggleSpecialDay,
             shiftsOnDay = shiftsOnSelectedDate,
-            modifier = Modifier.weight(0.1f) // 80% of the total width
+            modifier = Modifier.weight(0.10f) // 10% of the total width
         )
     }
 }
@@ -565,8 +580,9 @@ fun ShiftRowEmployeeEntry(
             .fillMaxWidth()
             .padding(2.dp)
             .background(getShiftRowColor(shiftType = shift.schedule.shiftType))
-            .border(1.dp,if (viewItemList.any { emp -> emp.empItem == shift.employee })
-                viewItemList.first { emp -> emp.empItem == shift.employee }.shiftViewColor.color
+            .border(
+                1.dp, if (viewItemList.any { emp -> emp.empItem == shift.employee })
+                    viewItemList.first { emp -> emp.empItem == shift.employee }.shiftViewColor.color
                 else
                     Color.Transparent
             )
@@ -590,7 +606,7 @@ fun ShiftRowEmployeeEntry(
             modifier = Modifier
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
-        if(viewItemList.any { emp -> emp.empItem == shift.employee }){
+        if (viewItemList.any { emp -> emp.empItem == shift.employee }) {
             ShiftViewIndicator(
                 modifier = Modifier.size(15.dp),
                 item = shift.employee,
