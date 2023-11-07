@@ -87,7 +87,7 @@ val md_theme_dark_shift_row_full = Color(0xFF4C6359)
 val md_theme_dark_shift1 = Color(0xFFEB3223)
 val md_theme_dark_shift2 = Color(0xFF6F82FE)
 val md_theme_dark_shift3 = Color(0xFFFFFFFF)
-val md_theme_dark_shift4 = Color(0xFFE7E4F0)
+val md_theme_dark_shift4 = Color(0xD2BD6377)
 val md_theme_dark_shift5 = Color(0xFFDFC514)
 val md_theme_dark_shift6 = Color(0xFF000000)
 //Light
