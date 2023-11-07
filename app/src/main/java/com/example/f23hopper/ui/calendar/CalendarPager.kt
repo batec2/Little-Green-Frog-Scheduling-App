@@ -119,7 +119,8 @@ fun ScheduleDetailsPage(context: CalendarPagerContext) {
                 isSpecialDay = isSpecialDay,
                 navigateToShiftView = navigateToShiftView,
                 toggleSpecialDay = toggleSpecialDay,
-                employee = employeeAction
+                employee = employeeAction,
+                viewItemList = viewItemList,
             )
         } else {
             Row(
@@ -371,7 +372,8 @@ fun ShiftDetailsForPagerDay(
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
     toggleSpecialDay: suspend () -> Unit,
-    employee: (Employee) -> Unit//passes employeeId to next composable
+    employee: (Employee) -> Unit,//passes employeeId to next composable
+    viewItemList: List<ViewItem>,
 ) {
     Row(
         modifier = Modifier.fillMaxWidth()
@@ -382,7 +384,8 @@ fun ShiftDetailsForPagerDay(
             isSpecialDay = isSpecialDay,
             navigateToShiftView = navigateToShiftView,
             modifier = Modifier.weight(0.8f), // 80% of the total width
-            employee = employee
+            employee = employee,
+            viewItemList = viewItemList,
         )
         Divider(
             color = Color.Gray, modifier = Modifier
@@ -440,7 +443,8 @@ fun ShiftContent(
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier,
-    employee: (Employee) -> Unit //passes employeeId to next composable
+    employee: (Employee) -> Unit,//passes employee to next composable
+    viewItemList: List<ViewItem>,
 ) {
     Row(
         modifier = modifier
@@ -457,7 +461,8 @@ fun ShiftContent(
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),// divide by amt of rows
                 maxShifts = maxShifts(isSpecialDay),
-                employee = employee
+                employee = employee,
+                viewItemList = viewItemList,
             )
             ShiftRow(
                 maxShifts = maxShifts(isSpecialDay),
@@ -465,7 +470,8 @@ fun ShiftContent(
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                employee = employee
+                employee = employee,
+                viewItemList = viewItemList,
             )
         } else {
             ShiftRow(
@@ -474,7 +480,8 @@ fun ShiftContent(
                 date = date,
                 navigateToShiftView = navigateToShiftView,
                 modifier = Modifier.weight(1f / maxShiftRows(date)),
-                employee = employee
+                employee = employee,
+                viewItemList = viewItemList,
             )
 
         }
@@ -489,7 +496,8 @@ fun ShiftRow(
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
     modifier: Modifier = Modifier,
-    employee: (Employee) -> Unit
+    employee: (Employee) -> Unit,
+    viewItemList: List<ViewItem>,
 ) {
     Column(
         modifier = modifier
@@ -503,7 +511,8 @@ fun ShiftRow(
                 onEmployeeClick = { employeeId ->
                     employee(employeeId)
                 },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
+                viewItemList = viewItemList,
             )
         }
         if (shiftsForType.size < maxShifts) {
@@ -543,7 +552,8 @@ fun ShiftRow(
 fun ShiftRowEmployeeEntry(
     shift: Shift,
     onEmployeeClick: (Employee) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewItemList: List<ViewItem>,
 ) {
     Row(
         modifier = modifier
@@ -570,6 +580,13 @@ fun ShiftRowEmployeeEntry(
             modifier = Modifier
                 .wrapContentWidth(Alignment.CenterHorizontally)
         )
+        if(viewItemList.any { emp -> emp.empItem == shift.employee }){
+            ShiftViewIndicator(
+                modifier = Modifier.size(15.dp),
+                item = shift.employee,
+                viewItemList = viewItemList
+            )
+        }
         Spacer(Modifier.weight(1f))
     }
 }
