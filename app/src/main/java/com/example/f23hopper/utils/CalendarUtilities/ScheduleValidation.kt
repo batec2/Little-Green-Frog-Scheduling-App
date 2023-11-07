@@ -1,4 +1,3 @@
-
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -53,14 +52,10 @@ data class DayValidationResult(
 
 fun dateValidation(
     shifts: Map<ShiftType, List<Shift>>,
-    date: java.time.LocalDate,
+    date: LocalDate,
     isSpecialDay: Boolean
 ): DayValidationResult {
     val errors = mutableListOf<DayValidationError>()
-
-    if (shifts.isEmpty()) {
-        errors.add(DayValidationError.NO_SHIFTS)
-    }
 
     if (date.isWeekday()) {
         errors.addAll(weekdayChecks(shifts, isSpecialDay))
@@ -81,29 +76,38 @@ private fun weekdayChecks(
 ): List<DayValidationError> {
     val errors = mutableListOf<DayValidationError>()
 
-    if (shifts[ShiftType.DAY]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.DAY] == null) {
+    if (shifts[ShiftType.DAY]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.DAY] == null)
         errors.add(DayValidationError.MISSING_DAY_SHIFT)
-    }
-    if (shifts[ShiftType.NIGHT]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.NIGHT] == null) {
+
+    if (shifts[ShiftType.NIGHT]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.NIGHT] == null)
         errors.add(DayValidationError.MISSING_NIGHT_SHIFT)
-    }
 
-    shifts[ShiftType.DAY]?.let { dayShifts ->
-        if (dayShifts.none { it.employee.canOpen }) {
-            errors.add(DayValidationError.NO_DAY_OPENER)
-        }
-    }
+    if (certifiedEmployeeAbsent(shifts, ShiftType.DAY, Employee::canOpen))
+        errors.add(DayValidationError.NO_DAY_OPENER)
 
-    if (shifts[ShiftType.NIGHT].isNullOrEmpty()) {
+    if (certifiedEmployeeAbsent(shifts, ShiftType.NIGHT, Employee::canClose))
         errors.add(DayValidationError.NO_NIGHT_CLOSER)
+
+
+    return errors
+}
+
+private fun certifiedEmployeeAbsent(
+    shifts: Map<ShiftType, List<Shift>>,
+    targetShiftType: ShiftType,
+    isCertified: (Employee) -> Boolean,
+
+    ): Boolean {
+    if (shifts[targetShiftType].isNullOrEmpty()) {
+        return true
     } else {
-        shifts[ShiftType.NIGHT]?.let { nightShifts ->
-            if (nightShifts.none { it.employee.canClose }) {
-                errors.add(DayValidationError.NO_NIGHT_CLOSER)
+        shifts[targetShiftType]?.let { shiftsOfType ->
+            if (shiftsOfType.none { isCertified(it.employee) }) {
+                return true
             }
         }
     }
-    return errors
+    return false
 }
 
 private fun weekendChecks(
@@ -112,18 +116,15 @@ private fun weekendChecks(
 ): List<DayValidationError> {
     val errors = mutableListOf<DayValidationError>()
 
-    if (shifts[ShiftType.FULL]?.size != maxShifts(isSpecialDay)) {
-        errors.add(DayValidationError.INSUFFICIENT_SHIFTS)
-    }
+    val weekendShifts = shifts[ShiftType.FULL]
+    if (weekendShifts.isNullOrEmpty() || weekendShifts.size != maxShifts(isSpecialDay))
+        errors.add(DayValidationError.INSUFFICIENT_SHIFTS_WEEKEND)
 
-    shifts[ShiftType.FULL]?.let { fullShifts ->
-        val canOpenEmployee = fullShifts.find { it.employee.canOpen }
-        val canCloseEmployee = fullShifts.find { it.employee.canClose }
-        val hasBoth = fullShifts.any { it.employee.canOpen && it.employee.canClose }
-        if (!hasBoth && (canOpenEmployee == null || canCloseEmployee == null || canOpenEmployee.employee.employeeId == canCloseEmployee.employee.employeeId)) {
-            errors.add(DayValidationError.NO_FULL_SHIFT_OPENER_CLOSER)
-        }
-    }
+    if (certifiedEmployeeAbsent(shifts, ShiftType.FULL, Employee::canOpen))
+        errors.add(DayValidationError.NO_WEEKEND_OPENER)
+
+    if (certifiedEmployeeAbsent(shifts, ShiftType.FULL, Employee::canClose))
+        errors.add(DayValidationError.NO_WEEKEND_CLOSER)
 
     return errors
 }
@@ -131,7 +132,7 @@ private fun weekendChecks(
 @Composable
 fun InvalidDayIcon(
     shifts: Map<ShiftType, List<Shift>>,
-    date: java.time.LocalDate,
+    date: LocalDate,
     isSpecialDay: Boolean,
     modifier: Modifier = Modifier,
     showDialogueOnClick: Boolean = false
