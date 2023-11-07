@@ -111,7 +111,7 @@ class CalendarViewModel @Inject constructor(
         context: Context,
         onExportComplete: (String) -> Unit
     ) {
-        val content = exporter.formatData(shifts, curMonth)
+        val content = exporter.formatSchedule(shifts, curMonth)
         val filename = "${curMonth.year}_${curMonth.month.value}_schedule"
         exporter.export(filename, content, context, shifts, specialDays, curMonth)
         onExportComplete("$filename saved to Downloads folder")
