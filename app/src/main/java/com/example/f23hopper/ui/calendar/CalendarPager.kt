@@ -35,7 +35,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,6 +55,7 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
+import com.example.f23hopper.ui.shiftedit.getEmployeeDisplayNameShort
 import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.example.f23hopper.utils.getShiftIcon
 import com.example.f23hopper.utils.getShiftRowColor
@@ -274,7 +274,7 @@ fun ShiftViewEmployeeList(
         Card(
             shape = RoundedCornerShape(16.dp),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                containerColor = colorScheme.background,
             )
         )
         {
@@ -297,19 +297,21 @@ fun ShiftViewEmployeeList(
                                     .padding(5.dp)
                                     .fillMaxWidth()
                                     .clip(shape = RoundedCornerShape(5.dp))
-                                    .background(colorScheme.primary)
+                                    .background(colorScheme.secondaryContainer)
                                     .clickable
                                     {
                                         selected(item)
-                                        onDismissRequest()
                                     },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ){
-                                Text(fontSize = 30.sp,
-                                    text = item.firstName+" "+item.lastName,
+                                Text(
+                                    fontSize = 30.sp,
+                                    text = getEmployeeDisplayNameShort(item),
+                                    color = colorScheme.onSecondaryContainer,
                                     maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis)
+                                    overflow = TextOverflow.Ellipsis
+                                )
 
                                 if(viewItemList.any { emp -> emp.empItem == item }){
                                     ShiftViewIndicator(
@@ -332,7 +334,7 @@ fun ShiftViewEmployeeList(
                     Button(
                         onClick = { onDismissRequest() }
                     ){
-                        Text(text = "Cancel")
+                        Text(text = "Close")
                     }
                 }
             }
