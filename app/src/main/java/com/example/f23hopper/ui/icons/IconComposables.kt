@@ -22,6 +22,8 @@ import com.example.f23hopper.R
 @Composable
 fun fullShiftIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.fullshift)
 
+@Composable
+fun contactMissingIcon(): ImageVector = ImageVector.vectorResource(id = R.drawable.contact_missing)
 
 @Composable
 fun FullShiftIcon(modifier: Modifier = Modifier, tint: Color = Color.Black, size: Dp = 40.dp) {

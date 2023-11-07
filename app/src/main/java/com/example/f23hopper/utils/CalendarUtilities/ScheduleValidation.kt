@@ -1,3 +1,4 @@
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import com.example.f23hopper.data.DayValidationError
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.ui.icons.contactMissingIcon
 import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.ui.shiftedit.getEmployeeDisplayNameShort
 import com.example.f23hopper.utils.CalendarUtilities.isWeekday
@@ -285,11 +287,12 @@ fun AbsentEmployeeIcon(
 
     if (absentEmployeesByWeek.any { entry -> entry.value.isNotEmpty() }) {
         Icon(
-            imageVector = rememberError(),
+            imageVector = contactMissingIcon(),
             tint = MaterialTheme.colorScheme.error,
             contentDescription = "Employees Needing Shifts",
             modifier = modifier
-                .padding(start = 10.dp)
+                .padding(start = 10.dp, top = 0.dp)
+                .size(35.dp)
                 .then(
                     if (showDialogueOnClick) {
                         Modifier.clickable(onClick = { showDialog = true })
@@ -309,6 +312,8 @@ fun ShowEmployeeAbsenceDialog(
 ) {
     if (absentEmployees.isNotEmpty()) {
         AlertDialog(
+
+            containerColor = MaterialTheme.colorScheme.background,
             onDismissRequest = onDismiss,
             title = { Text(text = "Missing Shifts:") },
             text = {
@@ -351,14 +356,14 @@ fun AbsentEmployeePager(
     val pagerState = rememberPagerState(initialPage = 0)
     Column(modifier = Modifier.height(estimatedHeight)) {
 
-        HorizontalPager(pageCount = absentEmployees.size, state = pagerState) { page ->
-            val weekStartDate = absentEmployees.keys.sorted()[page]
+        HorizontalPager(pageCount = filteredAbsentEmployees.size, state = pagerState) { page ->
+            val weekStartDate = filteredAbsentEmployees.keys.sorted()[page]
             val weekEndDate = weekStartDate.plusDays(6)
 
             val displayText =
                 "${weekStartDate.toShortMonthAndDay()} - ${weekEndDate.toShortMonthAndDay()}"
 
-            val employeesForWeek = absentEmployees[weekStartDate]
+            val employeesForWeek = filteredAbsentEmployees[weekStartDate]
 
             Column(modifier = Modifier.padding(4.dp), verticalArrangement = Arrangement.Top) {
                 Text(
