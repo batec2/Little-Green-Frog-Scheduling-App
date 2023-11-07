@@ -140,6 +140,23 @@ fun DayOfWeek.displayText(uppercase: Boolean = false): String {
     }
 }
 
+
+fun maxShiftsPerType(day: LocalDate, isSpecialDay: Boolean): Map<ShiftType, Int> {
+    val isWeekend = day.dayOfWeek == DayOfWeek.SATURDAY || day.dayOfWeek == DayOfWeek.SUNDAY
+    val shiftCountPerDay = maxShifts(isSpecialDay)
+
+    return if (isWeekend) {
+        mapOf(
+            ShiftType.FULL to shiftCountPerDay
+        )
+    } else {
+        mapOf(
+            ShiftType.DAY to shiftCountPerDay,
+            ShiftType.NIGHT to shiftCountPerDay
+        )
+    }
+}
+
 fun maxShifts(isSpecialDay: Boolean) = if (isSpecialDay) 3 else 2
 fun maxShiftRows(date: LocalDate) = if (date.isWeekday()) 2 else 1
 
@@ -343,3 +360,4 @@ class StatusBarColorLifecycleObserver(
         }
     }
 }
+

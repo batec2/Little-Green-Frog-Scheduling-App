@@ -125,7 +125,7 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
                         TextStyle.FULL,
                         Locale.getDefault()
                     )
-                } ${date.dayOfMonth} ${date.year}",
+                } ${date.dayOfMonth}, ${date.year}",
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.align(Alignment.Center)

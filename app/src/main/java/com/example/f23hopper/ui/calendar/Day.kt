@@ -141,7 +141,7 @@ fun ShiftViewIndicators(
                     Modifier
                         .graphicsLayer { alpha = alphaAnimation.value }
                         .size(6.dp)
-                        .background(item.shiftViewColor.color, CircleShape)
+                        .background(item.getColor(), CircleShape)
                 ) {}
             }
         }

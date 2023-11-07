@@ -192,6 +192,7 @@ fun EmployeeInfo(
         FieldDetail(
             label = "First Name*",
             value = employeeDetails.firstName,
+            formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {
                 if (!hasAnyError.value) onEmployeeInfoChange(
@@ -206,6 +207,7 @@ fun EmployeeInfo(
         FieldDetail(
             label = "Last Name*",
             value = employeeDetails.lastName,
+            formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {
                 if (!hasAnyError.value) onEmployeeInfoChange(
@@ -220,6 +222,7 @@ fun EmployeeInfo(
         FieldDetail(
             label = "Nickname",
             value = employeeDetails.nickname,
+            formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {
                 if (!hasAnyError.value) onEmployeeInfoChange(
