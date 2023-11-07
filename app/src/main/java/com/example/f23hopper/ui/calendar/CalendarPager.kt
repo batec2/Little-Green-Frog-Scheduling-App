@@ -580,12 +580,6 @@ fun ShiftRowEmployeeEntry(
             .fillMaxWidth()
             .padding(2.dp)
             .background(getShiftRowColor(shiftType = shift.schedule.shiftType))
-            .border(
-                1.dp, if (viewItemList.any { emp -> emp.empItem == shift.employee })
-                    viewItemList.first { emp -> emp.empItem == shift.employee }.shiftViewColor.color
-                else
-                    Color.Transparent
-            )
             .clickable { onEmployeeClick(shift.employee) },
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
