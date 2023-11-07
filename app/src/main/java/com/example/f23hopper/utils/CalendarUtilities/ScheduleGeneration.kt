@@ -9,6 +9,17 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.maxShiftsPerType
 import java.time.LocalDate
 
+
+data class ShiftAssignmentContext(
+    val shiftsForDay: MutableList<Shift>,
+    val assignedEmployeeIds: MutableSet<Long>,
+    val shiftsNeededToBeAssigned: MutableInt,
+    val shiftCounts: MutableMap<Long, Int>,
+    val schedule: Map<LocalDate, List<Shift>>,
+    val day: LocalDate,
+    val shiftType: ShiftType
+)
+
 fun assignShifts(
     availableEmployees: List<Employee>,
     remainingCount: Int,
@@ -20,93 +31,131 @@ fun assignShifts(
     val shiftsForDay = mutableListOf<Shift>()
     val remaining = MutableInt(remainingCount)
     val assignedEmployeeIds = mutableSetOf<Long>()
+    val context = ShiftAssignmentContext(
+        shiftsForDay,
+        assignedEmployeeIds,
+        remaining,
+        shiftCounts,
+        schedule,
+        day,
+        shiftType
+    )
 
     Log.d("Generator", "Assigning ${remaining.value} $shiftType shifts for day $day")
 
-    fun filterAndSortEmployees(predicate: (Employee) -> Boolean): List<Employee> =
-        availableEmployees.filter(predicate)
-            .sortedBy { shiftCounts.getOrDefault(it.employeeId, 0) }
+    // assign openers and closers first.
+    assignCertifiedEmployee(availableEmployees, context, Employee::canOpen, ShiftType.DAY)
+    assignCertifiedEmployee(availableEmployees, context, Employee::canClose, ShiftType.NIGHT)
 
-    // assign opener and closer
-    if (shiftType == ShiftType.DAY || shiftType == ShiftType.FULL) {
-        val openers =
-            filterAndSortEmployees { it.canOpen && !assignedEmployeeIds.contains(it.employeeId) }
-        assignIfPossible(
-            openers,
-            assignedEmployeeIds,
-            shiftsForDay,
-            remaining,
-            shiftType,
-            day,
-            shiftCounts,
-            schedule
-        )
-    }
-    if (shiftType == ShiftType.NIGHT || shiftType == ShiftType.FULL) {
-        val closers =
-            filterAndSortEmployees { it.canClose && !assignedEmployeeIds.contains(it.employeeId) }
-        assignIfPossible(
-            closers,
-            assignedEmployeeIds,
-            shiftsForDay,
-            remaining,
-            shiftType,
-            day,
-            shiftCounts,
-            schedule
-        )
-    }
-
-    // Assign the remaining shifts
-    val remainingEmployees = filterAndSortEmployees { !assignedEmployeeIds.contains(it.employeeId) }
-    remainingEmployees.forEach { employee ->
-        if (remaining.value == 0 || !canAssignMoreShifts(employee, shiftCounts) || hasShiftOnDay(
-                employee,
-                day,
-                schedule
-            )
-        ) {
-            Log.d(
-                "Generator",
-                "No more shifts needed or Employee ${employee.employeeId} cannot be assigned more shifts or already has a shift on day $day"
-            )
-            return@forEach // continue
-        }
-        shiftsForDay.add(createShift(employee, shiftType, day, shiftCounts))
-        assignedEmployeeIds.add(employee.employeeId)
-        remaining.value--
-    }
+    assignRemainingShifts(availableEmployees, context)
 
     Log.d("Generator", "Assigned all required $shiftType shifts for day $day")
     return shiftsForDay
 }
 
-private fun assignIfPossible(
-    employees: List<Employee>,
-    assignedEmployeeIds: MutableSet<Long>,
-    shiftsForDay: MutableList<Shift>,
-    remaining: MutableInt, // using custom class so it passes by reference
-    shiftType: ShiftType,
-    day: LocalDate,
-    shiftCounts: MutableMap<Long, Int>,
-    schedule: Map<LocalDate, List<Shift>>
+private fun assignCertifiedEmployee(
+    availableEmployees: List<Employee>,
+    context: ShiftAssignmentContext,
+    isCertified: (Employee) -> Boolean,
+    targetShiftType: ShiftType
 ) {
-    employees.firstOrNull()?.let { employee ->
-        if (!hasShiftOnDay(employee, day, schedule)) {
-            shiftsForDay.add(createShift(employee, shiftType, day, shiftCounts))
-            assignedEmployeeIds.add(employee.employeeId)
-            remaining.value--
+    if (context.shiftType == targetShiftType || context.shiftType == ShiftType.FULL) {
+        // certified employees are all certified employees not already assigned to the given day,
+        // sorted by shift count ascending
+        val certifiedEmployees = availableEmployees
+            .filter { isCertified(it) && !context.assignedEmployeeIds.contains(it.employeeId) }
+            .sortedBy { context.shiftCounts.getOrDefault(it.employeeId, 0) }
+
+
+        // if there are no certified employees scheduled already
+        if (context.shiftsForDay.none { isCertified(it.employee) }) {
+            // find the first eligible certified employee
+            certifiedEmployees.firstOrNull()?.let { employee ->
+                // if they're not already on the day already
+                if (context.shiftsNeededToBeAssigned.value > 0 && !hasShiftOnDay(
+                        employee,
+                        context.day,
+                        context.schedule,
+                        targetShiftType
+                    )
+                ) {
+
+                    // then add them in a new shift,
+                    context.shiftsForDay.add(
+                        createShift(employee, context.shiftType, context.day, context.shiftCounts)
+                    )
+
+                    // mark their id in the assigned employee list
+                    context.assignedEmployeeIds.add(employee.employeeId)
+
+                    // mark the shift as assigned
+                    context.shiftsNeededToBeAssigned.value--
+                }
+            }
         }
+    }
+}
+
+private fun assignRemainingShifts(
+    availableEmployees: List<Employee>,
+    context: ShiftAssignmentContext
+) {
+    val remainingEmployees = availableEmployees
+        .filter { !context.assignedEmployeeIds.contains(it.employeeId) }
+        .sortedBy { context.shiftCounts.getOrDefault(it.employeeId, 0) }
+
+    for (employee in remainingEmployees) {
+        // no more shifts need to be assigned
+        if (context.shiftsNeededToBeAssigned.value == 0) break
+
+        // skip if an employee reaches max shifts for the month/is already booked out for the day
+        if (!canAssignMoreShifts(employee, context.shiftCounts) || hasShiftOnDay(
+                employee,
+                context.day,
+                context.schedule,
+                context.shiftType
+            )
+        ) {
+            continue
+        }
+        // add the new shift,
+        context.shiftsForDay.add(
+            createShift(
+                employee,
+                context.shiftType,
+                context.day,
+                context.shiftCounts
+            )
+        )
+
+
+        // add the id to the assigned employees set
+        context.assignedEmployeeIds.add(employee.employeeId)
+
+        // mark the shift as assigned
+        context.shiftsNeededToBeAssigned.value--
     }
 }
 
 private fun hasShiftOnDay(
     employee: Employee,
     day: LocalDate,
-    schedule: Map<LocalDate, List<Shift>>
+    schedule: Map<LocalDate, List<Shift>>,
+    shiftTypeToCheck: ShiftType
 ): Boolean {
     val shiftsForDay = schedule[day] ?: return false
-    return shiftsForDay.any { it.employee.employeeId == employee.employeeId }
+
+    // If looking for a full shift, return true if the employee has any shift on that day.
+    if (shiftTypeToCheck == ShiftType.FULL) {
+        return shiftsForDay.any { it.employee.employeeId == employee.employeeId }
+    }
+
+    // If looking for a day or a night shift, only return true if the employee has the same type of shift on that day,
+    // or if the employee is working a full shift.
+    return shiftsForDay.any {
+        it.employee.employeeId == employee.employeeId &&
+                (it.schedule.shiftType == shiftTypeToCheck || it.schedule.shiftType == ShiftType.FULL)
+    }
 }
 
 private fun createShift(
@@ -182,6 +231,8 @@ fun isDayFullyScheduled(
     day: LocalDate, schedule: Map<LocalDate, List<Shift>>, isSpecialDay: Boolean
 ): Boolean {
     Log.d("ScheduleCheck", "Checking if day $day is fully scheduled.")
+
+    // if schedule[day] is null, there are no schedules on this day
     val assignedShifts = schedule[day] ?: run {
         Log.d("ScheduleCheck", "Day $day has no assigned shifts.")
         return false
@@ -204,7 +255,7 @@ fun isDayFullyScheduled(
             "ScheduleCheck",
             "Day $day has $assignedCount/$requiredCount assigned for $shiftType. Fully scheduled: $result"
         )
-        result
+        result // result is implicitly returned as the bool for the all check
     }
 
     Log.d("ScheduleCheck", "Day $day is fully scheduled: $isFullyScheduled")
