@@ -137,16 +137,12 @@ fun Calendar(
                 viewItemList = viewItemList
             )
 
-            val calendarPagerContext = CalendarPagerContext(selection = calendarContext.selection,
+            val calendarPagerContext = CalendarPagerContext(
+                selection = calendarContext.selection,
                 shiftsOnSelectedDate = shiftsOnSelectedDate,
                 specialDaysByDay = specialDaysByDay,
                 navigateToShiftView = calendarContext.navigateToShiftView,
-                toggleSpecialDay = {
-                    coroutineScope.launch {
-                        calendarContext.viewModel.toggleSpecialDay(calendarContext.selection?.date?.toSqlDate())
-                    }
-
-                },
+                toggleSpecialDay = { calendarContext.viewModel.toggleSpecialDay(calendarContext.selection?.date?.toSqlDate()) },
                 //Employee selected limit is 6, if employee already in list it gets removed
                 //else if the list is less than 6 entries then it gets added
                 employeeAction = {

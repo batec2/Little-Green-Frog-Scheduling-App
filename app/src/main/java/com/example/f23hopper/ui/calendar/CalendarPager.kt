@@ -71,7 +71,7 @@ data class CalendarPagerContext(
     val shiftsOnSelectedDate: Map<ShiftType, List<Shift>>,
     val specialDaysByDay: Map<LocalDate, List<SpecialDay>>,
     val navigateToShiftView: (String) -> Unit,
-    val toggleSpecialDay: suspend () -> Unit,
+    val toggleSpecialDay: () -> Unit,
     val employeeAction: (Employee) -> Unit,
     val viewItemList: List<ViewItem>,
     val employeeList: List<Employee>,
@@ -389,7 +389,7 @@ fun ShiftDetailsForPagerDay(
     date: LocalDate,
     isSpecialDay: Boolean = false,
     navigateToShiftView: (String) -> Unit,
-    toggleSpecialDay: suspend () -> Unit,
+    toggleSpecialDay: () -> Unit,
     employee: (Employee) -> Unit,//passes employeeId to next composable
     viewItemList: List<ViewItem>,
 ) {
@@ -427,7 +427,7 @@ fun ShiftDetailsForPagerDay(
 fun CalendarPagerActionBox(
     date: LocalDate,
     navigateToShiftView: (String) -> Unit,
-    toggleSpecialDay: suspend () -> Unit,
+    toggleSpecialDay: () -> Unit,
     isSpecialDay: Boolean,
     modifier: Modifier,
     shiftsOnDay: Map<ShiftType, List<Shift>>,
