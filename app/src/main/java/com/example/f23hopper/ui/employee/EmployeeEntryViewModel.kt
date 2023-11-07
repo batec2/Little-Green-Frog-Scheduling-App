@@ -190,4 +190,4 @@ fun formatPhoneNumber(input: String): String {
 }
 
 
-fun formatName(input: String): String = input.filter { it.isLetter() || it == '-' }.take(25)
+fun formatName(input: String): String = input.filter { it.isLetter() || it == '-' }.take(35)
