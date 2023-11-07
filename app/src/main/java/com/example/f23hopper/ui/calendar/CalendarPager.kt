@@ -301,7 +301,6 @@ fun ShiftViewEmployeeList(
                                     .clickable
                                     {
                                         selected(item)
-                                        onDismissRequest()
                                     },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
@@ -332,7 +331,7 @@ fun ShiftViewEmployeeList(
                     Button(
                         onClick = { onDismissRequest() }
                     ){
-                        Text(text = "Cancel")
+                        Text(text = "Done")
                     }
                 }
             }
