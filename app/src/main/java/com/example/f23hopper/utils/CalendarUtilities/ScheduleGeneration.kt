@@ -144,14 +144,7 @@ private fun hasShiftOnDay(
     shiftTypeToCheck: ShiftType
 ): Boolean {
     val shiftsForDay = schedule[day] ?: return false
-
-    // If looking for a full shift, return true if the employee has any shift on that day.
-    if (shiftTypeToCheck == ShiftType.FULL) {
-        return shiftsForDay.any { it.employee.employeeId == employee.employeeId }
-    }
-
-    // If looking for a day or a night shift, only return true if the employee has the same type of shift on that day,
-    // or if the employee is working a full shift.
+    // Return true if the employee is working the same type of shift on the current day
     return shiftsForDay.any {
         it.employee.employeeId == employee.employeeId &&
                 (it.schedule.shiftType == shiftTypeToCheck || it.schedule.shiftType == ShiftType.FULL)
