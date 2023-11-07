@@ -4,6 +4,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +47,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -197,10 +199,16 @@ fun ShiftViewPage(
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+
+                    val textColor =
+                        if (item.getColor().luminance() < 0.2 && isSystemInDarkTheme()) {
+                            colorScheme.onBackground
+                        } else {
+                            colorScheme.background
+                        }
                     Text(
-                        text = item.empItem.nickname.ifEmpty {
-                            "${item.empItem.firstName}\n${item.empItem.lastName}"
-                        },
+                        text = getEmployeeDisplayNameShort(item.empItem),
+                        color = textColor,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -556,7 +564,7 @@ fun ShiftRowEmployeeEntry(
         )
         Spacer(Modifier.weight(.7f))
         Text(
-            text = shift.employee.nickname.ifBlank { shift.employee.firstName + " " + shift.employee.lastName },
+            text = getEmployeeDisplayNameShort(shift.employee),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier
