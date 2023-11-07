@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Environment
 import android.util.Log
 import com.example.f23hopper.data.schedule.Shift
-import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.shifttype.ShiftTypeConverter
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.utils.generatePdfCalendar
@@ -13,27 +12,27 @@ import java.time.YearMonth
 
 class ScheduleExporter {
 
-    fun formatData(shifts: List<Shift>, curMonth: YearMonth): String {
+    fun formatSchedule(shifts: List<Shift>, curMonth: YearMonth): String {
+
         val filteredShifts = shifts.filter { shift ->
             val scheduleDate = shift.schedule.date.toKotlinxLocalDate()
             scheduleDate.year == curMonth.year && scheduleDate.month == curMonth.month
         }
-
-        val groupedShifts = filteredShifts.groupBy { it.schedule.date }
+            .groupBy { it.schedule.date }
             .toList()
             .sortedBy { it.first }
 
-        val formattedShifts = groupedShifts.joinToString("\n") { (date, shiftsOnDate) ->
+        val formattedSchedule = filteredShifts.joinToString("\n") { (date, shiftsOnDate) ->
             val formattedDate = date.toLongDate()
             val hyphens = "${"_".repeat(30)}\n"
-            val rows = getRows(shiftsOnDate)
+            val rows = formatRows(shiftsOnDate)
             "\n$formattedDate\n$hyphens\n$rows\n"
         }
 
-        return formattedShifts
+        return formattedSchedule
     }
 
-    private fun getRows(shifts: List<Shift>): String {
+    private fun formatRows(shifts: List<Shift>): String {
 
         val sortedShifts = shifts.sortedWith(
                  compareBy<Shift> { it.schedule.shiftType }
