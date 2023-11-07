@@ -135,42 +135,44 @@ class CalendarViewModel @Inject constructor(
 
     fun generateScheduleForMonth(month: YearMonth) {
         viewModelScope.launch {
-            Log.d("Generator", "Starting Generation")
             // fetch data to be used
             val preAssignedShifts = fetchShiftsForMonth(month).first()
             val specialDaysForMonth = fetchSpecialDaysForMonth(month).first()
 
-            // shifts by employee list
+            // get the count of shifts worked by each employee
             val shiftCounts = preAssignedShifts.groupBy { it.employee.employeeId }
                 .mapValues { (_, v) -> v.count() }.toMutableMap()
 
-            // get the schedule with all of the existing shifts
+            // map the existing shifts to a Map<LocalDate, List<Shifts>>
             val schedule = preAssignedShifts.groupBy { it.schedule.date.toJavaLocalDate() }
                 .mapValues { (_, value) -> value.toMutableList() }
                 .toMutableMap()
-
-            Log.d("Generator", "Built PreSchedule")
 
             // check each day in the month
             for (day in month.atDay(1).datesUntil(month.atEndOfMonth().plusDays(1))) {
                 try {
 
-                    // skip days that are fully scheduled
+                    // check if current day is a special day
                     val isSpecialDay = specialDaysForMonth.any { it.date.toJavaLocalDate() == day }
+
+                    // skip days that are fully scheduled
                     if (isDayFullyScheduled(day, schedule, isSpecialDay)) continue
 
 
-                    // determine the number of required shifts based on the day type
-                    val assignedShiftsForDay = schedule[day].orEmpty()
-                    val requiredShiftsPerType =
-                        calculateRequiredShifts(isSpecialDay, assignedShiftsForDay, day)
-
-                    // assign shifts to employees while taking into account the already assigned shifts
+                    // get list of lists assigned already for the day
                     val assignedShifts = schedule[day]?.toMutableList() ?: mutableListOf()
+
+                    // determine the number of required shifts for the day, mapped to type.
+                    val requiredShiftsPerType =
+                        calculateRequiredShifts(isSpecialDay, assignedShifts, day)
+
                     Log.d("Generator", "Starting shift assignment for day $day")
+                    // for each shift type, assign shifts per each slot that still needs to  be filled
                     for ((shiftType, requiredCount) in requiredShiftsPerType) {
+
                         val alreadyAssignedCount =
                             assignedShifts.count { it.schedule.shiftType == shiftType }
+
                         Log.d(
                             "Generator",
                             "ShiftType: $shiftType, Required: $requiredCount, Already Assigned: $alreadyAssignedCount"
@@ -182,8 +184,9 @@ class CalendarViewModel @Inject constructor(
                             shiftType
                         ).first()
 
-                        //  assign remaining shifts to employees prioritizing emps that have less shifts
-                        val shiftsForDay = assignShifts(
+                        //  assign remaining shifts to employees prioritizing employees
+                        //  that have less shifts
+                        val newShiftsForDay = assignShifts(
                             availableEmployees,
                             requiredCount,
                             shiftType,
@@ -192,26 +195,25 @@ class CalendarViewModel @Inject constructor(
                             schedule
                         )
 
-                        assignedShifts.addAll(shiftsForDay)
+                        //
+                        assignedShifts.addAll(newShiftsForDay)
                     }
 
 
                     // update the schedule with the newly assigned shifts
                     schedule[day] = assignedShifts
+
                 } catch (e: Exception) {
                     Log.e("Generator", "Error during generation for day $day", e)
-                } finally {
-                    Log.d("Generator", "Coroutine is completing or being canceled.")
                 }
             }
-            Log.d("Generator", "Finished day scan")
 
-            insertNewSchedules(schedule)
-            Log.d("Generator", "Finished Generation")
+            // update/insert the new schedule configuration
+            upsertSchedules(schedule)
         }
     }
 
-    private fun insertNewSchedules(newSchedule: Map<LocalDate, List<Shift>>) {
+    private fun upsertSchedules(newSchedule: Map<LocalDate, List<Shift>>) {
         viewModelScope.launch(defaultDispatcher) {
             newSchedule.values.flatten().forEach { shift ->
                 scheduleRepo.upsert(shift)
