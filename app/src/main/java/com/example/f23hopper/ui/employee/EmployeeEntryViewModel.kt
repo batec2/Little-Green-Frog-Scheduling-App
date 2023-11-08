@@ -191,3 +191,4 @@ fun formatPhoneNumber(input: String): String {
 
 
 fun formatName(input: String): String = input.filter { it.isLetter() || it == '-' }.take(35)
+fun formatEmail(input: String): String = input.filter { !it.isWhitespace() }.take(320)

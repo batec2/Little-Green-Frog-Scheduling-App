@@ -236,6 +236,7 @@ fun EmployeeInfo(
         ),
         FieldDetail(
             label = "Email*",
+            formatter = ::formatEmail,
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {
