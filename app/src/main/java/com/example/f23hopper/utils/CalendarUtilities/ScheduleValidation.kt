@@ -292,8 +292,6 @@ fun AbsentEmployeeIcon(
             tint = MaterialTheme.colorScheme.error,
             contentDescription = "Employees Needing Shifts",
             modifier = modifier
-//                .padding(start = 10.dp, top = 0.dp)
-//                .size(35.dp)
                 .padding(start = 14.dp, top = 5.dp)
                 .size(28.dp)
                 .then(
