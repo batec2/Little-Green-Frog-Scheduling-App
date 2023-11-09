@@ -234,9 +234,9 @@ fun EmployeeListItem(
                 background = {
                     val color by animateColorAsState(
                         targetValue = when (dismissState.targetValue) {
-                            DismissValue.Default -> colorScheme.onPrimary
-                            DismissValue.DismissedToStart -> colorScheme.tertiary
-                            DismissValue.DismissedToEnd -> colorScheme.tertiary
+                            DismissValue.Default -> colorScheme.onTertiary
+                            DismissValue.DismissedToStart -> colorScheme.onTertiary
+                            DismissValue.DismissedToEnd -> colorScheme.onTertiary
                         }, label = ""
                     )
                     Box(

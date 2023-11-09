@@ -1,5 +1,6 @@
 package com.example.f23hopper.ui.employee
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,18 +12,22 @@ import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.shifttype.ShiftType
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.DayOfWeek
 import java.sql.Date
 import javax.inject.Inject
 
 @HiltViewModel
 class EmployeeListViewModel @Inject constructor(
-    private val employeeRepository: EmployeeRepository,
+    val employeeRepository: EmployeeRepository,
     private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
 
+    private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
     var employees by mutableStateOf(employeeRepository.getAllActiveEmployees().asLiveData())
 
     var showConfirmationDialog by mutableStateOf(false)
@@ -74,21 +79,19 @@ class EmployeeListViewModel @Inject constructor(
         private set
 
     fun updateUiState(employeeDetails: EmployeeDetails) {
-        employeeUiState =
-            EmployeeUiState(
-                employee = employeeUiState.employee,
-                employeeDetails = employeeDetails,
-                isEmployeeValid = validateInput(employeeDetails)
-            )
+        employeeUiState = EmployeeUiState(
+            employee = employeeUiState.employee,
+            employeeDetails = employeeDetails,
+            isEmployeeValid = validateInput(employeeDetails)
+        )
     }
 
     fun resetUiState() {
-        employeeUiState =
-            EmployeeUiState(
-                employee = employeeUiState.employee,
-                employeeDetails = EmployeeDetails(),
-                isEmployeeValid = false,
-            )
+        employeeUiState = EmployeeUiState(
+            employee = employeeUiState.employee,
+            employeeDetails = EmployeeDetails(),
+            isEmployeeValid = false,
+        )
     }
 
     fun filterEmployee(filter: String) {
@@ -106,48 +109,13 @@ class EmployeeListViewModel @Inject constructor(
     fun saveEmployee() {
         viewModelScope.launch {
             // Check if inputs are valid
-            if (validateInput(employeeUiState.employeeDetails)) {
-                // If the nickname is blank, generate a new one
-                val nickname = employeeUiState.employeeDetails.nickname.ifBlank {
-                    generateUniqueNickname()
-                }
-
-                // Create a copy of employeeDetails with the new nickname
-                val employeeDetailsWithNickname =
-                    employeeUiState.employeeDetails.copy(nickname = nickname)
-
+            if (validateInput(employeeUiState.employeeDetails, employees.value ?: emptyList())) {
                 // Insert the employee with the new nickname
-                employeeRepository.upsertEmployee(employeeDetailsWithNickname.toEmployee())
+                employeeRepository.upsertEmployee(employeeUiState.employeeDetails.toEmployee())
             }
         }
     }
 
-
-    private suspend fun generateUniqueNickname(): String {
-        var nickname: String
-        do {
-            // Generate a random nickname
-            nickname = generateNickname()
-
-            // Check if any employee already has this nickname
-            val isNicknameUsed = employeeRepository.isNicknameUsed(nickname)
-        } while (isNicknameUsed)
-
-        return nickname
-    }
-
-
-    private fun generateNickname(): String {
-        return listOf(
-            "Sparky", "Ace", "Shadow", "Gizmo", "Maverick", "Rogue", "Zeus", "Bandit",
-            "Bolt", "Chief", "Dash", "Echo", "Falcon", "Gadget", "Hawk", "Iceman",
-            "Jester", "Krypto", "Lynx", "Mystic", "Nebula", "Orion", "Phantom", "Quicksilver",
-            "Racer", "Saber", "Titan", "Ulysses", "Vortex", "Wizard", "Xenon", "Yoda",
-            "Zephyr", "Blaze", "Cosmo", "Drift", "Eclipse", "Flame", "Glitch", "Hurricane",
-            "Inferno", "Jolt", "Knight", "Laser", "Mirage", "Nova", "Omega", "Pulse", "Quantum",
-            "Rift"
-        ).random()
-    }
 
     fun setEmployee(employee: Employee) {
         employeeUiState = employee.toEmployeeUiState()
@@ -170,4 +138,17 @@ class EmployeeListViewModel @Inject constructor(
         employeeUiState = employeeUiState.copy(employeeDetails = updatedEmployeeDetails)
     }
 
+
+    // Function to validate nickname asynchronously
+    suspend fun validateNickname(nickname: String): Boolean {
+        // Use withContext to switch to the defaultDispatcher and return its result
+        return withContext(defaultDispatcher) {
+            val allEmployees = employeeRepository.getAllActiveEmployees().first()
+            allEmployees.forEach { Log.d("nickname", it.nickname) }
+            // Return the result of the validation check
+            nickname.matches(alphaRegex) && allEmployees.none { it.nickname == nickname }
+        }
+    }
 }
+
+
