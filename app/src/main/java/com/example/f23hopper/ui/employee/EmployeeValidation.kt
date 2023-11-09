@@ -53,7 +53,7 @@ fun validateInput(uiState: EmployeeDetails, employees: List<Employee>): Boolean 
     val isFirstNameValid = uiState.firstName.matches(alphaRegex)
     val isLastNameValid = uiState.lastName.matches(alphaRegex)
     val isNicknameValid = uiState.nickname.matches(alphaRegex)
-    val isNicknameFree = employees.none { it.nickname != uiState.nickname }
+    val isNicknameFree = employees.none { it.nickname == uiState.nickname }
     val isEmailValid = verifyEmail(uiState.email)
     val isPhoneNumberValid = verifyPhoneNumber(uiState.phoneNumber)
 
