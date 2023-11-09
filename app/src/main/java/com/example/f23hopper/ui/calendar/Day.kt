@@ -142,7 +142,7 @@ fun ShiftViewIndicators(
                     alphaAnimation.animateTo(
                         targetValue = 1f,
                         animationSpec = tween(
-                            durationMillis = 1000 // 1 seconds
+                            durationMillis = 500 // .5 seconds
                         )
                     )
                 }
@@ -183,7 +183,7 @@ fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier 
                         alphaAnimation.animateTo(
                             targetValue = 1f,
                             animationSpec = tween(
-                                durationMillis = 1000 // 1 seconds
+                                durationMillis = 500 // .5 seconds
                             )
                         )
                     }
