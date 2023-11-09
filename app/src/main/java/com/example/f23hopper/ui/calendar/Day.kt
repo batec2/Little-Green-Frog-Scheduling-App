@@ -139,7 +139,12 @@ fun ShiftViewIndicators(
                     androidx.compose.animation.core.Animatable(0f)
                 }
                 LaunchedEffect(Unit) {
-                    alphaAnimation.animateTo(1f)
+                    alphaAnimation.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = 1000 // 1 seconds
+                        )
+                    )
                 }
                 Column(
                     Modifier
@@ -171,8 +176,20 @@ fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier 
                     if (index < colorList.size) {
                         Spacer(modifier = Modifier.width(1.dp))
                     }
+                    val alphaAnimation = remember {
+                        androidx.compose.animation.core.Animatable(0f)
+                    }
+                    LaunchedEffect(Unit) {
+                        alphaAnimation.animateTo(
+                            targetValue = 1f,
+                            animationSpec = tween(
+                                durationMillis = 1000 // 1 seconds
+                            )
+                        )
+                    }
                     Box(
                         modifier = Modifier
+                            .graphicsLayer { alpha = alphaAnimation.value }
                             .size(5.dp)
                             .background(color, CircleShape)
                     )
