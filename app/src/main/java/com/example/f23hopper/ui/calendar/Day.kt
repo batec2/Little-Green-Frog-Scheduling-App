@@ -14,12 +14,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -108,8 +110,10 @@ fun Day(
             context = context,
             modifier = Modifier.align(Alignment.Center)
         )
-        val groupedColors = generateGroupedColors(context.shiftsOnDay)
-        ColorGroupLayout(groupedColors = groupedColors, modifier = Modifier.align(Alignment.Center))
+        ColorGroupLayout(
+            groupedColors = generateGroupedColors(context.shiftsOnDay),
+            modifier = Modifier.align(Alignment.Center)
+        )
     }
 }
 
@@ -125,7 +129,7 @@ fun ShiftViewIndicators(
             .padding(1.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceAround
-    ){
+    ) {
         val ids =
             context.shiftsOnDay.flatMap { (_, v) -> v.map { (it.employee) } }.toSet()
 
@@ -135,7 +139,12 @@ fun ShiftViewIndicators(
                     androidx.compose.animation.core.Animatable(0f)
                 }
                 LaunchedEffect(Unit) {
-                    alphaAnimation.animateTo(1f)
+                    alphaAnimation.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(
+                            durationMillis = 500 // .5 seconds
+                        )
+                    )
                 }
                 Column(
                     Modifier
@@ -160,12 +169,27 @@ fun ColorGroupLayout(groupedColors: Map<Color, List<Color>>, modifier: Modifier 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(1.dp),
                 modifier = Modifier
-                    .padding(vertical = 1.dp)
+                    .padding(vertical = 2.dp)
                     .align(Alignment.CenterHorizontally)
             ) {
-                colorList.forEach { color ->
+                colorList.forEachIndexed { index, color ->
+                    if (index < colorList.size) {
+                        Spacer(modifier = Modifier.width(1.dp))
+                    }
+                    val alphaAnimation = remember {
+                        androidx.compose.animation.core.Animatable(0f)
+                    }
+                    LaunchedEffect(Unit) {
+                        alphaAnimation.animateTo(
+                            targetValue = 1f,
+                            animationSpec = tween(
+                                durationMillis = 500 // .5 seconds
+                            )
+                        )
+                    }
                     Box(
                         modifier = Modifier
+                            .graphicsLayer { alpha = alphaAnimation.value }
                             .size(5.dp)
                             .background(color, CircleShape)
                     )

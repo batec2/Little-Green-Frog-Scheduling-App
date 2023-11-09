@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,6 +58,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.icons.dayShiftIcon
@@ -145,7 +147,9 @@ fun EmployeeEntryBody(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             EmployeeInfo(
-                onEmployeeInfoChange = onEmployeeValueChange, employeeDetails = employeeDetails
+                onEmployeeInfoChange = onEmployeeValueChange,
+                employeeDetails = employeeDetails,
+                viewModel = viewModel
             )
             OpenCloseCertificationSelector(
                 onCertValueChange = onEmployeeValueChange, employeeDetails = employeeDetails
@@ -173,7 +177,9 @@ data class FieldDetail(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun EmployeeInfo(
-    onEmployeeInfoChange: (EmployeeDetails) -> Unit = {}, employeeDetails: EmployeeDetails
+    onEmployeeInfoChange: (EmployeeDetails) -> Unit = {},
+    employeeDetails: EmployeeDetails,
+    viewModel: EmployeeListViewModel
 ) {
     val focusManager = LocalFocusManager.current
     val handleKeyEvent: (KeyEvent) -> Boolean = {
@@ -187,6 +193,14 @@ fun EmployeeInfo(
         }
     }
     val hasAnyError = remember { mutableStateOf(false) }
+
+    // dirty way of checking nickname, gathering all employees and checking against each one.
+    var employees by remember { mutableStateOf<List<Employee>>(emptyList()) }
+    LaunchedEffect(Unit) {
+        viewModel.employeeRepository.getAllActiveEmployees().collect { list ->
+            employees = list
+        }
+    }
 
     val fields = listOf(
         FieldDetail(
@@ -220,7 +234,7 @@ fun EmployeeInfo(
             errorMessage = "Only letters, spaces, and ('-.) are allowed"
         ),
         FieldDetail(
-            label = "Nickname",
+            label = "Nickname*",
             value = employeeDetails.nickname,
             formatter = ::formatName,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
@@ -231,11 +245,13 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { it.matches(alphaRegex) },
-            errorMessage = "Only letters, spaces, and hyphens are allowed"
+            validate = { employees.none { other -> other.nickname == it } && it.matches(alphaRegex) },
+            errorMessage = "Nickname already taken",
+            showErrorChars = true,
         ),
         FieldDetail(
             label = "Email*",
+            formatter = ::formatEmail,
             value = employeeDetails.email,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {

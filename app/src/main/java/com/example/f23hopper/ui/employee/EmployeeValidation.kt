@@ -39,15 +39,26 @@ private fun isOnlyCloser(employee: Employee, otherEmployees: List<Shift>): Boole
 }
 
 fun validateInput(uiState: EmployeeDetails): Boolean {
-    // Use the validation functions from your Composable for each field
     val isFirstNameValid = uiState.firstName.matches(alphaRegex)
     val isLastNameValid = uiState.lastName.matches(alphaRegex)
     val isNicknameValid = uiState.nickname.matches(alphaRegex)
     val isEmailValid = verifyEmail(uiState.email)
     val isPhoneNumberValid = verifyPhoneNumber(uiState.phoneNumber)
 
-    // Return true only if all validations pass
+    // return true only if all validations pass
     return isFirstNameValid && isLastNameValid && isNicknameValid && isEmailValid && isPhoneNumberValid
+}
+
+fun validateInput(uiState: EmployeeDetails, employees: List<Employee>): Boolean {
+    val isFirstNameValid = uiState.firstName.matches(alphaRegex)
+    val isLastNameValid = uiState.lastName.matches(alphaRegex)
+    val isNicknameValid = uiState.nickname.matches(alphaRegex)
+    val isNicknameFree = employees.none { it.nickname != uiState.nickname }
+    val isEmailValid = verifyEmail(uiState.email)
+    val isPhoneNumberValid = verifyPhoneNumber(uiState.phoneNumber)
+
+    // return true only if all validations pass
+    return isFirstNameValid && isLastNameValid && isNicknameValid && isEmailValid && isPhoneNumberValid && isNicknameFree
 }
 
 

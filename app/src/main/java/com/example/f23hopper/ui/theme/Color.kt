@@ -28,7 +28,7 @@ val md_theme_light_inverseOnSurface = Color(0xFFEFF1EE)
 val md_theme_light_inverseSurface = Color(0xFF2E312F)
 val md_theme_light_inversePrimary = Color(0xFF67DBB1)
 val md_theme_light_shadow = Color(0xFF000000)
-val md_theme_light_surfaceTint = Color(0xFF006C50)
+val md_theme_light_surfaceTint = Color(0xFF00DDA4)
 val md_theme_light_outlineVariant = Color(0xFFBFC9C2)
 val md_theme_light_scrim = Color(0xFF000000)
 
@@ -69,14 +69,14 @@ val md_theme_dark_inverseOnSurface = Color(0xFF191C1A)
 val md_theme_dark_inverseSurface = Color(0xFFE1E3E0)
 val md_theme_dark_inversePrimary = Color(0xFF006C50)
 val md_theme_dark_shadow = Color(0xFF000000)
-val md_theme_dark_surfaceTint = Color(0xFF67DBB1)
+val md_theme_dark_surfaceTint = Color(0xFF54B18F)
 val md_theme_dark_outlineVariant = Color(0xFF404944)
 val md_theme_dark_scrim = Color(0xFF000000)
 
 //added colors
 val md_theme_dark_specialDay = Color(0xFFBF620A) //Special day color DARK
 val md_theme_dark_morningShift = Color(0xFF9DD8F9) //Morning shift color DARK
-val md_theme_dark_nighShift = Color(0xFF2C8D76) //Evening Shift color DARK
+val md_theme_dark_nightShift = Color(0xFF2C8D76) //Evening Shift color DARK
 val md_theme_dark_secondaryBackground = Color(0xFF1F2322)
 val md_theme_dark_shift_row_day = Color(0xFF609AB9)
 val md_theme_dark_shift_row_night = Color(0xFF2C8D76)

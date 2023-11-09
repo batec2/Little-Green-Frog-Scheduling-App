@@ -66,7 +66,7 @@ class ShiftEditViewModel @Inject constructor(
         ) { allEligible, alreadyScheduled ->
             allEligible.filter { emp ->
                 alreadyScheduled.none { shift ->
-                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftType == shiftType
+                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftType == shiftType && emp.active
                 }
             }
         }

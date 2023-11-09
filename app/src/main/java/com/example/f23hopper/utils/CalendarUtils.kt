@@ -323,7 +323,7 @@ fun getShiftCircleColor(shiftType: ShiftType): Color {
         ShiftType.DAY -> if (isDarkTheme) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.primary
         ShiftType.NIGHT -> if (isDarkTheme) MaterialTheme.colorScheme.surfaceTint else MaterialTheme.colorScheme.onTertiaryContainer
         ShiftType.FULL -> MaterialTheme.colorScheme.secondary
-        else -> Color.Transparent
+        else -> MaterialTheme.colorScheme.error
     }
 }
 

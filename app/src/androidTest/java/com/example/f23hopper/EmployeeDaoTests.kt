@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.example.f23hopper.data.DayOfWeek
 import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeDao
@@ -18,6 +17,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import java.io.IOException
+import java.time.DayOfWeek
 
 @RunWith(AndroidJUnit4::class)
 class EmployeeDaoTest {

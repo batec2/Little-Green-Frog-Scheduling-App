@@ -36,7 +36,11 @@ fun EmployeeEditScreen(
             } else {
                 // Save employee if not critical
                 coroutineScope.launch {
-                    if (validateInput(sharedViewModel.employeeUiState.employeeDetails)) {
+                    if (validateInput(
+                            sharedViewModel.employeeUiState.employeeDetails,
+                            sharedViewModel.employees.value ?: emptyList()
+                        )
+                    ) {
                         sharedViewModel.saveEmployee()
                     }
                 }

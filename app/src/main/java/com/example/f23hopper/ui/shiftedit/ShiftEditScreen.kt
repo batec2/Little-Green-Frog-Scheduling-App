@@ -291,6 +291,7 @@ fun EmployeeText(shift: Shift) {
         CanCloseIcon(text = true)
     }
 }
+
 @Composable
 fun EmptyShiftRow(viewModel: ShiftEditViewModel, shiftType: ShiftType, date: LocalDate) {
     var showEmployeeList by remember { mutableStateOf(false) }
@@ -379,51 +380,52 @@ fun EmployeeList(
     val shiftsThisWeekMap by viewModel.getShiftCountsForWeek(date)
         .collectAsState(initial = emptyMap())
 
-    employees.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }.forEach { employee ->
-        val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
-        val displayName = getEmployeeDisplayNameShort(employee)
-
-        Row(
-            modifier = Modifier
-                .clickable { onEmployeeClick(employee) }
-                .fillMaxWidth()
-                .padding(vertical = 8.dp, horizontal = 40.dp),
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = displayName,
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.weight(1f),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Text(
-                text = "Shifts: $shiftsThisWeek",
-                style = MaterialTheme.typography.bodyLarge
-            )
+    employees.filter { it.active }.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }
+        .forEach { employee ->
+            val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
+            val displayName = getEmployeeDisplayNameShort(employee)
 
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier
+                    .clickable { onEmployeeClick(employee) }
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp, horizontal = 40.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
-                if (employee.canOpen && shiftType != ShiftType.NIGHT) {
-                    CanOpenIcon()
-                } else if (employee.canClose && shiftType != ShiftType.DAY) {
-                    CanCloseIcon()
-                } else {
-                    Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
-                }
-
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "Add $displayName",
-                    modifier = Modifier.size(24.dp)
+                Text(
+                    text = displayName,
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier.weight(1f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+
+                Text(
+                    text = "Shifts: $shiftsThisWeek",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
+                    if (employee.canOpen && shiftType != ShiftType.NIGHT) {
+                        CanOpenIcon()
+                    } else if (employee.canClose && shiftType != ShiftType.DAY) {
+                        CanCloseIcon()
+                    } else {
+                        Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
+                    }
+
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add $displayName",
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
         }
-    }
 }
 
 @Composable
