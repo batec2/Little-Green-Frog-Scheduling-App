@@ -7,6 +7,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +16,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -22,12 +25,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
 import androidx.compose.material3.DismissState
-import androidx.compose.material3.DismissValue
+import androidx.compose.material3.DismissValue.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SwipeToDismiss
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDismissState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -48,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +64,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.components.BaseDialog
 import com.example.f23hopper.ui.icons.dayShiftIcon
+import com.example.f23hopper.ui.icons.fullShiftIcon
 import com.example.f23hopper.ui.icons.nightShiftIcon
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.ui.icons.rememberLock
@@ -214,104 +219,126 @@ fun EmployeeDeactivationDialog(
     }
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeeListItem(
     employees: List<Employee>,
     deactivateItem: (Employee) -> Unit,
     onEmployeeClick: (Employee) -> Unit,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-    val coroutineScope = rememberCoroutineScope()
     LazyColumn(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(items = employees, key = { employee -> employee.employeeId }) { employee ->
-            val dismissState = DismissState(
-                initialValue = DismissValue.Default,
+            val dismissState = rememberDismissState(
                 confirmValueChange = {
+                    if (it == DismissedToEnd) {
+                        deactivateItem(employee)
+                    }
                     true
-                })
+                }
+            )
+
             SwipeToDismiss(
                 state = dismissState,
                 directions = setOf(DismissDirection.EndToStart),
                 background = {
-                    val color by animateColorAsState(
-                        targetValue = when (dismissState.targetValue) {
-                            DismissValue.Default -> colorScheme.onTertiary
-                            DismissValue.DismissedToStart -> colorScheme.onTertiary
-                            DismissValue.DismissedToEnd -> colorScheme.onTertiary
-                        }, label = ""
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(color)
-                            .padding(16.dp),
-                        Alignment.CenterEnd
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.SpaceEvenly
-                        ) {
-                            Column(
-                                modifier = Modifier.weight(.25f)
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .clickable
-                                        {
-                                            coroutineScope.launch {
-                                                dismissState.reset()
-                                            }
-                                        },
-                                    imageVector = rememberRedo(), // mirrored undo
-                                    contentDescription = "Undo"
-                                )
+                    DismissBackground(
+                        dismissState,
+                        undoAction = {
+                            coroutineScope.launch {
+                                dismissState.reset()
                             }
-                            Column(
-                                modifier = Modifier.weight(.25f)
-                            ) {
-                                Icon(
-                                    modifier = Modifier
-                                        .weight(.25f)
-                                        .clickable
-                                        {
-                                            deactivateItem(employee)
-                                        },
-                                    imageVector =
-                                    if (employee.active) Icons.Filled.Clear
-                                    else Icons.Filled.Refresh,
-                                    contentDescription = "Deactivate and Reactivate"
-                                )
-                            }
-
-                        }
-                    }
+                        },
+                        deactivateAction = { deactivateItem(employee) })
                 },
-                dismissContent = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clip(shape = RoundedCornerShape(2.dp))
-                            .clickable {
-                                onEmployeeClick(employee)
-                            }
-                            .border(
-                                2.dp,
-                                shape = RoundedCornerShape(2.dp),
-                                color = colorScheme.secondaryContainer
-                            )
-                            .background(colorScheme.background)
-                            .padding(16.dp)
-                    ) {
-                        Column {
-                            ListEmployeeInfo(employee = employee)
-                            ListScheduleInfo(employee = employee)
-                        }
-                    }
-                },
+                dismissContent = { EmployeeRow(employee, onEmployeeClick) }
             )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DismissBackground(
+    dismissState: DismissState,
+    undoAction: () -> Unit,
+    deactivateAction: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val color by animateColorAsState(
+        targetValue = when (dismissState.targetValue) {
+            Default -> colorScheme.onTertiary
+            DismissedToStart -> colorScheme.onTertiary
+            DismissedToEnd -> colorScheme.onTertiary
+        }, label = ""
+    )
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(color)
+            .padding(horizontal = 16.dp),
+        contentAlignment = Alignment.CenterEnd
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            UndoIcon(undoAction = undoAction)
+            Spacer(modifier = Modifier.width(116.dp))
+            DeactivateIcon(deactivateAction = deactivateAction)
+            Spacer(Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+fun UndoIcon(undoAction: () -> Unit) {
+    Icon(
+        imageVector = rememberRedo(),
+        contentDescription = "Undo",
+        modifier = Modifier
+            .size(40.dp)
+            .clickable { undoAction() }
+    )
+}
+
+@Composable
+fun DeactivateIcon(deactivateAction: () -> Unit) {
+    Icon(
+        imageVector = Icons.Filled.Clear,
+        contentDescription = "Deactivate and Reactivate",
+        modifier = Modifier
+            .size(33.dp)
+            .clickable { deactivateAction() }
+    )
+}
+
+@Composable
+fun EmployeeRow(
+    employee: Employee,
+    onEmployeeClick: (Employee) -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(shape = RoundedCornerShape(2.dp))
+            .clickable { onEmployeeClick(employee) }
+            .border(
+                2.dp,
+                shape = RoundedCornerShape(2.dp),
+                color = colorScheme.secondaryContainer
+            )
+            .background(colorScheme.background)
+            .padding(16.dp)
+    ) {
+        Column {
+            ListEmployeeInfo(employee = employee)
+            ListScheduleInfo(employee = employee)
         }
     }
 }
@@ -361,14 +388,13 @@ fun ListEmployeeInfo(employee: Employee) {
         horizontalArrangement = Arrangement.Center
     ) {
         Row(
-            modifier = Modifier.weight(2f),
+            modifier = Modifier.weight(1f),
             horizontalArrangement = Arrangement.Start
         ) {
             EmployeeNameDisplay(employee = employee)
         }
         Row(
-            modifier = Modifier.weight(1f)
-            //horizontalArrangement = Arrangement.Start
+            modifier = Modifier.weight(.23f)
         ) {
             if (employee.canOpen) {
                 Icon(
@@ -391,61 +417,77 @@ fun ListEmployeeInfo(employee: Employee) {
 
 @Composable
 fun ListScheduleInfo(
-    employee: Employee
+    employee: Employee,
 ) {
-    Row {
-        val week = listOf(
-            Pair(employee.sunday, "U"),
-            Pair(employee.monday, "M"),
-            Pair(employee.tuesday, "T"),
-            Pair(employee.wednesday, "W"),
-            Pair(employee.thursday, "R"),
-            Pair(employee.friday, "F"),
-            Pair(employee.saturday, "S")
+    val weekdays = listOf(
+        Pair(employee.monday, "M"),
+        Pair(employee.tuesday, "T"),
+        Pair(employee.wednesday, "W"),
+        Pair(employee.thursday, "R"),
+        Pair(employee.friday, "F")
+    )
+
+    val weekends = listOf(
+        Pair(employee.sunday, "U"),
+        Pair(employee.saturday, "S")
+    )
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        // Day shifts row
+        ShiftRow(
+            shifts = weekdays,
+            shiftTypeCheck = { shiftType -> shiftType == ShiftType.DAY || shiftType == ShiftType.FULL },
+            icon = dayShiftIcon(),
         )
 
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(2.dp))
-                .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
-                .background(color = colorScheme.secondaryContainer),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Icon(
-                imageVector = dayShiftIcon(),
-                modifier = Modifier.size(20.dp),
-                contentDescription = "Day Shift"
-            )
-            week.forEach { week ->
+        // Night shifts row
+        ShiftRow(
+            shifts = weekdays,
+            shiftTypeCheck = { shiftType -> shiftType == ShiftType.NIGHT || shiftType == ShiftType.FULL },
+            icon = nightShiftIcon(),
+        )
+
+        // Weekend shifts row
+        ShiftRow(
+            shifts = weekends,
+            shiftTypeCheck = { shiftType -> shiftType == ShiftType.FULL },
+            icon = fullShiftIcon()
+        )
+    }
+}
+
+@Composable
+fun ShiftRow(
+    shifts: List<Pair<ShiftType, String>>,
+    shiftTypeCheck: (ShiftType) -> Boolean,
+    icon: ImageVector,
+) {
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(2.dp))
+            .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
+            .background(color = colorScheme.secondaryContainer)
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Icon(
+            imageVector = icon,
+            modifier = Modifier.size(20.dp),
+            contentDescription = "Shift Icon"
+        )
+        shifts.forEach { (shiftType, label) ->
+            Box(modifier = Modifier.width(IntrinsicSize.Min)) {
                 Text(
-                    text = if (week.first == ShiftType.DAY ||
-                        week.first == ShiftType.FULL
-                    ) week.second else "",
-                    color = colorScheme.onSecondaryContainer
-                )
-            }
-        }
-        Spacer(modifier = Modifier.size(5.dp))
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .clip(RoundedCornerShape(2.dp))
-                .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
-                .background(color = colorScheme.secondaryContainer),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Icon(
-                imageVector = nightShiftIcon(),
-                modifier = Modifier.size(20.dp),
-                contentDescription = "Night Shift"
-            )
-            week.forEach { week ->
-                Text(
-                    text = if (week.first == ShiftType.NIGHT ||
-                        week.first == ShiftType.FULL
-                    ) week.second else " ",
-                    color = colorScheme.onSecondaryContainer
+                    text = if (shiftTypeCheck(shiftType)) label else "•",
+                    color = colorScheme.onSecondaryContainer,
+                    modifier = Modifier
+                        .width(19.dp)
+                        .wrapContentWidth(Alignment.CenterHorizontally)
                 )
             }
         }
