@@ -245,7 +245,11 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { employees.none { other -> other.nickname == it } && it.matches(alphaRegex) },
+            validate = {
+                employees.none { other -> other.nickname == it && other.employeeId != employeeDetails.employeeId } && it.matches(
+                    alphaRegex
+                )
+            },
             errorMessage = "Nickname already taken",
             showErrorChars = true,
         ),

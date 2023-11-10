@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.material.icons.Icons
@@ -38,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -380,10 +382,9 @@ fun EmployeeList(
     val shiftsThisWeekMap by viewModel.getShiftCountsForWeek(date)
         .collectAsState(initial = emptyMap())
 
-    employees.filter { it.active }.sortedBy { employee -> shiftsThisWeekMap[employee.employeeId] }
+    employees.filter { it.active }.sortedBy { employee -> employee.nickname }
         .forEach { employee ->
             val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
-            val displayName = getEmployeeDisplayNameShort(employee)
 
             Row(
                 modifier = Modifier
@@ -393,34 +394,46 @@ fun EmployeeList(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = displayName,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.weight(1f),
+                    text = employee.nickname,
+                    style = androidx.compose.ui.text.TextStyle(
+                        fontStyle = FontStyle.Italic,
+                    ),
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.Start),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
 
                 Text(
                     text = "Shifts: $shiftsThisWeek",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .weight(1f)
+                        .wrapContentWidth(Alignment.CenterHorizontally),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
 
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
                     if (employee.canOpen && shiftType != ShiftType.NIGHT) {
                         CanOpenIcon()
-                    } else if (employee.canClose && shiftType != ShiftType.DAY) {
+                    } else {
+                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                    }
+                    if (employee.canClose && shiftType != ShiftType.DAY) {
                         CanCloseIcon()
                     } else {
-                        Spacer(modifier = Modifier.size(24.dp)) // Placeholder spacer
+                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
                     }
 
                     Icon(
                         imageVector = Icons.Default.Add,
-                        contentDescription = "Add $displayName",
+                        contentDescription = "Add",
                         modifier = Modifier.size(24.dp)
                     )
                 }

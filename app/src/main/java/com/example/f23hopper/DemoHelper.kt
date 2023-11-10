@@ -98,7 +98,7 @@ fun createEmployees(): List<Employee> {
     val employee4 = Employee(
         firstName = "Charlie",
         lastName = "Brown",
-        nickname = "",
+        nickname = "Chuck",
         email = "charlie.brown@example.com",
         phoneNumber = "5566778899",
         canOpen = false,
@@ -206,7 +206,7 @@ fun createEmployees(): List<Employee> {
     val employee10 = Employee(
         firstName = "Jason",
         lastName = "Bourne",
-        nickname = "",
+        nickname = "JDawg",
         email = "itsJasonBourne@example.com",
         phoneNumber = "2342347567",
         canOpen = true,
