@@ -51,6 +51,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.asFlow
@@ -129,7 +130,10 @@ fun EmployeeListTopBar(
                 Icon(
                     imageVector = rememberFilterList(),
                     contentDescription = "Filter",
-                    modifier = Modifier.clickable { isExpanded = true },
+                    modifier = Modifier
+                        .padding(top = 5.dp, end = 5.dp)
+                        .size(40.dp)
+                        .clickable { isExpanded = true },
                 )
             }
             FilterDialogue(
@@ -312,32 +316,42 @@ fun EmployeeListItem(
     }
 }
 
+
 @Composable
-fun EmployeeNameDisplay(employee: Employee) {
-    if (employee.nickname.isNotBlank()) {
-        // nickname exists, show it in italics
-        Text(
-            text = "${employee.nickname} ",
-            style = TextStyle(fontStyle = FontStyle.Italic, fontSize = 20.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    } else {
-        // no nickname, show the first name (not in italics)
-        Text(
-            text = "${employee.firstName} ",
-            style = TextStyle(fontSize = 20.sp),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
+fun EmployeeNameDisplay(
+    employee: Employee,
+    includeLastName: Boolean = true,
+    fontSize: TextUnit = 20.sp,
+    modifier: Modifier = Modifier,
+
+    ) {
+    Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
+        if (employee.nickname.isNotBlank()) {
+            // nickname exists, show it in italics
+            Text(
+                text = "${employee.nickname} ",
+                style = TextStyle(fontStyle = FontStyle.Italic, fontSize = fontSize),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        } else {
+            // no nickname, show the first name (not in italics)
+            Text(
+                text = "${employee.firstName} ",
+                style = TextStyle(fontSize = fontSize),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        }
+        // Last Name
+        if (includeLastName)
+            Text(
+                text = employee.lastName,
+                style = TextStyle(fontSize = fontSize),
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
     }
-    // Last Name
-    Text(
-        text = employee.lastName,
-        style = TextStyle(fontSize = 20.sp),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-    )
 }
 
 @Composable
