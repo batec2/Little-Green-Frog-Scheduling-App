@@ -253,7 +253,12 @@ fun EmployeeListItem(
                                 dismissState.reset()
                             }
                         },
-                        deactivateAction = { deactivateItem(employee) })
+                        deactivateAction = {
+                            deactivateItem(employee)
+                            coroutineScope.launch {
+                                dismissState.reset()
+                            }
+                        })
                 },
                 dismissContent = { EmployeeRow(employee, onEmployeeClick) }
             )

@@ -99,8 +99,13 @@ fun verifyEmail(email: String): Boolean {
 
     if (localPart.length > 64 || domainPart.length > 255) return false
 
+
     // check if the domain part contains at least one dot and doesn't start/end with a dot
     if (!domainPart.contains(".") || domainPart.startsWith(".") || domainPart.endsWith(".")) return false
+
+
+    // check if the domain part contains exactly two periods
+    if (domainPart.count { it == '.' } > 1) return false
 
     // enhanced regex for local part and domain part validation
     val localPartRegex = Regex("^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+\$")
