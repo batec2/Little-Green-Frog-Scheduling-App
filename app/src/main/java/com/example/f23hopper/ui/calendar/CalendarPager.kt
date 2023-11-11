@@ -309,7 +309,8 @@ fun ShiftViewEmployeeList(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     LazyColumn(
-                        modifier = Modifier,
+                        modifier = Modifier
+                            .fillMaxWidth(.95f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(employeeList) { item ->
