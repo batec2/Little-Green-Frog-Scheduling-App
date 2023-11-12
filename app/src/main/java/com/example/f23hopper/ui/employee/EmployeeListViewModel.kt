@@ -82,7 +82,7 @@ class EmployeeListViewModel @Inject constructor(
         employeeUiState = EmployeeUiState(
             employee = employeeUiState.employee,
             employeeDetails = employeeDetails,
-            isEmployeeValid = validateInput(employeeDetails)
+            isEmployeeValid = validateInput(employeeDetails, employees.value ?: emptyList())
         )
     }
 
