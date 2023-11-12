@@ -43,7 +43,7 @@ interface EmployeeDao {
 
     @Query(
         "SELECT * FROM employees Where active = 1 AND " +
-                "saturday = \"FULL\" or sunday = \"FULL\" ORDER BY employees.lastName"
+                "(saturday = \"FULL\" or sunday = \"FULL\") ORDER BY employees.lastName"
     )
     fun getCanWorkWeekends(): Flow<List<Employee>>
 
