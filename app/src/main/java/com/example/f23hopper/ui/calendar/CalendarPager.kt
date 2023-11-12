@@ -313,7 +313,7 @@ fun ShiftViewEmployeeList(
                             .fillMaxWidth(.95f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        items(employeeList) { item ->
+                        items(employeeList.filter { it.active }) { item ->
                             Row(
                                 modifier = Modifier
                                     .padding(5.dp)
