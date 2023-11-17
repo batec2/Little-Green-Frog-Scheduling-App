@@ -71,13 +71,32 @@ interface ScheduleDao {
         startDate: Date, endDate: Date
     ): Flow<List<Shift>>
 
+
     @Transaction
     @Query(
         """
     SELECT * 
     FROM schedules 
     INNER JOIN employees ON schedules.employeeId = employees.employeeId 
-    WHERE schedules.date = :date AND employees.active = 1
+    WHERE schedules.date BETWEEN :startDate AND :endDate
+    """
+    )
+    fun getAllShiftsByDateRange(
+        startDate: Date, endDate: Date
+    ): Flow<List<Shift>>
+
+    @Transaction
+    @Query(
+        """
+    SELECT * 
+    FROM schedules 
+    INNER JOIN employees ON schedules.employeeId = employees.employeeId 
+    WHERE schedules.date = :date 
+    AND (
+        (schedules.date >= CURRENT_DATE AND employees.active = 1) 
+        OR 
+        (schedules.date < CURRENT_DATE)
+    )
     """
     )
     fun getShiftByDate(date: Date): Flow<List<Shift>>

@@ -433,6 +433,7 @@ fun CalendarPagerActionBox(
     modifier: Modifier,
     shiftsOnDay: Map<ShiftType, List<Shift>>,
 ) {
+    val isWithinLastTwoWeeks = date.plusWeeks(2).plusDays(1).isAfter(LocalDate.now())
     Box(
         modifier = modifier
             .width(80.dp)
@@ -445,9 +446,10 @@ fun CalendarPagerActionBox(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            EditShiftButton(onClick = {
-                navigateToShiftView(date.toString())
-            })
+            if (isWithinLastTwoWeeks)
+                EditShiftButton(onClick = {
+                    navigateToShiftView(date.toString())
+                })
             ToggleSpecialDayButton(
                 toggleSpecialDay = { toggleSpecialDay() },
                 isSpecialDay = isSpecialDay,
