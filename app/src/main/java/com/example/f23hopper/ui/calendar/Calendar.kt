@@ -29,6 +29,7 @@ import com.kizitonwose.calendar.core.daysOfWeek
 import com.kizitonwose.calendar.core.nextMonth
 import com.kizitonwose.calendar.core.previousMonth
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.YearMonth
 import java.time.ZoneId
 
@@ -69,8 +70,13 @@ fun Calendar(
         (viewItemList.any { emp -> emp.empItem == shift.employee })
     }.map { it.schedule.date.toJavaLocalDate() }
 
+    // Don't filter out inactive employees when the day is in the past
     val shiftsOnSelectedDate = calendarContext.selection?.date?.let { selectedDate ->
-        shiftsByDay[selectedDate]?.groupBy { it.schedule.shiftType }
+        shiftsByDay[selectedDate]
+            ?.filter { shift ->
+                (selectedDate >= LocalDate.now() && shift.employee.active) || selectedDate < LocalDate.now()
+            }
+            ?.groupBy { it.schedule.shiftType }
     } ?: emptyMap()
 
     val specialDaysByDay = calendarContext.specialDays.groupBy {
@@ -207,7 +213,13 @@ fun CalendarBody(
     HorizontalCalendar(modifier = modifier, state = calendarState, dayContent = { day ->
         val employeeShiftSelected = employeeShifts.contains(day.date)
         val isSpecialDay = specialDaysByDay[day.date] != null
-        val shiftsOnDay = shiftsByDay[day.date]?.groupBy { it.schedule.shiftType }.orEmpty()
+
+        // Don't filter out inactive employees in the past
+        val shiftsOnDay = shiftsByDay[day.date]
+            ?.filter { it.employee.active || day.date < LocalDate.now() }
+            ?.groupBy { it.schedule.shiftType }
+            .orEmpty()
+
         val isSelected = calendarContext.selection == day
 
         DayContext(

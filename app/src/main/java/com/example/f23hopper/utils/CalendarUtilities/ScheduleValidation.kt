@@ -137,6 +137,9 @@ fun InvalidDayIcon(
     modifier: Modifier = Modifier,
     showDialogueOnClick: Boolean = false
 ) {
+    // Early Exit, don't validate days in the past.
+    if (date.isBefore(LocalDate.now())) return
+
     val dayValidation = dateValidation(shifts, date, isSpecialDay)
     var showDialog by remember { mutableStateOf(false) }
 
