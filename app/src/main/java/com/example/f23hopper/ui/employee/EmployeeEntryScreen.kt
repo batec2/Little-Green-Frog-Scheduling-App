@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -53,6 +54,7 @@ import androidx.compose.ui.input.key.type
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -170,7 +172,8 @@ data class FieldDetail(
     val validate: (String) -> Boolean,
     val errorMessage: String,
     val formatter: ((String) -> String)? = null, // Optional formatter function
-    val showErrorChars: Boolean = true
+    val showErrorChars: Boolean = true,
+    val isNumber: Boolean = false,
 )
 
 
@@ -285,6 +288,7 @@ fun EmployeeInfo(
             validate = { verifyPhoneNumber(it) },
             errorMessage = "Between 7-15 numbers accepted",
             showErrorChars = false,
+            isNumber = true,
         ),
     )
 
@@ -349,6 +353,11 @@ fun ValidatedOutlinedTextField(
             }
         },
         maxLines = 1,
+        keyboardOptions = if(field.isNumber){
+            KeyboardOptions(keyboardType = KeyboardType.Number)
+        } else {
+            KeyboardOptions(keyboardType = KeyboardType.Text)
+        },
     )
 }
 
