@@ -356,7 +356,7 @@ fun ValidatedOutlinedTextField(
         keyboardOptions = if(field.isNumber){
             KeyboardOptions(keyboardType = KeyboardType.Number)
         } else {
-            KeyboardOptions(keyboardType = KeyboardType.Text)
+            KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrect = false)
         },
     )
 }
