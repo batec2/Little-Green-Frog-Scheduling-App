@@ -290,6 +290,22 @@ fun EmployeeInfo(
             showErrorChars = false,
             isNumber = true,
         ),
+
+        FieldDetail(
+            label = "Max Shifts (per Week)",
+            value = employeeDetails.maxShifts,
+            modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
+            onValueChange = {
+                if(!hasAnyError.value) onEmployeeInfoChange(
+                    employeeDetails.copy(
+                        maxShifts = it
+                    )
+                )
+            },
+            validate = { true },
+            errorMessage = "",
+            isNumber = true,
+        )
     )
 
     fields.forEach { field -> ValidatedOutlinedTextField(field, hasAnyError) }
