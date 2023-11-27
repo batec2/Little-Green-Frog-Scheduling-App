@@ -219,6 +219,7 @@ fun EmployeeInfo(
                 )
             },
             validate = { it.matches(alphaRegex) },
+            isNumber = false,
             errorMessage = "Only letters, spaces, and '-. are allowed"
         ),
         FieldDetail(
@@ -234,6 +235,7 @@ fun EmployeeInfo(
                 )
             },
             validate = { it.matches(alphaRegex) },
+            isNumber = false,
             errorMessage = "Only letters, spaces, and ('-.) are allowed"
         ),
         FieldDetail(
@@ -254,6 +256,7 @@ fun EmployeeInfo(
                 )
             },
             errorMessage = "Nickname already taken",
+            isNumber = false,
             showErrorChars = true,
         ),
         FieldDetail(
@@ -270,6 +273,7 @@ fun EmployeeInfo(
             },
             validate = { verifyEmail(it) },
             errorMessage = "name@mail.com format accepted",
+            isNumber = false,
             showErrorChars = false
         ),
 
@@ -302,8 +306,9 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { true },
-            errorMessage = "",
+            validate = { validateShiftQty(it) },
+            errorMessage = "Number should be between 1 and 12.",
+            showErrorChars = false,
             isNumber = true,
         )
     )

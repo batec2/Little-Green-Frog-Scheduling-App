@@ -358,27 +358,28 @@ fun EmployeeNameDisplay(
 
     ) {
     Row(modifier = Modifier, horizontalArrangement = Arrangement.Start) {
+        // First Name
+        Text(
+            text = "${employee.firstName} ",
+            style = TextStyle(fontSize = fontSize),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+
+        // Nickname (italicized if not blank)
         if (employee.nickname.isNotBlank()) {
-            // nickname exists, show it in italics
             Text(
-                text = "${employee.nickname} ",
+                text = "\"${employee.nickname}\"",
                 style = TextStyle(fontStyle = FontStyle.Italic, fontSize = fontSize),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
-        } else {
-            // no nickname, show the first name (not in italics)
-            Text(
-                text = "${employee.firstName} ",
-                style = TextStyle(fontSize = fontSize),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
         }
+
         // Last Name
         if (includeLastName)
             Text(
-                text = employee.lastName,
+                text = " ${employee.lastName}",
                 style = TextStyle(fontSize = fontSize),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
