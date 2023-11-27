@@ -115,4 +115,15 @@ fun verifyEmail(email: String): Boolean {
     return localPart.matches(localPartRegex) && domainPart.matches(domainPartRegex)
 }
 
+fun validateShiftQty(input: String): Boolean {
+
+    // Validate that the input is a number and within the desired range
+    val intValue = input.toIntOrNull()
+    val isNumberValid = intValue in 1..12
+
+    // Ensure that alphabetical characters have not been entered
+    val containsAlphabetical = input.any { it.isLetter() }
+
+    return isNumberValid && !containsAlphabetical
+}
 

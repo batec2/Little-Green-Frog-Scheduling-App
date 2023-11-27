@@ -306,8 +306,9 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { true },
-            errorMessage = "",
+            validate = { validateShiftQty(it) },
+            errorMessage = "Number should be between 1 and 12.",
+            showErrorChars = false,
             isNumber = true,
         )
     )
