@@ -69,7 +69,6 @@ fun validateInput(uiState: EmployeeDetails, employees: List<Employee>): Boolean 
             isMaxShiftsValid
 }
 
-
 // https://en.wikipedia.org/wiki/E.164
 // International standard defines max phone number as 15 digits
 fun verifyPhoneNumber(phoneNumber: String): Boolean {
@@ -122,15 +121,7 @@ fun verifyEmail(email: String): Boolean {
     return localPart.matches(localPartRegex) && domainPart.matches(domainPartRegex)
 }
 
-fun validateShiftQty(input: String): Boolean {
-
-    // Validate that the input is a number and within the desired range
-    val intValue = input.toIntOrNull()
-    val isNumberValid = intValue in 1..12
-
-    // Ensure that alphabetical characters have not been entered
-    val containsAlphabetical = input.any { it.isLetter() }
-
-    return isNumberValid && !containsAlphabetical
+// Validates a non-entry or a shift quantity between 1 and 12 (inclusive)
+fun validateShiftQty(maxShifts: String): Boolean {
+    return maxShifts.isBlank() || (maxShifts.toIntOrNull() in (1..12))
 }
-
