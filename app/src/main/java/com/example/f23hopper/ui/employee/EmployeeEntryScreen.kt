@@ -297,6 +297,7 @@ fun EmployeeInfo(
 
         FieldDetail(
             label = "Max Shifts (per Week)",
+            formatter = ::formatMaxShifts,
             value = employeeDetails.maxShifts,
             modifier = Modifier.onPreviewKeyEvent(handleKeyEvent),
             onValueChange = {
@@ -306,8 +307,8 @@ fun EmployeeInfo(
                     )
                 )
             },
-            validate = { validateShiftQty(it) },
-            errorMessage = "Number should be between 1 and 12.",
+            validate = { validateShiftQty(it) && it.isNotBlank() },
+            errorMessage = "Entered number must be between 1 and 12.",
             showErrorChars = false,
             isNumber = true,
         )
