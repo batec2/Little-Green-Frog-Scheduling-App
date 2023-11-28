@@ -57,9 +57,16 @@ fun validateInput(uiState: EmployeeDetails, employees: List<Employee>): Boolean 
         employees.none { it.employeeId != uiState.employeeId && it.nickname == uiState.nickname }
     val isEmailValid = verifyEmail(uiState.email)
     val isPhoneNumberValid = verifyPhoneNumber(uiState.phoneNumber)
+    val isMaxShiftsValid = validateShiftQty(uiState.maxShifts)
 
     // return true only if all validations pass
-    return isFirstNameValid && isLastNameValid && isNicknameValid && isEmailValid && isPhoneNumberValid && isNicknameFree
+    return isFirstNameValid    &&
+            isLastNameValid    &&
+            isNicknameValid    &&
+            isEmailValid       &&
+            isPhoneNumberValid &&
+            isNicknameFree     &&
+            isMaxShiftsValid
 }
 
 

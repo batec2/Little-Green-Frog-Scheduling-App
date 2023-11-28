@@ -434,8 +434,8 @@ fun ListScheduleInfo(
     )
 
     val weekends = listOf(
-        Pair(employee.sunday, "U"),
-        Pair(employee.saturday, "S")
+        Pair(employee.saturday, "S"),
+        Pair(employee.sunday, "U")
     )
 
     Row(
