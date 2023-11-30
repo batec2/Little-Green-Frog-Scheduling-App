@@ -76,7 +76,7 @@ data class EmployeeDetails(
     val nickname: String = "",
     val email: String = "",
     val phoneNumber: String = "",
-    val maxShifts: String = "",
+    val maxShifts: Int? = null, // 12 is the max amount of shifts someone can work a week. 5x2 (weekday day/night) + 2 (one full shift per weekend day)
     var canOpen: Boolean = false,
     var canClose: Boolean = false,
     var sunday: ShiftType = ShiftType.CANT_WORK,
@@ -99,7 +99,7 @@ fun EmployeeDetails.toEmployee(): Employee = Employee(
     nickname = nickname,
     email = email,
     phoneNumber = phoneNumber,
-    maxShifts = maxShifts,
+    maxShifts = maxShifts ?: 12,
     canOpen = canOpen,
     canClose = canClose,
     sunday = sunday,
@@ -196,4 +196,8 @@ fun formatPhoneNumber(input: String): String {
 fun formatName(input: String): String = input.filter { it.isLetter() || it == '-' }.take(35)
 fun formatEmail(input: String): String = input.filter { !it.isWhitespace() }.take(320)
 
-fun formatMaxShifts(input: String): String = input.filter { it.isDigit() }.take(2)
+fun formatMaxShifts(input: String): String {
+
+    return if (input == "null") return "" else input.filter { it.isDigit() }.take(2)
+
+}
