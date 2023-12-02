@@ -15,7 +15,7 @@ data class Employee(
     val nickname: String,
     val email: String,
     val phoneNumber: String,
-    val maxShifts: String,
+    val maxShifts: Int,
     var canOpen: Boolean,
     var canClose: Boolean,
     var sunday: ShiftType,
