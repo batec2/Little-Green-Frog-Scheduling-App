@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.calendar
 
-import AbsentEmployeeIcon
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -30,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.Shift
+import com.example.f23hopper.utils.CalendarUtilities.AbsentEmployeeIcon
 import com.example.f23hopper.utils.displayText
 import java.time.YearMonth
 

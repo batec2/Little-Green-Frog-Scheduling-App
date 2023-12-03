@@ -303,11 +303,11 @@ fun EmployeeInfo(
             onValueChange = {
                 if (!hasAnyError.value) onEmployeeInfoChange(
                     employeeDetails.copy(
-                        maxShifts = it.toInt()
+                        maxShifts = it.toIntOrNull() ?: 0
                     )
                 )
             },
-            validate = { validateShiftQty(it.toInt()) },
+            validate = { validateShiftQty(it.toIntOrNull() ?: 0) },
             errorMessage = "Entered number must be between 1 and 12.",
             showErrorChars = false,
             isNumber = true,
@@ -375,7 +375,7 @@ fun ValidatedOutlinedTextField(
             }
         },
         maxLines = 1,
-        keyboardOptions = if(field.isNumber){
+        keyboardOptions = if (field.isNumber) {
             KeyboardOptions(keyboardType = KeyboardType.Number)
         } else {
             KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrect = false)

@@ -1,3 +1,5 @@
+package com.example.f23hopper.utils.CalendarUtilities
+
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,12 +40,10 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.icons.contactMissingIcon
 import com.example.f23hopper.ui.icons.rememberError
 import com.example.f23hopper.ui.shiftedit.getEmployeeDisplayNameShort
-import com.example.f23hopper.utils.CalendarUtilities.isWeekday
-import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
-import com.example.f23hopper.utils.CalendarUtilities.toShortMonthAndDay
 import com.example.f23hopper.utils.maxShifts
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.temporal.IsoFields
 
 data class DayValidationResult(
     val isValid: Boolean,
@@ -51,23 +51,46 @@ data class DayValidationResult(
 )
 
 fun dateValidation(
-    shifts: Map<ShiftType, List<Shift>>,
+    shiftsOnDay: Map<ShiftType, List<Shift>>,
     date: LocalDate,
-    isSpecialDay: Boolean
+    isSpecialDay: Boolean,
+    allShifts: List<Shift>
 ): DayValidationResult {
     val errors = mutableListOf<DayValidationError>()
 
     if (date.isWeekday()) {
-        errors.addAll(weekdayChecks(shifts, isSpecialDay))
+        errors.addAll(weekdayChecks(shiftsOnDay, isSpecialDay))
     } else {
-        errors.addAll(weekendChecks(shifts, isSpecialDay))
+        errors.addAll(weekendChecks(shiftsOnDay, isSpecialDay))
     }
 
-    return if (errors.isEmpty()) {
-        DayValidationResult(isValid = true)
-    } else {
-        DayValidationResult(isValid = false, errors = errors)
+    // Extract unique employees from shiftsOnDay
+    val employeesOnDay = shiftsOnDay.values.flatten().map { it.employee }.distinct()
+
+    // Collect employees with too many shifts
+    val employeesWithTooManyShifts = employeesOnDay.filter { employee ->
+        hasTooManyShiftsForWeek(date, employee, allShifts)
     }
+
+    // If there are any, add a TooManyShiftsThisWeek error with their names
+    if (employeesWithTooManyShifts.isNotEmpty()) {
+        errors.add(DayValidationError.TooManyShiftsThisWeekMorning(employeesWithTooManyShifts.map { it.nickname }))
+    }
+
+    return DayValidationResult(isValid = errors.isEmpty(), errors = errors)
+}
+
+fun hasTooManyShiftsForWeek(date: LocalDate, employee: Employee, allShifts: List<Shift>): Boolean {
+    val targetWeek = date[IsoFields.WEEK_OF_WEEK_BASED_YEAR]
+
+    val shiftsPerWeek = allShifts.filter { it.schedule.employeeId == employee.employeeId }
+        .groupBy {
+            it.schedule.date.toJavaLocalDate().get(IsoFields.WEEK_OF_WEEK_BASED_YEAR)
+        }
+        .mapValues { (_, shifts) -> shifts.size }
+
+    val shiftsThisWeek = shiftsPerWeek[targetWeek] ?: 0
+    return shiftsThisWeek > employee.maxShifts
 }
 
 private fun weekdayChecks(
@@ -77,16 +100,16 @@ private fun weekdayChecks(
     val errors = mutableListOf<DayValidationError>()
 
     if (shifts[ShiftType.DAY]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.DAY] == null)
-        errors.add(DayValidationError.MISSING_DAY_SHIFT)
+        errors.add(DayValidationError.MissingDayShift)
 
     if (shifts[ShiftType.NIGHT]?.size != maxShifts(isSpecialDay) || shifts[ShiftType.NIGHT] == null)
-        errors.add(DayValidationError.MISSING_NIGHT_SHIFT)
+        errors.add(DayValidationError.MissingNightShift)
 
     if (certifiedEmployeeAbsent(shifts, ShiftType.DAY, Employee::canOpen))
-        errors.add(DayValidationError.NO_DAY_OPENER)
+        errors.add(DayValidationError.NoDayOpener)
 
     if (certifiedEmployeeAbsent(shifts, ShiftType.NIGHT, Employee::canClose))
-        errors.add(DayValidationError.NO_NIGHT_CLOSER)
+        errors.add(DayValidationError.NoNightCloser)
 
 
     return errors
@@ -118,20 +141,21 @@ private fun weekendChecks(
 
     val weekendShifts = shifts[ShiftType.FULL]
     if (weekendShifts.isNullOrEmpty() || weekendShifts.size != maxShifts(isSpecialDay))
-        errors.add(DayValidationError.INSUFFICIENT_SHIFTS_WEEKEND)
+        errors.add(DayValidationError.InsufficientShiftsWeekend)
 
     if (certifiedEmployeeAbsent(shifts, ShiftType.FULL, Employee::canOpen))
-        errors.add(DayValidationError.NO_WEEKEND_OPENER)
+        errors.add(DayValidationError.NoWeekendOpener)
 
     if (certifiedEmployeeAbsent(shifts, ShiftType.FULL, Employee::canClose))
-        errors.add(DayValidationError.NO_WEEKEND_CLOSER)
+        errors.add(DayValidationError.NoWeekendCloser)
 
     return errors
 }
 
 @Composable
 fun InvalidDayIcon(
-    shifts: Map<ShiftType, List<Shift>>,
+    shiftsOnDay: Map<ShiftType, List<Shift>>,
+    allShifts: List<Shift>,
     date: LocalDate,
     isSpecialDay: Boolean,
     modifier: Modifier = Modifier,
@@ -140,7 +164,7 @@ fun InvalidDayIcon(
     // Early Exit, don't validate days in the past.
     if (date.isBefore(LocalDate.now())) return
 
-    val dayValidation = dateValidation(shifts, date, isSpecialDay)
+    val dayValidation = dateValidation(shiftsOnDay, date, isSpecialDay, allShifts)
     var showDialog by remember { mutableStateOf(false) }
 
     if (showDialog) {
@@ -175,6 +199,23 @@ fun ShowErrorDialog(errors: List<DayValidationError>, onDismiss: () -> Unit) {
             title = { Text(text = "Shift Errors:") },
             text = {
                 Column {
+                    // Handle TooManyShiftsThisWeek errors first
+                    errors.filterIsInstance<DayValidationError.TooManyShiftsThisWeekMorning>()
+                        .forEach { error ->
+                            Text(
+                                text = error.displayMessage,
+                                style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 18.sp),
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            error.employeeNames.forEach { employeeName ->
+                                Text(
+                                    text = "- $employeeName",
+                                    style = TextStyle(fontSize = 16.sp),
+                                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                                )
+                            }
+                        }
+
                     ShiftType.values().forEach { shiftType ->
                         val errorsForShift = errors.filter { it.shiftType == shiftType }
                         if (errorsForShift.isNotEmpty()) {

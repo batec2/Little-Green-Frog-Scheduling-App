@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.calendar
 
-import InvalidDayIcon
 import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -37,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.kizitonwose.calendar.core.CalendarDay
 import com.kizitonwose.calendar.core.DayPosition
 
@@ -47,7 +47,8 @@ data class DayContext(
     val isSpecialDay: Boolean,
     val isSelected: Boolean,
     val employeeShiftSelected: Boolean,//For employee highlighting
-    val viewItemList: List<ViewItem>
+    val viewItemList: List<ViewItem>,
+    val allShifts: List<Shift>
 )
 
 @Composable
@@ -89,10 +90,11 @@ fun Day(
             DayPosition.InDate, DayPosition.OutDate -> inActiveDayTextColor // Grey out days not in current month
         }
         InvalidDayIcon(
-            context.shiftsOnDay,
-            context.day.date,
-            context.isSpecialDay,
-            Modifier
+            shiftsOnDay = context.shiftsOnDay,
+            allShifts = context.allShifts,
+            date = context.day.date,
+            isSpecialDay = context.isSpecialDay,
+            modifier = Modifier
                 .align(Alignment.TopEnd)
                 .padding(2.dp)
                 .size(15.dp, 15.dp)
