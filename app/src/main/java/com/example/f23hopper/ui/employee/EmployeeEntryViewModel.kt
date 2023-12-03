@@ -6,12 +6,14 @@ import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.temporal.IsoFields
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,6 +30,29 @@ class EmployeeEntryViewModel @Inject constructor(
                 _activeShiftsInFuture.value = it
             }
         }
+    }
+
+    fun employeeScheduledForMoreThanMaxShifts(employeeUiState: EmployeeUiState): Boolean {
+        val intendedChanges = employeeUiState.employeeDetails
+        val employee = employeeUiState.employee ?: return false
+        // if employee max shifts greater or equal to max amount of shifts that can be scheduled
+        if ((employeeUiState.employeeDetails.maxShifts ?: 0) >= 12) return false
+
+        // get shifts in the future
+        val activeShifts = activeShiftsInFuture.value
+        // if there are no active shifts in the future, return false
+        if (activeShifts.isEmpty()) return false
+
+        // group shifts by week and count the number of shifts for the employee in each week
+        val shiftsPerWeek = activeShifts
+            .filter { it.schedule.employeeId == employee.employeeId }
+            .groupBy { it.schedule.date.toJavaLocalDate().get(IsoFields.WEEK_OF_WEEK_BASED_YEAR) }
+            .mapValues { (_, shifts) -> shifts.size }
+
+        // Check if the number of shifts in any week exceeds maxShifts
+        return shiftsPerWeek.any { (_, count) -> count > (intendedChanges.maxShifts ?: 0) }
+
+
     }
 
     fun employeeOnlyOpenerCloserCheck(employeeUiState: EmployeeUiState): Boolean {
@@ -197,7 +222,5 @@ fun formatName(input: String): String = input.filter { it.isLetter() || it == '-
 fun formatEmail(input: String): String = input.filter { !it.isWhitespace() }.take(320)
 
 fun formatMaxShifts(input: String): String {
-
     return if (input == "null") return "" else input.filter { it.isDigit() }.take(2)
-
 }

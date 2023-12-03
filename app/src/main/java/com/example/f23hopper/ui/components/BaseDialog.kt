@@ -2,13 +2,17 @@ package com.example.f23hopper.ui.components
 
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -19,9 +23,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,18 +41,19 @@ fun BaseDialog(
     dismissButtonText: String = "No",
     headerSize: TextStyle = MaterialTheme.typography.headlineMedium
 ) {
-    //unused atm
-    val confirmButtonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
-    val dismissButtonColor: Color = MaterialTheme.colorScheme.tertiaryContainer
-    val confirmTextColor: Color = MaterialTheme.colorScheme.onTertiaryContainer
-    val dismissTextColor: Color = MaterialTheme.colorScheme.onTertiaryContainer
     if (showDialog) {
         AlertDialog(
+            properties = DialogProperties(
+                usePlatformDefaultWidth = false
+            ),
+            modifier = Modifier
+                .fillMaxWidth(0.8f)
+                .fillMaxHeight(0.9f),
             onDismissRequest = onDismiss,
             content = {
                 Surface(
                     shape = RoundedCornerShape(15.dp),
-                    color = MaterialTheme.colorScheme.surface
+                    color = MaterialTheme.colorScheme.secondaryContainer,
                 ) {
                     Column(
                         modifier = Modifier
@@ -54,27 +61,44 @@ fun BaseDialog(
                             .fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Text(title, style = headerSize)
+                        // Bold title
+                        Text(title, style = headerSize.copy(fontWeight = FontWeight.Bold))
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxWidth()
+                                .padding(4.dp)
+                                .defaultMinSize(minHeight = 200.dp)
+
+                        ) {
+                            LazyColumn {
+                                item {
+                                    Text(
+                                        message,
+                                        fontSize = 18.sp
+                                    )
+                                }
+                            }
+                        }
                         Spacer(modifier = Modifier.height(24.dp))
-                        Text(message)
-                        Spacer(modifier = Modifier.height(32.dp))
                         Row(
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         ) {
                             Button(
                                 onClick = onDismiss,
-                                shape = RoundedCornerShape(50),
-//                                colors = ButtonDefaults.buttonColors(containerColor = dismissButtonColor)
+                                shape = RoundedCornerShape(50)
                             ) {
-                                Text(dismissButtonText /*color = dismissTextColor*/)
+                                Text(dismissButtonText)
                             }
-                            Spacer(modifier = Modifier.width(16.dp))
+                            Spacer(modifier = Modifier.width(38.dp))
                             Button(
                                 onClick = onConfirm,
-                                shape = RoundedCornerShape(50),
-//                                colors = ButtonDefaults.buttonColors(containerColor = confirmButtonColor)
+                                shape = RoundedCornerShape(50)
                             ) {
-                                Text(confirmButtonText /*color = confirmTextColor*/)
+                                Text(confirmButtonText)
                             }
                         }
                     }

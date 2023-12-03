@@ -226,6 +226,7 @@ fun CalendarBody(
             viewModel = calendarContext.viewModel,
             day = day,
             shiftsOnDay = shiftsOnDay,
+            allShifts = calendarContext.shifts,
             isSpecialDay = isSpecialDay,
             isSelected = isSelected,
             employeeShiftSelected = employeeShiftSelected,
