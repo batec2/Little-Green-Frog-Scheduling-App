@@ -252,6 +252,8 @@ suspend fun initializeDaos(db: HopperDatabase): Triple<EmployeeDao, ScheduleDao,
     return Triple(employeeDao, scheduleDao, specialDayDao)
 }
 
+suspend fun initializeTimeOffDaos(db: HopperDatabase):
+
 suspend fun insertEmployees(employees: List<Employee>, employeeDao: EmployeeDao) {
     employees.forEach { employee ->
         employee.employeeId = employeeDao.insert(employee)
