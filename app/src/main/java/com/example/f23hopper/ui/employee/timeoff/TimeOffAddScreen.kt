@@ -1,13 +1,10 @@
 package com.example.f23hopper.ui.employee.timeoff
 
-import android.icu.text.SimpleDateFormat
 import android.icu.util.Calendar
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -17,11 +14,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.DatePickerFormatter
 import androidx.compose.material3.DateRangePicker
 import androidx.compose.material3.DateRangePickerState
 import androidx.compose.material3.DisplayMode
@@ -34,11 +28,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberDateRangePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,7 +47,6 @@ import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
-import com.example.f23hopper.utils.CalendarUtilities.toKotlinxLocalDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.clickable
 import java.sql.Date
@@ -130,39 +122,20 @@ fun TimeOffBody(
             EmployeePicker(
                 employees = employees,
                 showEmpPicker = showEmpPicker.value,
-                EmpPickerState = {showEmpPicker.value=it}
+                empPickerState = {showEmpPicker.value=it}
             )
             Spacer(modifier=Modifier.size(10.dp))
-            OutlinedTextField(
-                value =
-                if(startDate==null)
-                    "Start Date"
-                else
-                    convertMillisToDate(startDate).toString(),
-                onValueChange = {},
-                placeholder = { Text(text = "Start Date") },
-                readOnly = true,
-                trailingIcon = {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Start")
-                },
+            DateBox(
+                date = state.selectedStartDateMillis,
+                placeholder = "Start Date",
+                onDateClick = { showTimeOffPicker.value = true }
             )
             Spacer(modifier=Modifier.size(10.dp))
-            OutlinedTextField(
-                value =
-                if(endDate==null)
-                    "End Date"
-                else
-                    convertMillisToDate(endDate).toString(),
-                onValueChange = {},
-                placeholder = { Text(text = "End Date") },
-                readOnly = true,
-                trailingIcon = {
-                    Icon(imageVector = Icons.Default.DateRange, contentDescription = "Start")
-                },
+            DateBox(
+                date = state.selectedEndDateMillis,
+                placeholder = "End Date",
+                onDateClick = { showTimeOffPicker.value = true }
             )
-            ElevatedButton(onClick = {showTimeOffPicker.value=true}) {
-                Text(text="Choose Date")
-            }
             if(showTimeOffPicker.value){
                 TimeOffPicker(
                     showTimeOffPicker = {
@@ -175,6 +148,36 @@ fun TimeOffBody(
     }
 }
 
+@Composable
+fun DateBox(
+    date: Long?,
+    placeholder: String,
+    onDateClick: ()->Unit
+){
+    OutlinedTextField(
+        value =
+        if(date==null)
+            placeholder
+        else
+            convertMillisToDate(date).toString(),
+        onValueChange = {},
+        placeholder = { Text(text = placeholder) },
+        readOnly = true,
+        trailingIcon = {
+            Icon(imageVector = Icons.Default.DateRange, contentDescription = placeholder)
+        },
+        enabled = false,
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledTextColor = MaterialTheme.colorScheme.onSurface,
+            disabledBorderColor = MaterialTheme.colorScheme.outline,
+            disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant),
+        modifier = Modifier.clickable { onDateClick() },
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeOffPicker(
@@ -182,16 +185,9 @@ fun TimeOffPicker(
     state: DateRangePickerState
 ){
     DatePickerDialog(
-        onDismissRequest = { },
-        confirmButton = {
-            ElevatedButton(
-                modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
-                    showTimeOffPicker()
-                },
-            ) {
-                Text(text = "Done")
-            }
-        }) {
+        onDismissRequest = {showTimeOffPicker()},
+        confirmButton = {}
+    ) {
         Column {
             DateRangePicker(
                 modifier = Modifier,
@@ -200,8 +196,13 @@ fun TimeOffPicker(
             Row (
                 modifier = Modifier,
             ){
-                /*
-
+                ElevatedButton(
+                    modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                        showTimeOffPicker()
+                    },
+                ) {
+                    Text(text = "Done")
+                }
                 ElevatedButton(
                     modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
                         showTimeOffPicker()
@@ -209,7 +210,6 @@ fun TimeOffPicker(
                 ) {
                     Text(text = "Cancel")
                 }
-                 */
             }
         }
 
@@ -221,12 +221,12 @@ fun TimeOffPicker(
 fun EmployeePicker(
     employees: List<Employee>,
     showEmpPicker: Boolean,
-    EmpPickerState:(Boolean)->Unit,
+    empPickerState:(Boolean)->Unit,
 ){
     val selection = remember{ mutableStateOf("Employee") }
     ExposedDropdownMenuBox(
         expanded = showEmpPicker,
-        onExpandedChange = {EmpPickerState(it)}
+        onExpandedChange = {empPickerState(it)}
     ) {
         OutlinedTextField(
             value = selection.value,
@@ -241,7 +241,7 @@ fun EmployeePicker(
         )
         ExposedDropdownMenu(
             expanded = showEmpPicker,
-            onDismissRequest = { EmpPickerState(false) }
+            onDismissRequest = { empPickerState(false) }
         ) {
             employees.forEach{employee ->
                 DropdownMenuItem(
@@ -253,7 +253,7 @@ fun EmployeePicker(
                     },
                     onClick = {
                         selection.value = employee.firstName +" "+employee.lastName
-                        EmpPickerState(false)
+                        empPickerState(false)
                     }
                 )
             }
