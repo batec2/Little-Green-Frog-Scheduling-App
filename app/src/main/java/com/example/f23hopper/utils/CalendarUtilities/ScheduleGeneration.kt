@@ -7,7 +7,9 @@ import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.utils.maxShiftsPerType
+import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.temporal.TemporalAdjusters
 
 
 data class ShiftAssignmentContext(
@@ -72,7 +74,10 @@ private fun assignCertifiedEmployee(
             // find the first eligible certified employee
             certifiedEmployees.firstOrNull()?.let { employee ->
                 // if they're not already on the day already
-                if (context.shiftsNeededToBeAssigned.value > 0 && !hasShiftOnDay(
+                if (context.shiftsNeededToBeAssigned.value > 0 && canAssignMoreShifts(
+                        employee,
+                        context
+                    ) && !hasShiftOnDay(
                         employee,
                         context.day,
                         context.schedule,
@@ -109,7 +114,7 @@ private fun assignRemainingShifts(
         if (context.shiftsNeededToBeAssigned.value == 0) break
 
         // skip if an employee reaches max shifts for the month/is already booked out for the day
-        if (!canAssignMoreShifts(employee, context.shiftCounts) || hasShiftOnDay(
+        if (!canAssignMoreShifts(employee, context) || hasShiftOnDay(
                 employee,
                 context.day,
                 context.schedule,
@@ -176,14 +181,24 @@ private fun createShift(
 
 
 private fun canAssignMoreShifts(
-    employee: Employee, shiftCounts: MutableMap<Long, Int>
+    employee: Employee, context: ShiftAssignmentContext,
 ): Boolean {
-    // future logic to determine max shifts per month for an employee
-    val currentCount = shiftCounts.getOrDefault(employee.employeeId, 0)
-    //TODO implement max count in employee and use it here
-    // val maxShiftsPerMonth = employee.maxCount // or something
-    val maxShiftsPerMonth = employee.maxShifts * 4
-    return currentCount < maxShiftsPerMonth
+    // calculate the week range
+    val startOfWeek = context.day.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    val endOfWeek = context.day.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+
+    // filter shifts for this week
+    val shiftsThisWeek = context.schedule.filterKeys { date ->
+        !date.isBefore(startOfWeek) && !date.isAfter(endOfWeek)
+    }.values.flatten()
+
+    // count the shifts for the employee this week
+    val shiftCountThisWeek = shiftsThisWeek.count { shift ->
+        shift.employee.employeeId == employee.employeeId
+    }
+
+    // compare against maxShifts
+    return shiftCountThisWeek < employee.maxShifts
 }
 
 fun calculateRequiredShifts(
