@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -388,10 +389,12 @@ fun EmployeeList(
     employees.filter { it.active }.sortedBy { employee -> employee.nickname }
         .forEach { employee ->
             val shiftsThisWeek = shiftsThisWeekMap[employee.employeeId] ?: 0
+            val maxShifts = employee.maxShifts
+            val isMaxedOut = shiftsThisWeek >= maxShifts
 
             Row(
                 modifier = Modifier
-                    .clickable { onEmployeeClick(employee) }
+                    .clickable(enabled = !isMaxedOut) { onEmployeeClick(employee) }
                     .fillMaxWidth()
                     .padding(vertical = 8.dp, horizontal = 40.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -437,7 +440,9 @@ fun EmployeeList(
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
-                        modifier = Modifier.size(24.dp)
+                        modifier = Modifier.size(24.dp),
+                        tint = if (!isMaxedOut) Color.Unspecified
+                        else Color.Transparent
                     )
                 }
             }
