@@ -1,7 +1,6 @@
 package com.example.f23hopper.ui.components
 
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,7 +53,7 @@ fun BaseDialog(
             content = {
                 Surface(
                     shape = RoundedCornerShape(15.dp),
-                    color = MaterialTheme.colorScheme.surface,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
                 ) {
                     Column(
                         modifier = Modifier
@@ -70,11 +69,6 @@ fun BaseDialog(
                             modifier = Modifier
                                 .weight(1f)
                                 .fillMaxWidth()
-                                .border(
-                                    1.dp,
-                                    MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                                    RoundedCornerShape(10.dp)
-                                )
                                 .padding(4.dp)
                                 .defaultMinSize(minHeight = 200.dp)
 

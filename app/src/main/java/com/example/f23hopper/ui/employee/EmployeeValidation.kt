@@ -123,5 +123,5 @@ fun verifyEmail(email: String): Boolean {
 
 // Validates a non-entry or a shift quantity between 1 and 12 (inclusive)
 fun validateShiftQty(maxShifts: Int?): Boolean {
-    return maxShifts == null || (maxShifts in (0..12))
+    return maxShifts == null || (maxShifts in (1..12))
 }
