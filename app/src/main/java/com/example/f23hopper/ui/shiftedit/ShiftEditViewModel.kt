@@ -109,5 +109,6 @@ data class ShiftContext(
     val viewModel: ShiftEditViewModel,
     val date: LocalDate,
     val shiftsOnDay: Map<ShiftType, List<Shift>>,
+    val allShifts: List<Shift>,
     val isSpecialDay: Boolean
 )

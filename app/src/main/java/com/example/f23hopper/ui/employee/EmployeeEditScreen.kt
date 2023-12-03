@@ -11,6 +11,11 @@ import com.example.f23hopper.ui.components.BaseDialog
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.launch
 
+enum class EmployeeErrorType {
+    CERTIFICATION_ERROR,
+    MAX_SHIFT_ERROR
+}
+
 @Composable
 fun EmployeeEditScreen(
     navigateToEmployeeList: () -> Unit,
@@ -23,18 +28,29 @@ fun EmployeeEditScreen(
 
     // State to control the visibility of the confirmation dialog
     val showConfirmationDialog = remember { mutableStateOf(false) }
-
+    val activeErrors = remember { mutableStateOf<Set<EmployeeErrorType>>(setOf()) }
     EmployeeEntryBody(
         viewModel = sharedViewModel,
         employeeUiState = sharedViewModel.employeeUiState,
         employeeDetails = sharedViewModel.employeeUiState.employeeDetails,
         onEmployeeValueChange = sharedViewModel::updateUiState,
         onSaveClick = {
+            var hasError = false
+
             if (entryViewModel.employeeOnlyOpenerCloserCheck(sharedViewModel.employeeUiState)) {
-                // Show confirmation dialog if the employee is critical
+                activeErrors.value = activeErrors.value + EmployeeErrorType.CERTIFICATION_ERROR
                 showConfirmationDialog.value = true
-            } else {
-                // Save employee if not critical
+                hasError = true
+            }
+            if (entryViewModel.employeeScheduledForMoreThanMaxShifts(sharedViewModel.employeeUiState)) {
+                activeErrors.value = activeErrors.value + EmployeeErrorType.MAX_SHIFT_ERROR
+                showConfirmationDialog.value = true
+                hasError = true
+            }
+
+            if (!hasError) {
+                activeErrors.value = activeErrors.value - EmployeeErrorType.CERTIFICATION_ERROR
+                activeErrors.value = activeErrors.value - EmployeeErrorType.MAX_SHIFT_ERROR
                 coroutineScope.launch {
                     if (validateInput(
                             sharedViewModel.employeeUiState.employeeDetails,
@@ -52,7 +68,8 @@ fun EmployeeEditScreen(
 
     // Confirmation dialog
     if (showConfirmationDialog.value) {
-        CriticalShiftDialog(
+        EmployeeWarning(
+            activeErrors = activeErrors.value,
             onConfirm = {
                 coroutineScope.launch {
                     sharedViewModel.saveEmployee()
@@ -68,13 +85,25 @@ fun EmployeeEditScreen(
 }
 
 @Composable
-fun CriticalShiftDialog(
+fun EmployeeWarning(
+    activeErrors: Set<EmployeeErrorType>,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val message = buildString {
+        if (EmployeeErrorType.CERTIFICATION_ERROR in activeErrors) {
+            appendLine("- Employee is sole closer/opener on active shifts.\n")
+        }
+        if (EmployeeErrorType.MAX_SHIFT_ERROR in activeErrors) {
+            appendLine("- Employee is scheduled for more shifts in a future week than their maximum shift limit allows.\n")
+
+        }
+        appendLine("\nPlease review and adjust the schedule as needed.\n\nConfirm Changes?")
+    }
+
     BaseDialog(
-        title = "Active Open/Close Shifts",
-        message = "Employee is closer/opener on active shifts, are you sure you want to remove their certification?",
+        title = "Warning",
+        message = message,
         onConfirm = onConfirm,
         onDismiss = onDismiss,
         headerSize = MaterialTheme.typography.headlineSmall

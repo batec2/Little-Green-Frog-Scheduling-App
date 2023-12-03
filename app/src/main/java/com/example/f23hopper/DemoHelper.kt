@@ -34,7 +34,7 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         insertEmployees(employees, employeeDao)
 
         // Populate Schedules for the current month
-        populateSchedules(scheduleDao, specialDayDao, employees)
+//        populateSchedules(scheduleDao, specialDayDao, employees)
     }
 }
 

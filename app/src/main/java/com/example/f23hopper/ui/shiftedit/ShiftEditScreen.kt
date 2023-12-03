@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.shiftedit
 
-import InvalidDayIcon
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -53,6 +52,7 @@ import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.ui.calendar.ToggleSpecialDayButton
 import com.example.f23hopper.ui.icons.rememberLock
 import com.example.f23hopper.ui.icons.unlockIcon
+import com.example.f23hopper.utils.CalendarUtilities.InvalidDayIcon
 import com.example.f23hopper.utils.CalendarUtilities.isWeekday
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import com.example.f23hopper.utils.ShiftCircles
@@ -83,7 +83,9 @@ fun ShiftEditScreen(
             viewModel,
             shiftsOnDay = groupedShifts,
             date = clickedDay,
-            isSpecialDay = isSpecialDay
+            isSpecialDay = isSpecialDay,
+            allShifts = shifts
+
         )
     Column(modifier = Modifier.fillMaxWidth()) {
         DateHeader(context, navController)
@@ -135,13 +137,14 @@ fun DateHeader(context: ShiftContext, navController: NavController) {
             )
 
             InvalidDayIcon(
-                context.shiftsOnDay,
-                context.date.toJavaLocalDate(),
-                context.isSpecialDay,
+                shiftsOnDay = context.shiftsOnDay,
+                date = context.date.toJavaLocalDate(),
+                isSpecialDay = context.isSpecialDay,
+                allShifts = context.allShifts,
                 modifier = Modifier
                     .padding(start = 10.dp, top = 10.dp)
                     .size(30.dp, 30.dp),
-                showDialogueOnClick = true
+                showDialogueOnClick = true,
             )
             ToggleSpecialDayButton(
                 shiftsOnDay = context.shiftsOnDay,
