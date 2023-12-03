@@ -1,6 +1,5 @@
 package com.example.f23hopper.ui.employee.timeoff
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -8,14 +7,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,7 +21,6 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
-import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -47,41 +42,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
-import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.timeoff.TimeOff
 import com.example.f23hopper.ui.calendar.toolbarColor
-import com.example.f23hopper.ui.employee.DeactivateIcon
 import com.example.f23hopper.ui.employee.DismissBackground
-import com.example.f23hopper.ui.employee.EmployeeListContent
-import com.example.f23hopper.ui.employee.EmployeeListItem
-import com.example.f23hopper.ui.employee.EmployeeListTopBar
-import com.example.f23hopper.ui.employee.EmployeeListViewModel
-import com.example.f23hopper.ui.employee.EmployeeRow
 import com.example.f23hopper.ui.employee.FilterDialogue
-import com.example.f23hopper.ui.employee.ListEmployeeInfo
-import com.example.f23hopper.ui.employee.ListScheduleInfo
-import com.example.f23hopper.ui.employee.UndoIcon
 import com.example.f23hopper.ui.icons.rememberFilterList
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun EmployeeTimeOffScreen(
-    navigateToEmployeeList: () -> Unit,
+fun TimeOffScreen(
+    navigateToTimeOffList: () -> Unit,
+    navigateToTimeOffAdd: () -> Unit,
+    sharedViewModel: TimeOffViewModel,
 ) {
-    val viewModel = hiltViewModel<EmployeeTimeOffViewModel>()
     val colorScheme = MaterialTheme.colorScheme
-    val timeoffList by viewModel.timeOffList.asFlow().collectAsState(initial = emptyList())
+    val timeoffList by sharedViewModel.timeOffList.asFlow().collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
     StatusBarColorUpdateEffect(toolbarColor) // Top status bar color
     TimeOffListScaffold(
         colorScheme = colorScheme,
-        navigateToEmployeeList = navigateToEmployeeList,
-        viewModel = viewModel,
+        navigateToTimeOffList = navigateToTimeOffList,
+        navigateToTimeOffAdd = navigateToTimeOffAdd,
+        viewModel = sharedViewModel,
         timeoffList = timeoffList,
         coroutineScope = coroutineScope,
     )
@@ -92,19 +77,20 @@ fun EmployeeTimeOffScreen(
 @Composable
 fun TimeOffListScaffold(
     colorScheme: ColorScheme,
-    navigateToEmployeeList: () -> Unit,
-    viewModel: EmployeeTimeOffViewModel,
+    navigateToTimeOffList: () -> Unit,
+    navigateToTimeOffAdd: () -> Unit,
+    viewModel: TimeOffViewModel,
     timeoffList: List<TimeOff>,
     coroutineScope: CoroutineScope,
 ) {
     Scaffold(
-        topBar = { TimeOffListTopBar(colorScheme,viewModel,navigateToEmployeeList) },
+        topBar = { TimeOffListTopBar(colorScheme,navigateToTimeOffList,navigateToTimeOffAdd,viewModel) },
         content = { paddingValues ->
             TimeOffListContent(
                 paddingValues,
                 timeoffList,
                 coroutineScope,
-                viewModel
+                viewModel,
             )
         }
     )
@@ -114,8 +100,9 @@ fun TimeOffListScaffold(
 @Composable
 fun TimeOffListTopBar(
     colorScheme: ColorScheme,
-    viewModel: EmployeeTimeOffViewModel,
-    navigateToEmployeeList: ()->Unit,
+    navigateToTimeOffList: ()->Unit,
+    navigateToTimeOffAdd: () -> Unit,
+    viewModel: TimeOffViewModel,
 ) {
     var isExpanded by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
@@ -126,7 +113,7 @@ fun TimeOffListTopBar(
             actionIconContentColor = colorScheme.primary
         ),
         navigationIcon = {
-            IconButton(onClick = { navigateToEmployeeList() }) {
+            IconButton(onClick = { navigateToTimeOffList() }) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack, contentDescription = "Back To list"
                 )
@@ -138,7 +125,7 @@ fun TimeOffListTopBar(
                 Icons.Default.Add,
                 contentDescription = "add",
                 modifier = Modifier
-                    .clickable { }
+                    .clickable {navigateToTimeOffAdd()}
                     .size(40.dp)
             )
             Box(modifier = Modifier, contentAlignment = Alignment.Center) {
@@ -165,7 +152,7 @@ fun TimeOffListContent(
     paddingValues: PaddingValues,
     timeoffList: List<TimeOff>,
     coroutineScope: CoroutineScope,
-    viewModel: EmployeeTimeOffViewModel,
+    viewModel: TimeOffViewModel,
 ) {
     Box(
         modifier = Modifier

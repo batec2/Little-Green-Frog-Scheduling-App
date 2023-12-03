@@ -15,7 +15,9 @@ import com.example.f23hopper.ui.employee.EmployeeEditScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 import com.example.f23hopper.ui.employee.EmployeeListViewModel
-import com.example.f23hopper.ui.employee.timeoff.EmployeeTimeOffScreen
+import com.example.f23hopper.ui.employee.timeoff.TimeOffAddScreen
+import com.example.f23hopper.ui.employee.timeoff.TimeOffScreen
+import com.example.f23hopper.ui.employee.timeoff.TimeOffViewModel
 import com.example.f23hopper.ui.shiftedit.ShiftEditScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -28,6 +30,7 @@ fun AppNavHost(
     modifier: Modifier = Modifier
 ) {
     val viewModel = hiltViewModel<EmployeeListViewModel>()
+    val timeOffViewModel = hiltViewModel<TimeOffViewModel>()
     AnimatedNavHost(
         navController = navController,
         startDestination = NavScreen.Calendar.route,
@@ -86,10 +89,26 @@ fun AppNavHost(
                 enterTransition = { slideInHorizontally() + fadeIn() },
                 exitTransition = { slideOutHorizontally() + fadeOut() }
             ) {
-                EmployeeTimeOffScreen(
-                    navigateToEmployeeList = {
+                TimeOffScreen(
+                    navigateToTimeOffList = {
                         navController.popBackStack()
-                    }
+                    },
+                    navigateToTimeOffAdd = {
+                        navController.navigate(NavScreen.EmployeeTimeOffAdd.route)
+                    },
+                    sharedViewModel = timeOffViewModel,
+                )
+            }
+            composable(
+                route = NavScreen.EmployeeTimeOffAdd.route,
+                enterTransition = { slideInHorizontally() + fadeIn() },
+                exitTransition = { slideOutHorizontally() + fadeOut() }
+            ) {
+                TimeOffAddScreen(
+                    navigateToTimeOff = {
+                        navController.popBackStack()
+                    },
+                    sharedViewModel = timeOffViewModel,
                 )
             }
 
