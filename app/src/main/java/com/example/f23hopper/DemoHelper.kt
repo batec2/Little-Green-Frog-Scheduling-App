@@ -9,6 +9,7 @@ import com.example.f23hopper.data.schedule.ScheduleDao
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayDao
+import com.example.f23hopper.data.timeoff.TimeOffDao
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -23,7 +24,7 @@ import java.util.Calendar
 suspend fun activateDemoDatabase(db: HopperDatabase) {
     withContext(Dispatchers.IO) {
         val (employeeDao, scheduleDao, specialDayDao) = initializeDaos(db)
-
+        val timeOffDao = initializeTimeOffDao(db)
         // Clear existing data
         wipeDatabase(db)
 
@@ -250,6 +251,10 @@ suspend fun initializeDaos(db: HopperDatabase): Triple<EmployeeDao, ScheduleDao,
     val scheduleDao = db.scheduleDao()
     val specialDayDao = db.specialDayDao()
     return Triple(employeeDao, scheduleDao, specialDayDao)
+}
+
+suspend fun initializeTimeOffDao(db: HopperDatabase): TimeOffDao{
+    return db.timeOffDao()
 }
 
 suspend fun insertEmployees(employees: List<Employee>, employeeDao: EmployeeDao) {
