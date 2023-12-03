@@ -25,4 +25,5 @@ class TimeOffRepository(private val timeOffDao: TimeOffDao) {
     fun getAllTimeOff(): Flow<List<TimeOff>> {
         return timeOffDao.getTimeOff()
     }
+
 }

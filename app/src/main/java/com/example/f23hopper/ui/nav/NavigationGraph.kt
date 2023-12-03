@@ -15,6 +15,7 @@ import com.example.f23hopper.ui.employee.EmployeeEditScreen
 import com.example.f23hopper.ui.employee.EmployeeEntryScreen
 import com.example.f23hopper.ui.employee.EmployeeListScreen
 import com.example.f23hopper.ui.employee.EmployeeListViewModel
+import com.example.f23hopper.ui.employee.timeoff.EmployeeTimeOffScreen
 import com.example.f23hopper.ui.shiftedit.ShiftEditScreen
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
@@ -50,6 +51,9 @@ fun AppNavHost(
                     navigateToEmployeeEdit = {
                         navController.navigate(NavScreen.EmployeeEdit.route)
                     },
+                    navigateToEmployeeTimeOff = {
+                        navController.navigate(NavScreen.EmployeeTimeOff.route)
+                    },
                     sharedViewModel = viewModel
                 )
             }
@@ -77,6 +81,18 @@ fun AppNavHost(
                     }
                 )
             }
+            composable(
+                route = NavScreen.EmployeeTimeOff.route,
+                enterTransition = { slideInHorizontally() + fadeIn() },
+                exitTransition = { slideOutHorizontally() + fadeOut() }
+            ) {
+                EmployeeTimeOffScreen(
+                    navigateToEmployeeList = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+
         }
         composable(
             route = NavScreen.Calendar.route,

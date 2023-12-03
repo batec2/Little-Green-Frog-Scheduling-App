@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
@@ -78,6 +79,7 @@ import kotlinx.coroutines.launch
 fun EmployeeListScreen(
     navigateToEmployeeAdd: () -> Unit,
     navigateToEmployeeEdit: () -> Unit,
+    navigateToEmployeeTimeOff: () -> Unit,
     sharedViewModel: EmployeeListViewModel
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -101,7 +103,8 @@ fun EmployeeListScreen(
         sharedViewModel = sharedViewModel,
         employees = employees,
         coroutineScope = coroutineScope,
-        navigateToEmployeeEdit = navigateToEmployeeEdit
+        navigateToEmployeeEdit = navigateToEmployeeEdit,
+        navigateToEmployeeTimeOff = navigateToEmployeeTimeOff
     )
 }
 
@@ -110,6 +113,7 @@ fun EmployeeListScreen(
 fun EmployeeListTopBar(
     colorScheme: ColorScheme,
     navigateToEmployeeAdd: () -> Unit,
+    navigateToEmployeeTimeOff: () -> Unit,
     sharedViewModel: EmployeeListViewModel
 ) {
     var isExpanded by remember { mutableStateOf(false) }
@@ -131,6 +135,13 @@ fun EmployeeListTopBar(
         },
         title = {},
         actions = {
+            Icon(
+                Icons.Default.EditCalendar,
+                contentDescription = "timeoff",
+                modifier = Modifier
+                    .clickable { navigateToEmployeeTimeOff() }
+                    .size(40.dp)
+            )
             Box(modifier = Modifier, contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = rememberFilterList(),
@@ -186,10 +197,14 @@ fun EmployeeListScaffold(
     sharedViewModel: EmployeeListViewModel,
     employees: List<Employee>,
     coroutineScope: CoroutineScope,
-    navigateToEmployeeEdit: () -> Unit
+    navigateToEmployeeEdit: () -> Unit,
+    navigateToEmployeeTimeOff: () -> Unit
 ) {
     Scaffold(
-        topBar = { EmployeeListTopBar(colorScheme, navigateToEmployeeAdd, sharedViewModel) },
+        topBar = { EmployeeListTopBar(colorScheme,
+            navigateToEmployeeAdd,
+            navigateToEmployeeTimeOff,
+            sharedViewModel) },
         // I have no idea why padding values needs to be like this, but it gets real mad at me without it.
         content = { paddingValues ->
             EmployeeListContent(

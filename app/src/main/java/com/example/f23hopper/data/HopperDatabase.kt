@@ -12,10 +12,12 @@ import com.example.f23hopper.data.schedule.ScheduleDao
 import com.example.f23hopper.data.shifttype.ShiftTypeConverter
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayDao
+import com.example.f23hopper.data.timeoff.TimeOff
+import com.example.f23hopper.data.timeoff.TimeOffDao
 import com.example.f23hopper.utils.DateTypeConverter
 
 @Database(
-    entities = [Employee::class, Schedule::class, SpecialDay::class],
+    entities = [Employee::class, Schedule::class, SpecialDay::class, TimeOff::class],
     version = 1,
     exportSchema = false/*disable schema ver history*/
 )
@@ -26,6 +28,7 @@ abstract class HopperDatabase : RoomDatabase()/*Extends RoomDatabase class*/ {
     abstract fun scheduleDao(): ScheduleDao
     abstract fun specialDayDao(): SpecialDayDao
     abstract fun hopperDao(): HopperDao
+    abstract fun timeOffDao(): TimeOffDao
 
 
     /*Allows access to methods to create or get database*/

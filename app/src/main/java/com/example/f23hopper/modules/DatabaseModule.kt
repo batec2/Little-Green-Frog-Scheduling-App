@@ -5,6 +5,7 @@ import com.example.f23hopper.data.HopperDatabase
 import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.data.timeoff.TimeOffRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,6 +40,12 @@ object DatabaseModule {
     @Singleton
     fun provideScheduleRepository(@ApplicationContext context: Context): ScheduleRepository {
         return ScheduleRepository(HopperDatabase.getDatabase(context).scheduleDao())
+    }
+
+    @Provides
+    @Singleton
+    fun provideTimeOffRepository(@ApplicationContext context: Context): TimeOffRepository {
+        return TimeOffRepository(HopperDatabase.getDatabase(context).timeOffDao())
     }
 
 }

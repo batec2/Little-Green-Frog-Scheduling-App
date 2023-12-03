@@ -6,7 +6,8 @@ enum class NavScreen(val route: String) {
     EmployeeEntry("EmployeeEntry"),
     EmployeeEdit("EmployeeEdit"),
     SharedEmployeeList("SharedEmployeeList"),
-    EmployeeList("EmployeeList");
+    EmployeeList("EmployeeList"),
+    EmployeeTimeOff("EmployeeTimeOff");
 
     override fun toString(): String {
         return when (this) {
@@ -17,6 +18,7 @@ enum class NavScreen(val route: String) {
             EmployeeEdit -> "Employee Edit"
             SharedEmployeeList -> "Shared Employee List"
             EmployeeList -> "Employees"
+            EmployeeTimeOff -> "EmployeeTimeOff"
         }
     }
 }
