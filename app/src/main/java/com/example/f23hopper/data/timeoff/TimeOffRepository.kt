@@ -8,8 +8,8 @@ import java.sql.Date
 
 class TimeOffRepository(private val timeOffDao: TimeOffDao) {
     @Insert
-    suspend fun insert(employeeId: Long,dateFrom: Date,dateTo: Date) {
-        timeOffDao.insert(TimeOff(employeeId=employeeId, dateFrom = dateFrom, dateTo = dateTo))
+    suspend fun insert(timeOff:TimeOff) {
+        timeOffDao.insert(timeOff)
     }
 
     @Update
