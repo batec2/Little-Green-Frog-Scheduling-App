@@ -74,4 +74,8 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
     fun getAllShiftsByDateRange(startDate: Date, endDate: Date): Flow<List<Shift>> {
         return scheduleDao.getAllShiftsByDateRange(startDate, endDate)
     }
+
+    fun countOfShifts(employeeId: Long,startDate: Date, endDate: Date):Int{
+        return scheduleDao.countOfShifts(employeeId,startDate,endDate)
+    }
 }

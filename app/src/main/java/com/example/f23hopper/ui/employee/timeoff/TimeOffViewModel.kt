@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
 import com.example.f23hopper.data.schedule.Schedule
+import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.timeoff.TimeOff
 import com.example.f23hopper.data.timeoff.TimeOffRepository
@@ -30,7 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class TimeOffViewModel @Inject constructor(
     private val timeOffRepository: TimeOffRepository,
-    private val employeeRepository: EmployeeRepository
+    private val employeeRepository: EmployeeRepository,
+    private val scheduleRepository: ScheduleRepository
 ):ViewModel(){
     var timeOffList by mutableStateOf(timeOffRepository.getAllTimeOff().asLiveData())
     var employeesList by mutableStateOf(employeeRepository.getAllActiveEmployees().asLiveData())
@@ -55,6 +57,12 @@ class TimeOffViewModel @Inject constructor(
 
     fun checkIfValid(uiState:TimeOffUiState){
         uiState.isTimeOffValid = uiState.employee!=null&&uiState.start!=null&&uiState.end!=null
+    }
+
+    fun checkIfValid2(id:Long,start:java.util.Date,end:java.util.Date){
+        val count = scheduleRepository.countOfShifts(id,start,end)
+        //No shifts in the future
+        //Start Date is 2 weeks in the future
     }
 }
 
