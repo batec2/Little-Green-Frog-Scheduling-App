@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,14 +44,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.asFlow
+import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.timeoff.TimeOff
 import com.example.f23hopper.ui.calendar.toolbarColor
 import com.example.f23hopper.ui.employee.DismissBackground
 import com.example.f23hopper.ui.employee.FilterDialogue
 import com.example.f23hopper.ui.icons.rememberFilterList
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.sql.Date
+import java.time.LocalDate
 
 @Composable
 fun TimeOffScreen(
@@ -60,6 +65,7 @@ fun TimeOffScreen(
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val timeoffList by sharedViewModel.timeOffList.asFlow().collectAsState(initial = emptyList())
+    val employeeList by sharedViewModel.employeesList.asFlow().collectAsState(initial = emptyList())
     val coroutineScope = rememberCoroutineScope()
     StatusBarColorUpdateEffect(toolbarColor) // Top status bar color
     TimeOffListScaffold(
@@ -68,6 +74,7 @@ fun TimeOffScreen(
         navigateToTimeOffAdd = navigateToTimeOffAdd,
         viewModel = sharedViewModel,
         timeoffList = timeoffList,
+        employeeList = employeeList,
         coroutineScope = coroutineScope,
     )
 
@@ -81,6 +88,7 @@ fun TimeOffListScaffold(
     navigateToTimeOffAdd: () -> Unit,
     viewModel: TimeOffViewModel,
     timeoffList: List<TimeOff>,
+    employeeList: List<Employee>,
     coroutineScope: CoroutineScope,
 ) {
     Scaffold(
@@ -89,6 +97,7 @@ fun TimeOffListScaffold(
             TimeOffListContent(
                 paddingValues,
                 timeoffList,
+                employeeList,
                 coroutineScope,
                 viewModel,
             )
@@ -125,7 +134,7 @@ fun TimeOffListTopBar(
                 Icons.Default.Add,
                 contentDescription = "add",
                 modifier = Modifier
-                    .clickable {navigateToTimeOffAdd()}
+                    .clickable { navigateToTimeOffAdd() }
                     .size(40.dp)
             )
             Box(modifier = Modifier, contentAlignment = Alignment.Center) {
@@ -151,6 +160,7 @@ fun TimeOffListTopBar(
 fun TimeOffListContent(
     paddingValues: PaddingValues,
     timeoffList: List<TimeOff>,
+    employeeList: List<Employee>,
     coroutineScope: CoroutineScope,
     viewModel: TimeOffViewModel,
 ) {
@@ -161,6 +171,7 @@ fun TimeOffListContent(
     ) {
         EmployeeTimeOffList(
             timeoffList,
+            employeeList,
             deactivateItem = {},
             onTimeOffClick = {},
         )
@@ -171,6 +182,7 @@ fun TimeOffListContent(
 @Composable
 fun EmployeeTimeOffList(
     timeOffList: List<TimeOff>,
+    employeeList: List<Employee>,
     deactivateItem: (TimeOff) -> Unit,
     onTimeOffClick: (TimeOff) -> Unit,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -179,7 +191,8 @@ fun EmployeeTimeOffList(
         modifier = Modifier.padding(5.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
-        items(items = timeOffList, key = { timeOff -> timeOff.employeeId }) { timeOff ->
+        items(items = timeOffList, key = { timeOff -> timeOff.id }) { timeOff ->
+            val employee = employeeList.filter{ e->e.employeeId==timeOff.employeeId}[0]
             val dismissState = rememberDismissState(
                 confirmValueChange = {
                     if (it == DismissValue.DismissedToEnd) {
@@ -207,7 +220,7 @@ fun EmployeeTimeOffList(
                             }
                         })
                 },
-                dismissContent = { TimeOffRow(timeOff,onTimeOffClick) }
+                dismissContent = { TimeOffRow(employee,timeOff,onTimeOffClick) }
             )
         }
     }
@@ -215,6 +228,7 @@ fun EmployeeTimeOffList(
 
 @Composable
 fun TimeOffRow(
+    employee: Employee,
     timeOff: TimeOff,
     onTimeOffClick: (TimeOff) -> Unit
 ) {
@@ -232,7 +246,14 @@ fun TimeOffRow(
             .padding(16.dp)
     ) {
         Column {
-
+            Text(text = employee.firstName+" "+"'"+employee.nickname+"'"+employee.lastName)
+            Row{
+                Text(text = formatDate(timeOff.dateFrom.toJavaLocalDate()) +"-"+ formatDate(timeOff.dateTo.toJavaLocalDate()))
+            }
         }
     }
+}
+
+private fun formatDate(date: LocalDate): String{
+    return date.toString()
 }
