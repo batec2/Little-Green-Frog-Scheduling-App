@@ -61,7 +61,7 @@ fun TimeOffAddScreen(
     val coroutineScope = rememberCoroutineScope()
     TimeOffBody(
         sharedViewModel = sharedViewModel,
-        onSaveClick = { /*TODO*/ },
+        onSaveClick = {  },
         navigateToEmployeeTimeOff = navigateToTimeOff)
 }
 
@@ -80,8 +80,11 @@ fun TimeOffBody(
         initialDisplayMode = DisplayMode.Input,
         yearRange = ((calendar[Calendar.YEAR]..(calendar[Calendar.YEAR]+1)))
     )
-    var startDate = state.selectedStartDateMillis
-    var endDate = state.selectedEndDateMillis
+    val start = state.selectedStartDateMillis
+    val end = state.selectedStartDateMillis
+
+    sharedViewModel.timeOffUiState.start = start
+    sharedViewModel.timeOffUiState.end = end
 
     Scaffold(topBar = {
         CenterAlignedTopAppBar(
@@ -101,9 +104,11 @@ fun TimeOffBody(
             },
             actions = {
                 ElevatedButton(
-                    modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
-                        onSaveClick()
-                    }, //enabled = employeeUiState.isEmployeeValid
+                    modifier = Modifier,
+                    shape = RoundedCornerShape(10.dp),
+                    onClick = {
+                        sharedViewModel.addTimeOff()
+                    }, enabled = sharedViewModel.timeOffUiState.isTimeOffValid
                 ) {
                     Text(text = "Done")
                 }
@@ -122,7 +127,8 @@ fun TimeOffBody(
             EmployeePicker(
                 employees = employees,
                 showEmpPicker = showEmpPicker.value,
-                empPickerState = {showEmpPicker.value=it}
+                empPickerState = {showEmpPicker.value=it},
+                onEmployeeSelect = { sharedViewModel.timeOffUiState.employee = it }
             )
             Spacer(modifier=Modifier.size(10.dp))
             DateBox(
@@ -159,7 +165,7 @@ fun DateBox(
         if(date==null)
             placeholder
         else
-            convertMillisToDate(date).toString(),
+            convertToDate(date).toString(),
         onValueChange = {},
         placeholder = { Text(text = placeholder) },
         readOnly = true,
@@ -188,40 +194,41 @@ fun TimeOffPicker(
         onDismissRequest = {showTimeOffPicker()},
         confirmButton = {}
     ) {
-        Column {
-            DateRangePicker(
-                modifier = Modifier,
-                state = state,
-            )
-            Row (
-                modifier = Modifier,
-            ){
-                ElevatedButton(
-                    modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
-                        showTimeOffPicker()
-                    },
-                ) {
-                    Text(text = "Done")
-                }
-                ElevatedButton(
-                    modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
-                        showTimeOffPicker()
-                    },
-                ) {
-                    Text(text = "Cancel")
-                }
+        DateRangePicker(
+            modifier = Modifier,
+            state = state,
+        )
+        Row (
+            modifier = Modifier,
+        ){
+            ElevatedButton(
+                modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                    showTimeOffPicker()
+                },
+            ) {
+                Text(text = "Done")
+            }
+            ElevatedButton(
+                modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                    showTimeOffPicker()
+                },
+            ) {
+                Text(text = "Cancel")
             }
         }
-
     }
 }
 
+/**
+ * Dropdown menu for selecting a Employee for timeoff selection
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EmployeePicker(
     employees: List<Employee>,
     showEmpPicker: Boolean,
     empPickerState:(Boolean)->Unit,
+    onEmployeeSelect: (Employee)->Unit
 ){
     val selection = remember{ mutableStateOf("Employee") }
     ExposedDropdownMenuBox(
@@ -253,6 +260,7 @@ fun EmployeePicker(
                     },
                     onClick = {
                         selection.value = employee.firstName +" "+employee.lastName
+                        onEmployeeSelect(employee)
                         empPickerState(false)
                     }
                 )
@@ -261,6 +269,9 @@ fun EmployeePicker(
     }
 }
 
-private fun convertMillisToDate(millis: Long): LocalDate {
+/**
+ * Converts Millis(Long) to JavaLocalDate
+ */
+fun convertToDate(millis: Long): LocalDate {
     return Date(millis).toJavaLocalDate()
 }
