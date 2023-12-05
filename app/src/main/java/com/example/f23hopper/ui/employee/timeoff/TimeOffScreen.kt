@@ -56,6 +56,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.sql.Date
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun TimeOffScreen(
@@ -248,12 +250,17 @@ fun TimeOffRow(
         Column {
             Text(text = employee.firstName+" "+"\""+employee.nickname+"\""+employee.lastName)
             Row{
-                Text(text = formatDate(timeOff.dateFrom.toJavaLocalDate()) +"-"+ formatDate(timeOff.dateTo.toJavaLocalDate()))
+                Text(text = convertDateToString(timeOff.dateFrom.toJavaLocalDate()) +"-"+ convertDateToString(timeOff.dateTo.toJavaLocalDate()))
             }
         }
     }
 }
 
-private fun formatDate(date: LocalDate): String{
-    return date.toString()
+private fun convertDateToString(date:LocalDate):String{
+    return "${
+        date.month.getDisplayName(
+            TextStyle.FULL,
+            Locale.getDefault()
+        )
+    } ${date.dayOfMonth}, ${date.year}"
 }

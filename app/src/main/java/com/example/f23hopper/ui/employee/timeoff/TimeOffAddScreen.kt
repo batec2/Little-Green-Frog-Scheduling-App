@@ -51,6 +51,8 @@ import com.example.f23hopper.utils.StatusBarColorUpdateEffect
 import com.example.f23hopper.utils.clickable
 import java.sql.Date
 import java.time.LocalDate
+import java.time.format.TextStyle
+import java.util.Locale
 
 @Composable
 fun TimeOffAddScreen(
@@ -170,7 +172,7 @@ fun DateBox(
         if(date==null)
             placeholder
         else
-            convertToDate(date).toString(),
+            convertDateToString(date),
         onValueChange = {},
         placeholder = { Text(text = placeholder) },
         readOnly = true,
@@ -279,4 +281,14 @@ fun EmployeePicker(
  */
 fun convertToDate(millis: Long): LocalDate {
     return Date(millis).toJavaLocalDate()
+}
+
+private fun convertDateToString(dateLong: Long):String{
+    val date = convertToDate(dateLong)
+    return "${
+        date.month.getDisplayName(
+            TextStyle.FULL,
+            Locale.getDefault()
+        )
+    } ${date.dayOfMonth}, ${date.year}"
 }
