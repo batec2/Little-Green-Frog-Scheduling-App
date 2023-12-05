@@ -22,6 +22,9 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedules")
     fun getAllSchedules(): Flow<List<Schedule>>
 
+    @Query("SELECT * FROM schedules")
+    fun getAllSchedulesNonState(): List<Schedule>
+
     @Transaction
     @Query(
         """
@@ -122,5 +125,6 @@ interface ScheduleDao {
     @Query("SELECT EXISTS( SELECT 1 FROM schedules WHERE id = :id )")
     fun scheduleExistsById(id: Long): Boolean
 
-
+    @Query("SELECT COUNT(id) as count FROM schedules WHERE date>= :start AND date<= :end AND employeeId = :id")
+    fun countOfShifts(id: Long,start: Date,end: Date): Int
 }

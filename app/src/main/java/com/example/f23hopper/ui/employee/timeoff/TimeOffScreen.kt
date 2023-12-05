@@ -246,7 +246,7 @@ fun TimeOffRow(
             .padding(16.dp)
     ) {
         Column {
-            Text(text = employee.firstName+" "+"'"+employee.nickname+"'"+employee.lastName)
+            Text(text = employee.firstName+" "+"\""+employee.nickname+"\""+employee.lastName)
             Row{
                 Text(text = formatDate(timeOff.dateFrom.toJavaLocalDate()) +"-"+ formatDate(timeOff.dateTo.toJavaLocalDate()))
             }

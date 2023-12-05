@@ -64,6 +64,10 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
         return employeeDao.getItem(id)
     }
 
+    fun getAllEmployeesNonState(): List<Employee> {
+        return employeeDao.getAllEmployeesNonState()
+    }
+
 
     fun getEmployeesByDayAndShiftType(
         day: kotlinx.datetime.DayOfWeek,

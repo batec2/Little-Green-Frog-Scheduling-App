@@ -37,6 +37,10 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
         return scheduleDao.getAllSchedules()
     }
 
+    fun getAllSchedulesNonState(): List<Schedule> {
+        return scheduleDao.getAllSchedulesNonState()
+    }
+
     fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Schedule>> {
         return scheduleDao.getSchedulesByEmployeeId(employeeId)
     }
@@ -73,5 +77,9 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
 
     fun getAllShiftsByDateRange(startDate: Date, endDate: Date): Flow<List<Shift>> {
         return scheduleDao.getAllShiftsByDateRange(startDate, endDate)
+    }
+
+    fun countOfShifts(employeeId: Long,startDate: Date, endDate: Date):Int{
+        return scheduleDao.countOfShifts(employeeId,startDate,endDate)
     }
 }

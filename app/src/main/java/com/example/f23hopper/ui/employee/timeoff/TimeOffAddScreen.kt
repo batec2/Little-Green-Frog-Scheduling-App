@@ -61,7 +61,6 @@ fun TimeOffAddScreen(
     val coroutineScope = rememberCoroutineScope()
     TimeOffBody(
         sharedViewModel = sharedViewModel,
-        onSaveClick = {  },
         navigateToEmployeeTimeOff = navigateToTimeOff)
 }
 
@@ -69,7 +68,6 @@ fun TimeOffAddScreen(
 @Composable
 fun TimeOffBody(
     sharedViewModel: TimeOffViewModel,
-    onSaveClick: () -> Unit,
     navigateToEmployeeTimeOff: () -> Unit,
 ){
     val showTimeOffPicker = remember { mutableStateOf(false) }
@@ -80,6 +78,7 @@ fun TimeOffBody(
         initialDisplayMode = DisplayMode.Input,
         yearRange = ((calendar[Calendar.YEAR]..(calendar[Calendar.YEAR]+1)))
     )
+    val isButtonValid = remember { mutableStateOf(sharedViewModel.timeOffUiState.isTimeOffValid) }//--------------------------------------DO I EVEN NEED THIS?
     val start = state.selectedStartDateMillis
     val end = state.selectedStartDateMillis
 
@@ -108,7 +107,8 @@ fun TimeOffBody(
                     shape = RoundedCornerShape(10.dp),
                     onClick = {
                         sharedViewModel.addTimeOff()
-                    }, enabled = sharedViewModel.timeOffUiState.isTimeOffValid
+                        navigateToEmployeeTimeOff()
+                    }, enabled = isButtonValid.value//--------------------------------------THIS DOESNT WORK
                 ) {
                     Text(text = "Done")
                 }
@@ -128,7 +128,11 @@ fun TimeOffBody(
                 employees = employees,
                 showEmpPicker = showEmpPicker.value,
                 empPickerState = {showEmpPicker.value=it},
-                onEmployeeSelect = { sharedViewModel.timeOffUiState.employee = it }
+                onEmployeeSelect = {
+                    println(isButtonValid.value)
+                    sharedViewModel.timeOffUiState.employee = it
+                    sharedViewModel.checkIfValid()
+                }
             )
             Spacer(modifier=Modifier.size(10.dp))
             DateBox(
@@ -146,6 +150,7 @@ fun TimeOffBody(
                 TimeOffPicker(
                     showTimeOffPicker = {
                         showTimeOffPicker.value = false
+                        sharedViewModel.checkIfValid()
                     },
                     state = state,
                 )
