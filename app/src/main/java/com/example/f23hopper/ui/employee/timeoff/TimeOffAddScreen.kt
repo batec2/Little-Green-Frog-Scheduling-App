@@ -61,7 +61,6 @@ fun TimeOffAddScreen(
     val coroutineScope = rememberCoroutineScope()
     TimeOffBody(
         sharedViewModel = sharedViewModel,
-        onSaveClick = {  },
         navigateToEmployeeTimeOff = navigateToTimeOff)
 }
 
@@ -69,7 +68,6 @@ fun TimeOffAddScreen(
 @Composable
 fun TimeOffBody(
     sharedViewModel: TimeOffViewModel,
-    onSaveClick: () -> Unit,
     navigateToEmployeeTimeOff: () -> Unit,
 ){
     val showTimeOffPicker = remember { mutableStateOf(false) }
@@ -107,7 +105,8 @@ fun TimeOffBody(
                     modifier = Modifier,
                     shape = RoundedCornerShape(10.dp),
                     onClick = {
-                        sharedViewModel.addTimeOff()
+                        //sharedViewModel.addTimeOff()
+                        navigateToEmployeeTimeOff()
                     }, enabled = sharedViewModel.timeOffUiState.isTimeOffValid
                 ) {
                     Text(text = "Done")
@@ -128,7 +127,10 @@ fun TimeOffBody(
                 employees = employees,
                 showEmpPicker = showEmpPicker.value,
                 empPickerState = {showEmpPicker.value=it},
-                onEmployeeSelect = { sharedViewModel.timeOffUiState.employee = it }
+                onEmployeeSelect = {
+                    sharedViewModel.timeOffUiState.employee = it
+                    sharedViewModel.checkIfValid()
+                }
             )
             Spacer(modifier=Modifier.size(10.dp))
             DateBox(
@@ -146,6 +148,7 @@ fun TimeOffBody(
                 TimeOffPicker(
                     showTimeOffPicker = {
                         showTimeOffPicker.value = false
+                        sharedViewModel.checkIfValid()
                     },
                     state = state,
                 )

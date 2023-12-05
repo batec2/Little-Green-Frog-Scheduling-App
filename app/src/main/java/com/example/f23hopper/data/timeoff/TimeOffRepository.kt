@@ -26,4 +26,7 @@ class TimeOffRepository(private val timeOffDao: TimeOffDao) {
         return timeOffDao.getTimeOff()
     }
 
+    fun countOfTimeOff(employeeId: Long,startDate: Date, endDate: Date):Int{
+        return timeOffDao.countOfTimeOff(employeeId,startDate,endDate)
+    }
 }
