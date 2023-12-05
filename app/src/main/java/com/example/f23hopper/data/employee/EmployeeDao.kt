@@ -35,6 +35,9 @@ interface EmployeeDao {
     @Query("SELECT * FROM employees ORDER BY employees.lastName")
     fun getAllEmployees(): Flow<List<Employee>>
 
+    @Query("SELECT * FROM employees ORDER BY employees.lastName")
+    fun getAllEmployeesNonState(): List<Employee>
+
     @Query("SELECT * FROM employees WHERE active = 1 ORDER BY employees.lastName")
     fun getAllActiveEmployees(): Flow<List<Employee>>
 

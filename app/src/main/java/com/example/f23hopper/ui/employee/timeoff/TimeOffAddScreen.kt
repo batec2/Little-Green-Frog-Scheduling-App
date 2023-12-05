@@ -78,6 +78,7 @@ fun TimeOffBody(
         initialDisplayMode = DisplayMode.Input,
         yearRange = ((calendar[Calendar.YEAR]..(calendar[Calendar.YEAR]+1)))
     )
+    val isButtonValid = remember { mutableStateOf(sharedViewModel.timeOffUiState.isTimeOffValid) }//--------------------------------------DO I EVEN NEED THIS?
     val start = state.selectedStartDateMillis
     val end = state.selectedStartDateMillis
 
@@ -105,9 +106,9 @@ fun TimeOffBody(
                     modifier = Modifier,
                     shape = RoundedCornerShape(10.dp),
                     onClick = {
-                        //sharedViewModel.addTimeOff()
+                        sharedViewModel.addTimeOff()
                         navigateToEmployeeTimeOff()
-                    }, enabled = sharedViewModel.timeOffUiState.isTimeOffValid
+                    }, enabled = isButtonValid.value//--------------------------------------THIS DOESNT WORK
                 ) {
                     Text(text = "Done")
                 }
@@ -128,6 +129,7 @@ fun TimeOffBody(
                 showEmpPicker = showEmpPicker.value,
                 empPickerState = {showEmpPicker.value=it},
                 onEmployeeSelect = {
+                    println(isButtonValid.value)
                     sharedViewModel.timeOffUiState.employee = it
                     sharedViewModel.checkIfValid()
                 }

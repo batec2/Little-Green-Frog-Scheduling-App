@@ -37,6 +37,10 @@ class ScheduleRepository(private val scheduleDao: ScheduleDao) {
         return scheduleDao.getAllSchedules()
     }
 
+    fun getAllSchedulesNonState(): List<Schedule> {
+        return scheduleDao.getAllSchedulesNonState()
+    }
+
     fun getSchedulesByEmployeeId(employeeId: Int): Flow<List<Schedule>> {
         return scheduleDao.getSchedulesByEmployeeId(employeeId)
     }

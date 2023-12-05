@@ -8,12 +8,16 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
+import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.schedule.ScheduleRepository
+import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.timeoff.TimeOff
 import com.example.f23hopper.data.timeoff.TimeOffRepository
 import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import java.sql.Date
@@ -30,9 +34,22 @@ class TimeOffViewModel @Inject constructor(
     var timeOffUiState by mutableStateOf(TimeOffUiState())
         private set
 
+    //val employeesListNonState = employeeRepository.getAllEmployeesNonState()
+    //--------------------------------------JUST COPIED FROM SHIFTS
+    private val _activeShiftsInFuture = MutableStateFlow<List<Shift>>(emptyList())
+    private val activeShiftsInFuture: StateFlow<List<Shift>> = _activeShiftsInFuture
+    //--------------------------------------STILL NEEDS THIS^ BUT FOR TIME OFF LIST
+
+    init {//--------------------------------------STILL NEEDS TIME OFF LIST
+        viewModelScope.launch {
+            scheduleRepository.getShiftsFromDate(java.time.LocalDate.now().toSqlDate()).collect {
+                _activeShiftsInFuture.value = it
+            }
+        }
+    }
 
     fun addTimeOff() {
-        if(checkIfValid()){
+        if(timeOffUiState.isTimeOffValid){
             val timeOff =
                 TimeOff(
                     employeeId = timeOffUiState.employee!!.employeeId,
@@ -45,24 +62,21 @@ class TimeOffViewModel @Inject constructor(
         }
     }
 
-    fun checkIfValid():Boolean{
-        var countShifts = 1
-        var countTimeOff = 1
+    fun checkIfValid(){
         if(timeOffUiState.employee!=null&&timeOffUiState.start!=null&&timeOffUiState.end!=null){
-            countShifts = scheduleRepository
-                .countOfShifts(
-                    timeOffUiState.employee!!.employeeId,
-                    formatDate(timeOffUiState.start!!),
-                    formatDate(timeOffUiState.end!!)
-                )
-            countTimeOff = timeOffRepository
-                .countOfTimeOff(
-                    timeOffUiState.employee!!.employeeId,
-                    formatDate(timeOffUiState.start!!),
-                    formatDate(timeOffUiState.end!!)
-                )
+            val id = timeOffUiState.employee!!.employeeId
+            val start = formatDate(timeOffUiState.start!!)
+            val end = formatDate(timeOffUiState.end!!)
+            val shifts = activeShiftsInFuture.value.filter{e->e.employee.employeeId==id&&e.schedule.date>=start&&e.schedule.date<=end}
+            println(shifts.isEmpty())
+            /*//--------------------------------------FILTERS OVER LAPPING TIME OFF
+            val timeOff = timeOffNonState.filter{e->e.id==id&&
+                    (e.dateTo>=start&&e.dateFrom<=start)&&
+                    (e.dateTo>=end&&e.dateFrom<=end)}
+             */
+            timeOffUiState.isTimeOffValid = shifts.isEmpty()
         }
-        return countShifts==0&&countTimeOff==0
+        timeOffUiState.isTimeOffValid = false;
     }
 
 }

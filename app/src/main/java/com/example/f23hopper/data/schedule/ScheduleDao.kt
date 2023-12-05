@@ -22,6 +22,9 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedules")
     fun getAllSchedules(): Flow<List<Schedule>>
 
+    @Query("SELECT * FROM schedules")
+    fun getAllSchedulesNonState(): List<Schedule>
+
     @Transaction
     @Query(
         """
