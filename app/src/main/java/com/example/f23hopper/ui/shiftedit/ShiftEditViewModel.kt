@@ -61,7 +61,11 @@ class ShiftEditViewModel @Inject constructor(
 
     fun getEligibleEmployeesForShift(date: LocalDate, shiftType: ShiftType): Flow<List<Employee>> {
         return combine(
-            employeeRepo.getEmployeesByDayAndShiftType(date.dayOfWeek, shiftType),
+            employeeRepo.getAvailableEmployeesByDayAndShiftType(
+                date.dayOfWeek,
+                shiftType,
+                date = date.toSqlDate()
+            ),
             getShiftsForDay(date)
         ) { allEligible, alreadyScheduled ->
             allEligible.filter { emp ->

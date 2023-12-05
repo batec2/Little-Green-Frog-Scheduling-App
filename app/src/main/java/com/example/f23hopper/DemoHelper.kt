@@ -9,7 +9,10 @@ import com.example.f23hopper.data.schedule.ScheduleDao
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDay
 import com.example.f23hopper.data.specialDay.SpecialDayDao
+import com.example.f23hopper.data.timeoff.TimeOff
 import com.example.f23hopper.data.timeoff.TimeOffDao
+import com.example.f23hopper.utils.CalendarUtilities.toJavaLocalDate
+import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -33,6 +36,9 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
 
         // Insert Employees
         insertEmployees(employees, employeeDao)
+
+        // Add timeoff
+        addTimeOffForEmployees(timeOffDao, employees)
 
         // Populate Schedules for the current month
 //        populateSchedules(scheduleDao, specialDayDao, employees)
@@ -246,14 +252,14 @@ fun createEmployees(): List<Employee> {
     )
 }
 
-suspend fun initializeDaos(db: HopperDatabase): Triple<EmployeeDao, ScheduleDao, SpecialDayDao> {
+fun initializeDaos(db: HopperDatabase): Triple<EmployeeDao, ScheduleDao, SpecialDayDao> {
     val employeeDao = db.employeeDao()
     val scheduleDao = db.scheduleDao()
     val specialDayDao = db.specialDayDao()
     return Triple(employeeDao, scheduleDao, specialDayDao)
 }
 
-suspend fun initializeTimeOffDao(db: HopperDatabase): TimeOffDao{
+fun initializeTimeOffDao(db: HopperDatabase): TimeOffDao {
     return db.timeOffDao()
 }
 
@@ -261,6 +267,49 @@ suspend fun insertEmployees(employees: List<Employee>, employeeDao: EmployeeDao)
     employees.forEach { employee ->
         employee.employeeId = employeeDao.insert(employee)
 
+    }
+}
+
+
+fun getWeekRange(weekNumber: Int): Pair<Date, Date> {
+    val calendar = Calendar.getInstance()
+
+    calendar.set(Calendar.DAY_OF_MONTH, 1)
+
+    // adjust to the start of the desired week
+    val firstDayOfWeek = calendar.firstDayOfWeek
+    val daysToAdd = ((7 * weekNumber) + (firstDayOfWeek - calendar.get(Calendar.DAY_OF_WEEK))) % 7
+    calendar.add(Calendar.DAY_OF_MONTH, daysToAdd)
+
+    val startDate = Date(calendar.timeInMillis)
+
+    calendar.add(Calendar.DAY_OF_MONTH, 6)
+
+    // if the month changes, adjust to the last day of the previous month
+    if (calendar.get(Calendar.MONTH) != startDate.toSqlDate().toJavaLocalDate().monthValue - 1) {
+        calendar.set(Calendar.DAY_OF_MONTH, 1)
+        calendar.add(Calendar.DAY_OF_MONTH, -1)
+    }
+
+    val endDate = Date(calendar.timeInMillis)
+
+    return Pair(startDate, endDate)
+}
+
+
+suspend fun addTimeOffForEmployees(timeOffDao: TimeOffDao, employees: List<Employee>) {
+    for (week in 0..3) { // Iterate through weeks 1 to 4
+        val (dateFrom, dateTo) = getWeekRange(week)
+
+        for (i in 0..3) {  // and add time off to db
+            val employee = employees[i]
+            val timeOff = TimeOff(
+                employeeId = employee.employeeId,
+                dateFrom = dateFrom.toSqlDate(),
+                dateTo = dateTo.toSqlDate()
+            )
+            timeOffDao.insert(timeOff)
+        }
     }
 }
 

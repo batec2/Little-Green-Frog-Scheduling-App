@@ -8,7 +8,6 @@ import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.employee.EmployeeRepository
-import com.example.f23hopper.data.schedule.Schedule
 import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.timeoff.TimeOff
@@ -19,7 +18,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.LocalDate
 import java.sql.Date
 import javax.inject.Inject
 
@@ -28,7 +26,7 @@ class TimeOffViewModel @Inject constructor(
     private val timeOffRepository: TimeOffRepository,
     private val employeeRepository: EmployeeRepository,
     private val scheduleRepository: ScheduleRepository
-):ViewModel(){
+) : ViewModel() {
     var timeOffList by mutableStateOf(timeOffRepository.getAllTimeOff().asLiveData())
     var employeesList by mutableStateOf(employeeRepository.getAllActiveEmployees().asLiveData())
     var timeOffUiState by mutableStateOf(TimeOffUiState())
@@ -49,7 +47,7 @@ class TimeOffViewModel @Inject constructor(
     }
 
     fun addTimeOff() {
-        if(timeOffUiState.isTimeOffValid){
+        if (timeOffUiState.isTimeOffValid) {
             val timeOff =
                 TimeOff(
                     employeeId = timeOffUiState.employee!!.employeeId,
@@ -62,12 +60,13 @@ class TimeOffViewModel @Inject constructor(
         }
     }
 
-    fun checkIfValid(){
-        if(timeOffUiState.employee!=null&&timeOffUiState.start!=null&&timeOffUiState.end!=null){
+    fun checkIfValid(): Boolean {
+        if (timeOffUiState.employee != null && timeOffUiState.start != null && timeOffUiState.end != null) {
             val id = timeOffUiState.employee!!.employeeId
             val start = formatDate(timeOffUiState.start!!)
             val end = formatDate(timeOffUiState.end!!)
-            val shifts = activeShiftsInFuture.value.filter{e->e.employee.employeeId==id&&e.schedule.date>=start&&e.schedule.date<=end}
+            val shifts =
+                activeShiftsInFuture.value.filter { e -> e.employee.employeeId == id && e.schedule.date >= start && e.schedule.date <= end }
             println(shifts.isEmpty())
             /*//--------------------------------------FILTERS OVER LAPPING TIME OFF
             val timeOff = timeOffNonState.filter{e->e.id==id&&
@@ -75,8 +74,10 @@ class TimeOffViewModel @Inject constructor(
                     (e.dateTo>=end&&e.dateFrom<=end)}
              */
             timeOffUiState.isTimeOffValid = shifts.isEmpty()
+            return shifts.isEmpty()
         }
         timeOffUiState.isTimeOffValid = false;
+        return false
     }
 
 }

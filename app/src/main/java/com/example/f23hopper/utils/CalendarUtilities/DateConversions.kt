@@ -9,6 +9,11 @@ import java.util.Locale
 
 
 fun java.time.LocalDate.toSqlDate(): Date = Date.valueOf(this.toString())
+
+fun java.util.Date.toSqlDate(): Date {
+    return Date(this.time)
+}
+
 fun Date.toKotlinxLocalDate(): LocalDate = LocalDate.parse(this.toString())
 fun java.util.Date.toKotlinxLocalDate(): LocalDate = LocalDate.parse(this.toString())
 fun java.time.LocalDate.toKotlinxLocalDate(): LocalDate = LocalDate.parse(this.toString())
