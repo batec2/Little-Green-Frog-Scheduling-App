@@ -58,12 +58,13 @@ import java.util.Locale
 fun TimeOffAddScreen(
     navigateToTimeOff: () -> Unit,
     sharedViewModel: TimeOffViewModel,
-){
+) {
     StatusBarColorUpdateEffect(toolbarColor)
     val coroutineScope = rememberCoroutineScope()
     TimeOffBody(
         sharedViewModel = sharedViewModel,
-        navigateToEmployeeTimeOff = navigateToTimeOff)
+        navigateToEmployeeTimeOff = navigateToTimeOff
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -71,16 +72,16 @@ fun TimeOffAddScreen(
 fun TimeOffBody(
     sharedViewModel: TimeOffViewModel,
     navigateToEmployeeTimeOff: () -> Unit,
-){
+) {
     val showTimeOffPicker = remember { mutableStateOf(false) }
     val showEmpPicker = remember { mutableStateOf(false) }
     val calendar = Calendar.getInstance()
     val employees by sharedViewModel.employeesList.asFlow().collectAsState(initial = emptyList())
     val state = rememberDateRangePickerState(
         initialDisplayMode = DisplayMode.Input,
-        yearRange = ((calendar[Calendar.YEAR]..(calendar[Calendar.YEAR]+1)))
+        yearRange = (calendar[Calendar.YEAR]..(calendar[Calendar.YEAR] + 1))
     )
-    val isButtonValid = remember { mutableStateOf(sharedViewModel.timeOffUiState.isTimeOffValid) }//--------------------------------------DO I EVEN NEED THIS?
+    val isButtonValid = sharedViewModel.timeOffUiState.isTimeOffValid
     val start = state.selectedStartDateMillis
     val end = state.selectedStartDateMillis
 
@@ -110,7 +111,8 @@ fun TimeOffBody(
                     onClick = {
                         sharedViewModel.addTimeOff()
                         navigateToEmployeeTimeOff()
-                    }, enabled = isButtonValid.value//--------------------------------------THIS DOESNT WORK
+                    },
+                    enabled = sharedViewModel.checkIfValid()
                 ) {
                     Text(text = "Done")
                 }
@@ -125,30 +127,29 @@ fun TimeOffBody(
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Spacer(modifier=Modifier.size(10.dp))
+            Spacer(modifier = Modifier.size(10.dp))
             EmployeePicker(
                 employees = employees,
                 showEmpPicker = showEmpPicker.value,
-                empPickerState = {showEmpPicker.value=it},
+                empPickerState = { showEmpPicker.value = it },
                 onEmployeeSelect = {
-                    println(isButtonValid.value)
+                    println(isButtonValid)
                     sharedViewModel.timeOffUiState.employee = it
-                    sharedViewModel.checkIfValid()
                 }
             )
-            Spacer(modifier=Modifier.size(10.dp))
+            Spacer(modifier = Modifier.size(10.dp))
             DateBox(
                 date = state.selectedStartDateMillis,
                 placeholder = "Start Date",
                 onDateClick = { showTimeOffPicker.value = true }
             )
-            Spacer(modifier=Modifier.size(10.dp))
+            Spacer(modifier = Modifier.size(10.dp))
             DateBox(
                 date = state.selectedEndDateMillis,
                 placeholder = "End Date",
                 onDateClick = { showTimeOffPicker.value = true }
             )
-            if(showTimeOffPicker.value){
+            if (showTimeOffPicker.value) {
                 TimeOffPicker(
                     showTimeOffPicker = {
                         showTimeOffPicker.value = false
@@ -165,11 +166,11 @@ fun TimeOffBody(
 fun DateBox(
     date: Long?,
     placeholder: String,
-    onDateClick: ()->Unit
-){
+    onDateClick: () -> Unit
+) {
     OutlinedTextField(
         value =
-        if(date==null)
+        if (date == null)
             placeholder
         else
             convertDateToString(date),
@@ -186,7 +187,8 @@ fun DateBox(
             disabledPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
-            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant),
+            disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+        ),
         modifier = Modifier.clickable { onDateClick() },
     )
 }
@@ -194,29 +196,31 @@ fun DateBox(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeOffPicker(
-    showTimeOffPicker: ()->Unit,
+    showTimeOffPicker: () -> Unit,
     state: DateRangePickerState
-){
+) {
     DatePickerDialog(
-        onDismissRequest = {showTimeOffPicker()},
+        onDismissRequest = { showTimeOffPicker() },
         confirmButton = {}
     ) {
         DateRangePicker(
             modifier = Modifier,
             state = state,
         )
-        Row (
+        Row(
             modifier = Modifier,
-        ){
+        ) {
             ElevatedButton(
-                modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                modifier = Modifier, shape = RoundedCornerShape(10.dp),
+                onClick = {
                     showTimeOffPicker()
                 },
             ) {
                 Text(text = "Done")
             }
             ElevatedButton(
-                modifier = Modifier, shape = RoundedCornerShape(10.dp), onClick = {
+                modifier = Modifier, shape = RoundedCornerShape(10.dp),
+                onClick = {
                     showTimeOffPicker()
                 },
             ) {
@@ -234,17 +238,17 @@ fun TimeOffPicker(
 fun EmployeePicker(
     employees: List<Employee>,
     showEmpPicker: Boolean,
-    empPickerState:(Boolean)->Unit,
-    onEmployeeSelect: (Employee)->Unit
-){
-    val selection = remember{ mutableStateOf("Employee") }
+    empPickerState: (Boolean) -> Unit,
+    onEmployeeSelect: (Employee) -> Unit
+) {
+    val selection = remember { mutableStateOf("Employee") }
     ExposedDropdownMenuBox(
         expanded = showEmpPicker,
-        onExpandedChange = {empPickerState(it)}
+        onExpandedChange = { empPickerState(it) }
     ) {
         OutlinedTextField(
             value = selection.value,
-            placeholder = { Text(text = "Employee")},
+            placeholder = { Text(text = "Employee") },
             onValueChange = {},
             readOnly = true,
             trailingIcon = {
@@ -257,16 +261,16 @@ fun EmployeePicker(
             expanded = showEmpPicker,
             onDismissRequest = { empPickerState(false) }
         ) {
-            employees.forEach{employee ->
+            employees.forEach { employee ->
                 DropdownMenuItem(
                     text = {
                         Text(
-                            text = employee.firstName +" "+employee.lastName,
+                            text = employee.firstName + " " + employee.lastName,
                             overflow = TextOverflow.Ellipsis
                         )
                     },
                     onClick = {
-                        selection.value = employee.firstName +" "+employee.lastName
+                        selection.value = employee.firstName + " " + employee.lastName
                         onEmployeeSelect(employee)
                         empPickerState(false)
                     }
@@ -283,7 +287,7 @@ fun convertToDate(millis: Long): LocalDate {
     return Date(millis).toJavaLocalDate()
 }
 
-private fun convertDateToString(dateLong: Long):String{
+private fun convertDateToString(dateLong: Long): String {
     val date = convertToDate(dateLong)
     return "${
         date.month.getDisplayName(
