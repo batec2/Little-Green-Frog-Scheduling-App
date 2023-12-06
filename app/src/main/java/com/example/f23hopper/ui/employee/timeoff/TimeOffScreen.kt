@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.DismissDirection
+import androidx.compose.material3.DismissState
 import androidx.compose.material3.DismissValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.asFlow
 import com.example.f23hopper.data.employee.Employee
 import com.example.f23hopper.data.timeoff.TimeOff
@@ -119,9 +121,7 @@ fun TimeOffListTopBar(
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorScheme.secondaryContainer,
-            titleContentColor = colorScheme.secondaryContainer,
-            navigationIconContentColor = colorScheme.primary,
-            actionIconContentColor = colorScheme.primary
+
         ),
         navigationIcon = {
             IconButton(onClick = { navigateToTimeOffList() }) {
@@ -130,7 +130,15 @@ fun TimeOffListTopBar(
                 )
             }
         },
-        title = { Text(text = "Employee Time Off")},
+        title = {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Employee Time Off")
+            }
+        },
         actions = {
             Icon(
                 Icons.Default.Add,
@@ -195,7 +203,8 @@ fun EmployeeTimeOffList(
     ) {
         items(items = timeOffList, key = { timeOff -> timeOff.id }) { timeOff ->
             val employee = employeeList.filter{ e->e.employeeId==timeOff.employeeId}[0]
-            val dismissState = rememberDismissState(
+            val dismissState = DismissState(
+                initialValue = DismissValue.Default,
                 confirmValueChange = {
                     if (it == DismissValue.DismissedToEnd) {
                         deactivateItem(timeOff)
@@ -240,7 +249,7 @@ fun TimeOffRow(
             .clip(shape = RoundedCornerShape(2.dp))
             .clickable { onTimeOffClick(timeOff) }
             .border(
-                2.dp,
+                1.dp,
                 shape = RoundedCornerShape(2.dp),
                 color = MaterialTheme.colorScheme.secondaryContainer
             )
@@ -248,9 +257,32 @@ fun TimeOffRow(
             .padding(16.dp)
     ) {
         Column {
-            Text(text = employee.firstName+" "+"\""+employee.nickname+"\""+employee.lastName)
-            Row{
-                Text(text = convertDateToString(timeOff.dateFrom.toJavaLocalDate()) +"-"+ convertDateToString(timeOff.dateTo.toJavaLocalDate()))
+            Text(style = androidx.compose.ui.text.TextStyle(fontSize = 20.sp),
+                text = employee.firstName+" "+"\""+employee.nickname+"\""+employee.lastName)
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween
+            ){
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .weight(.9f),
+                ){
+                    Text(text = convertDateToString(timeOff.dateFrom.toJavaLocalDate()))
+                }
+
+                Text(text = "-")
+
+                Row(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(color = MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
+                        .weight(.9f),
+                ){
+                    Text(text = convertDateToString(timeOff.dateTo.toJavaLocalDate()))
+                }
             }
         }
     }
