@@ -65,7 +65,6 @@ class ScheduleExporter {
 
         var file = File(downloadsDir, filename)
 
-        Log.d("content", content)
         var count = 1
         while (file.exists()) {
 
@@ -87,9 +86,21 @@ class ScheduleExporter {
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-        val destinationFile = File(downloadsDir, file.name)
+        var destinationFile = File(downloadsDir, file.name)
 
-        file.copyTo(destinationFile, overwrite = true)
+        var count = 1
+        while (destinationFile.exists()) {
+
+            val base      = destinationFile.name.substring(0, destinationFile.name.lastIndexOf("."))
+            val extension = destinationFile.name.substring(destinationFile.name.lastIndexOf(".") + 1)
+
+            // Make a copy of the file if it already exists.
+            val newFilename = "${base}($count).${extension}"
+            destinationFile = File(downloadsDir, newFilename)
+            count++
+        }
+
+        file.copyTo(destinationFile)
     }
 
     fun export(
