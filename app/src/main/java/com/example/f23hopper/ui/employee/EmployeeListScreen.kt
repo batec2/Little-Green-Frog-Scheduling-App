@@ -287,7 +287,8 @@ fun EmployeeListItem(
                             coroutineScope.launch {
                                 dismissState.reset()
                             }
-                        })
+                        },
+                        employee=employee)
                 },
                 dismissContent = { EmployeeRow(employee, onEmployeeClick) }
             )
@@ -301,7 +302,8 @@ fun DismissBackground(
     dismissState: DismissState,
     undoAction: () -> Unit,
     deactivateAction: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    employee: Employee
 ) {
     val color by animateColorAsState(
         targetValue = when (dismissState.targetValue) {
@@ -324,7 +326,12 @@ fun DismissBackground(
         ) {
             UndoIcon(undoAction = undoAction)
             Spacer(modifier = Modifier.width(116.dp))
-            DeactivateIcon(deactivateAction = deactivateAction)
+            if(employee.active){
+                DeactivateIcon(deactivateAction = deactivateAction)
+            }
+            else{
+                ReactivateIcon(deactivateAction = deactivateAction)
+            }
             Spacer(Modifier.weight(1f))
         }
     }
@@ -342,12 +349,23 @@ fun UndoIcon(undoAction: () -> Unit) {
 }
 
 @Composable
+fun ReactivateIcon(deactivateAction: () -> Unit) {
+    Icon(
+        imageVector = Icons.Filled.Add,
+        contentDescription = "Deactivate and Reactivate",
+        modifier = Modifier
+            .size(40.dp)
+            .clickable { deactivateAction() }
+    )
+}
+
+@Composable
 fun DeactivateIcon(deactivateAction: () -> Unit) {
     Icon(
         imageVector = Icons.Filled.Clear,
         contentDescription = "Deactivate and Reactivate",
         modifier = Modifier
-            .size(33.dp)
+            .size(40.dp)
             .clickable { deactivateAction() }
     )
 }
