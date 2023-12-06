@@ -36,12 +36,18 @@ class TimeOffViewModel @Inject constructor(
     //--------------------------------------JUST COPIED FROM SHIFTS
     private val _activeShiftsInFuture = MutableStateFlow<List<Shift>>(emptyList())
     private val activeShiftsInFuture: StateFlow<List<Shift>> = _activeShiftsInFuture
+
+    private val _timeOffInFuture = MutableStateFlow<List<TimeOff>>(emptyList())
+    private val timeOffInFuture: StateFlow<List<TimeOff>> = _timeOffInFuture
     //--------------------------------------STILL NEEDS THIS^ BUT FOR TIME OFF LIST
 
     init {//--------------------------------------STILL NEEDS TIME OFF LIST
         viewModelScope.launch {
             scheduleRepository.getShiftsFromDate(java.time.LocalDate.now().toSqlDate()).collect {
                 _activeShiftsInFuture.value = it
+            }
+            timeOffRepository.getTimeOffFromDate(java.time.LocalDate.now().toSqlDate()).collect {
+                _timeOffInFuture.value = it
             }
         }
     }
@@ -68,11 +74,11 @@ class TimeOffViewModel @Inject constructor(
             val shifts =
                 activeShiftsInFuture.value.filter { e -> e.employee.employeeId == id && e.schedule.date >= start && e.schedule.date <= end }
             println(shifts.isEmpty())
-            /*//--------------------------------------FILTERS OVER LAPPING TIME OFF
-            val timeOff = timeOffNonState.filter{e->e.id==id&&
+
+            val timeOff = timeOffInFuture.value.filter{e->e.id==id&&
                     (e.dateTo>=start&&e.dateFrom<=start)&&
                     (e.dateTo>=end&&e.dateFrom<=end)}
-             */
+
             timeOffUiState.isTimeOffValid = shifts.isEmpty()
             return shifts.isEmpty()
         }
@@ -80,7 +86,11 @@ class TimeOffViewModel @Inject constructor(
         return false
     }
 
+    suspend fun deleteTimeOff(timeOff: TimeOff){
+        timeOffRepository.delete(timeOff)
+    }
 }
+
 
 private fun formatDate(millis: Long): Date {
     return Date(millis).toJavaLocalDate().toSqlDate()
