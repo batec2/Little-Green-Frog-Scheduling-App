@@ -46,7 +46,7 @@ class TimeOffViewModel @Inject constructor(
             scheduleRepository.getShiftsFromDate(java.time.LocalDate.now().toSqlDate()).collect {
                 _activeShiftsInFuture.value = it
             }
-            timeOffRepository.getTimeOffFromDate(java.time.LocalDate.now().toSqlDate()).collect {
+            timeOffRepository.getTimeOffByDate(java.time.LocalDate.now().toSqlDate()).collect {
                 _timeOffInFuture.value = it
             }
         }
