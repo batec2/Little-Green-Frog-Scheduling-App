@@ -86,7 +86,11 @@ class TimeOffViewModel @Inject constructor(
         return false
     }
 
+    suspend fun deleteTimeOff(timeOff: TimeOff){
+        timeOffRepository.delete(timeOff)
+    }
 }
+
 
 private fun formatDate(millis: Long): Date {
     return Date(millis).toJavaLocalDate().toSqlDate()

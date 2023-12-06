@@ -190,7 +190,11 @@ fun TimeOffListContent(
         EmployeeTimeOffList(
             timeoffList,
             employeeList,
-            deactivateItem = {},
+            deactivateItem = {
+                coroutineScope.launch {
+                    viewModel.deleteTimeOff(it)
+                }
+            },
             onTimeOffClick = {},
         )
     }

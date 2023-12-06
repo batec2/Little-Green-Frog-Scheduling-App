@@ -215,6 +215,8 @@ fun TimeOffPicker(
         )
         Row(
             modifier = Modifier,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             ElevatedButton(
                 modifier = Modifier, shape = RoundedCornerShape(10.dp),
@@ -223,14 +225,6 @@ fun TimeOffPicker(
                 },
             ) {
                 Text(text = "Done")
-            }
-            ElevatedButton(
-                modifier = Modifier, shape = RoundedCornerShape(10.dp),
-                onClick = {
-                    showTimeOffPicker()
-                },
-            ) {
-                Text(text = "Cancel")
             }
         }
     }
