@@ -412,11 +412,12 @@ fun EmployeeList(
                 )
 
                 Text(
-                    text = "Shifts: $shiftsThisWeek",
+                    text = if(!isMaxedOut) "Shifts: $shiftsThisWeek" else "      Shifts: MAX",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
-                        .weight(1f)
+                        .weight(1.7f)
                         .wrapContentWidth(Alignment.CenterHorizontally),
+                    color = if(isMaxedOut) Color(0xFFF79B46) else Color.White,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
