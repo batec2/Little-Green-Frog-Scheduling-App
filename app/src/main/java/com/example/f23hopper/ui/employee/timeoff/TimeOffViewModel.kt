@@ -31,26 +31,30 @@ class TimeOffViewModel @Inject constructor(
     var employeesList by mutableStateOf(employeeRepository.getAllActiveEmployees().asLiveData())
     var timeOffUiState by mutableStateOf(TimeOffUiState())
         private set
+    var isShiftsError by mutableStateOf(false)
+    var isTimeOffError by mutableStateOf(false)
 
-    //val employeesListNonState = employeeRepository.getAllEmployeesNonState()
-    //--------------------------------------JUST COPIED FROM SHIFTS
     private val _activeShiftsInFuture = MutableStateFlow<List<Shift>>(emptyList())
     private val activeShiftsInFuture: StateFlow<List<Shift>> = _activeShiftsInFuture
-
     private val _timeOffInFuture = MutableStateFlow<List<TimeOff>>(emptyList())
     private val timeOffInFuture: StateFlow<List<TimeOff>> = _timeOffInFuture
-    //--------------------------------------STILL NEEDS THIS^ BUT FOR TIME OFF LIST
 
-    init {//--------------------------------------STILL NEEDS TIME OFF LIST
+
+    /*
+
+    init {
         viewModelScope.launch {
             scheduleRepository.getShiftsFromDate(java.time.LocalDate.now().toSqlDate()).collect {
                 _activeShiftsInFuture.value = it
             }
-            timeOffRepository.getTimeOffByDate(java.time.LocalDate.now().toSqlDate()).collect {
+        }
+        viewModelScope.launch {
+            timeOffRepository.getTimeOffFromDate(java.time.LocalDate.now().toSqlDate()).collect {
                 _timeOffInFuture.value = it
             }
         }
     }
+     */
 
     fun addTimeOff() {
         if (timeOffUiState.isTimeOffValid) {
@@ -72,15 +76,21 @@ class TimeOffViewModel @Inject constructor(
             val start = formatDate(timeOffUiState.start!!)
             val end = formatDate(timeOffUiState.end!!)
             val shifts =
-                activeShiftsInFuture.value.filter { e -> e.employee.employeeId == id && e.schedule.date >= start && e.schedule.date <= end }
-            println(shifts.isEmpty())
+                activeShiftsInFuture.value.filter {
+                    e -> e.employee.employeeId == id &&
+                        e.schedule.date >= start &&
+                        e.schedule.date <= end }
 
-            val timeOff = timeOffInFuture.value.filter{e->e.id==id&&
+            val timeOff = timeOffInFuture.value.filter{
+                e->e.id==id&&
                     (e.dateTo>=start&&e.dateFrom<=start)&&
                     (e.dateTo>=end&&e.dateFrom<=end)}
 
+            isShiftsError = shifts.isNotEmpty()
+            isTimeOffError = timeOff.isNotEmpty()
+
             timeOffUiState.isTimeOffValid = shifts.isEmpty()
-            return shifts.isEmpty()
+            return shifts.isEmpty() && timeOff.isEmpty()
         }
         timeOffUiState.isTimeOffValid = false;
         return false

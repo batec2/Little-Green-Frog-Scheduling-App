@@ -122,11 +122,21 @@ fun EmployeeListTopBar(
             containerColor = colorScheme.secondaryContainer,
         ),
         navigationIcon = {
+            /*
+
             Icon(
                 Icons.Default.EditCalendar,
                 contentDescription = "timeoff",
                 modifier = Modifier
                     .clickable { navigateToEmployeeTimeOff() }
+                    .size(40.dp)
+            )
+             */
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "add",
+                modifier = Modifier
+                    .clickable { navigateToEmployeeAdd() }
                     .size(40.dp)
             )
         },
@@ -140,13 +150,6 @@ fun EmployeeListTopBar(
             }
         },
         actions = {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = "add",
-                modifier = Modifier
-                    .clickable { navigateToEmployeeAdd() }
-                    .size(40.dp)
-            )
             Box(modifier = Modifier, contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = rememberFilterList(),
