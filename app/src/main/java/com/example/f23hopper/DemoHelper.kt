@@ -286,8 +286,8 @@ fun getWeekRange(weekNumber: Int): Pair<Date, Date> {
     calendar.add(Calendar.DAY_OF_MONTH, 6)
 
     // if the month changes, adjust to the last day of the previous month
-    if (calendar.get(Calendar.MONTH) != startDate.toSqlDate().toJavaLocalDate().monthValue - 1) {
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
+    if (calendar[Calendar.MONTH] != startDate.toSqlDate().toJavaLocalDate().monthValue - 1) {
+        calendar[Calendar.DAY_OF_MONTH] = 1
         calendar.add(Calendar.DAY_OF_MONTH, -1)
     }
 
@@ -350,10 +350,11 @@ suspend fun populateSchedules(
                 }
                 specialDayDao.insert(SpecialDay(date = date))
             }
+
             day == 2 -> {
                 // Only 3 employees scheduled on day 2
                 (0 until 3).forEach { i ->
-                    val employee = employees[(rotatingIndex + i -1) % employees.size]
+                    val employee = employees[(rotatingIndex + i - 1) % employees.size]
                     val shiftType = if (i < 2) ShiftType.DAY else ShiftType.NIGHT
                     scheduleDao.insert(
                         Schedule(
@@ -366,6 +367,7 @@ suspend fun populateSchedules(
                 // Increment rotatingIndex by 3 for the next day
                 rotatingIndex += 3
             }
+
             isWeekend -> {
                 // Only two full shifts needed on weekends
                 (0 until 2).forEach { i ->
@@ -381,6 +383,7 @@ suspend fun populateSchedules(
                 // Increment rotatingIndex by 2 for the next day
                 rotatingIndex += 2
             }
+
             else -> {
                 // Assign two day shifts and two night shifts for each regular weekday
                 (0 until 4).forEach { i ->
