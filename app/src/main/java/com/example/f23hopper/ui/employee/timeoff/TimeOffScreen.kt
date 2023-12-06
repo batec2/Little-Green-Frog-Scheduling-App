@@ -224,6 +224,7 @@ fun EmployeeTimeOffList(
                     true
                 }
             )
+            /*
 
             SwipeToDismiss(
                 state = dismissState,
@@ -241,10 +242,11 @@ fun EmployeeTimeOffList(
                             coroutineScope.launch {
                                 dismissState.reset()
                             }
-                        })
+                        },)
                 },
                 dismissContent = { TimeOffRow(employee,timeOff,onTimeOffClick) }
             )
+            */
         }
     }
 }
