@@ -9,6 +9,7 @@ import com.example.f23hopper.data.schedule.ScheduleRepository
 import com.example.f23hopper.data.schedule.Shift
 import com.example.f23hopper.data.shifttype.ShiftType
 import com.example.f23hopper.data.specialDay.SpecialDayRepository
+import com.example.f23hopper.data.timeoff.TimeOffRepository
 import com.example.f23hopper.utils.CalendarUtilities.toSqlDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
@@ -28,7 +29,8 @@ import javax.inject.Inject
 class ShiftEditViewModel @Inject constructor(
     private val scheduleRepo: ScheduleRepository,
     private val specialDayRepo: SpecialDayRepository,
-    private val employeeRepo: EmployeeRepository
+    private val employeeRepo: EmployeeRepository,
+    private val timeOffRepo: TimeOffRepository,
 ) : ViewModel() {
 
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -61,17 +63,19 @@ class ShiftEditViewModel @Inject constructor(
 
     fun getEligibleEmployeesForShift(date: LocalDate, shiftType: ShiftType): Flow<List<Employee>> {
         return combine(
-            employeeRepo.getAvailableEmployeesByDayAndShiftType(
+            employeeRepo.getEmployeesByDayAndShiftType(
                 date.dayOfWeek,
-                shiftType,
-                date = date.toSqlDate()
+                shiftType
             ),
-            getShiftsForDay(date)
-        ) { allEligible, alreadyScheduled ->
+            getShiftsForDay(date),
+            timeOffRepo.getTimeOffByDate(date.toSqlDate())
+        ) { allEligible, alreadyScheduled, timeOffToday ->
+            val employeesOnTimeOff = timeOffToday.map { it.employeeId }.toSet()
+
             allEligible.filter { emp ->
                 alreadyScheduled.none { shift ->
-                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftType == shiftType && emp.active
-                }
+                    shift.employee.employeeId == emp.employeeId && shift.schedule.shiftType == shiftType
+                } && emp.active && emp.employeeId !in employeesOnTimeOff  // Check if employee is on time-off
             }
         }
     }

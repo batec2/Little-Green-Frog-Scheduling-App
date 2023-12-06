@@ -30,7 +30,11 @@ class TimeOffRepository(private val timeOffDao: TimeOffDao) {
         return timeOffDao.getTimeOffNonState()
     }
 
-    fun countOfTimeOff(employeeId: Long,startDate: Date, endDate: Date):Int{
-        return timeOffDao.countOfTimeOff(employeeId,startDate,endDate)
+    fun getTimeOffByDate(date: Date): Flow<List<TimeOff>> {
+        return timeOffDao.getTimeOffByDate(date)
+    }
+
+    fun countOfTimeOff(employeeId: Long, startDate: Date, endDate: Date): Int {
+        return timeOffDao.countOfTimeOff(employeeId, startDate, endDate)
     }
 }

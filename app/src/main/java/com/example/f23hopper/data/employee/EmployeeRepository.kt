@@ -5,7 +5,6 @@ import androidx.room.Transaction
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.f23hopper.data.shifttype.ShiftType
 import kotlinx.coroutines.flow.Flow
-import java.util.Date
 
 class EmployeeRepository(private val employeeDao: EmployeeDao) {
 
@@ -89,34 +88,6 @@ class EmployeeRepository(private val employeeDao: EmployeeDao) {
     }
 
 
-    fun getAvailableEmployeesByDayAndShiftType(
-        day: kotlinx.datetime.DayOfWeek,
-        shiftType: ShiftType,
-        date: Date
-    ): Flow<List<Employee>> {
-        val query = when (shiftType) {
-            ShiftType.DAY, ShiftType.NIGHT -> SimpleSQLiteQuery(
-                """
-            SELECT e.* FROM employees e
-            LEFT JOIN timeoff t ON e.id = t.employeeId
-            WHERE e.active = 1 AND ${day.name.lowercase()} = ? OR ${day.name.lowercase()} = ?
-            AND (t.employeeId IS NULL OR (t.dateFrom > ? OR t.dateTo < ?))
-            """,
-                arrayOf(shiftType.name, ShiftType.FULL.name, date, date)
-            )
-
-            else -> SimpleSQLiteQuery(
-                """
-            SELECT e.* FROM employees e
-            LEFT JOIN timeoff t ON e.id = t.employeeId
-            WHERE e.active = 1 AND ${day.name.lowercase()} = ?
-            AND (t.employeeId IS NULL OR (t.dateFrom > ? OR t.dateTo < ?))
-            """,
-                arrayOf(shiftType.name, date, date)
-            )
-        }
-        return employeeDao.getEmployeesByDayAndShiftType(query)
-    }
 
 }
 
