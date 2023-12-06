@@ -1,6 +1,7 @@
 package com.example.f23hopper.ui.employee.timeoff
 
 import android.icu.util.Calendar
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -92,11 +93,16 @@ fun TimeOffBody(
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                titleContentColor = MaterialTheme.colorScheme.primary,
-                navigationIconContentColor = MaterialTheme.colorScheme.primary,
-                actionIconContentColor = MaterialTheme.colorScheme.primary
             ),
-            title = {},
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Add Time Off")
+                }
+            },
             navigationIcon = {
                 IconButton(onClick = { navigateToEmployeeTimeOff() }) {
                     Icon(
@@ -209,6 +215,8 @@ fun TimeOffPicker(
         )
         Row(
             modifier = Modifier,
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             ElevatedButton(
                 modifier = Modifier, shape = RoundedCornerShape(10.dp),
@@ -217,14 +225,6 @@ fun TimeOffPicker(
                 },
             ) {
                 Text(text = "Done")
-            }
-            ElevatedButton(
-                modifier = Modifier, shape = RoundedCornerShape(10.dp),
-                onClick = {
-                    showTimeOffPicker()
-                },
-            ) {
-                Text(text = "Cancel")
             }
         }
     }

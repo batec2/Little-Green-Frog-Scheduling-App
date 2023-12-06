@@ -111,11 +111,16 @@ fun EmployeeEntryBody(
         CenterAlignedTopAppBar(
             colors = TopAppBarDefaults.topAppBarColors(
                 containerColor = colorScheme.secondaryContainer,
-                titleContentColor = colorScheme.primary,
-                navigationIconContentColor = colorScheme.primary,
-                actionIconContentColor = colorScheme.primary
             ),
-            title = {},
+            title = {
+                Row(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Text(text = "Add/Edit")
+                }
+            },
             navigationIcon = {
                 IconButton(onClick = { navigateToEmployeeList() }) {
                     Icon(

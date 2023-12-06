@@ -120,26 +120,31 @@ fun EmployeeListTopBar(
     CenterAlignedTopAppBar(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorScheme.secondaryContainer,
-            titleContentColor = colorScheme.secondaryContainer,
-            navigationIconContentColor = colorScheme.primary,
-            actionIconContentColor = colorScheme.primary
         ),
         navigationIcon = {
-            Icon(
-                Icons.Default.Add,
-                contentDescription = "add",
-                modifier = Modifier
-                    .clickable { navigateToEmployeeAdd() }
-                    .size(40.dp)
-            )
-        },
-        title = {},
-        actions = {
             Icon(
                 Icons.Default.EditCalendar,
                 contentDescription = "timeoff",
                 modifier = Modifier
                     .clickable { navigateToEmployeeTimeOff() }
+                    .size(40.dp)
+            )
+        },
+        title = {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Text(text = "Employee List")
+            }
+        },
+        actions = {
+            Icon(
+                Icons.Default.Add,
+                contentDescription = "add",
+                modifier = Modifier
+                    .clickable { navigateToEmployeeAdd() }
                     .size(40.dp)
             )
             Box(modifier = Modifier, contentAlignment = Alignment.Center) {
@@ -155,7 +160,12 @@ fun EmployeeListTopBar(
             FilterDialogue(
                 isFilterExpanded = isExpanded,
                 filterState = { isExpanded = it },
-            ) { filter -> sharedViewModel.filterEmployee(filter) }
+                filterSelection = {
+                    sharedViewModel.selection=it
+                    sharedViewModel.filterEmployee(it)
+              },
+                currentSelected = sharedViewModel.selection,
+            )
         },
         modifier = Modifier.height(50.dp),
     )
@@ -248,7 +258,8 @@ fun EmployeeListItem(
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {
         items(items = employees, key = { employee -> employee.employeeId }) { employee ->
-            val dismissState = rememberDismissState(
+            val dismissState = DismissState(
+                initialValue = Default,
                 confirmValueChange = {
                     if (it == DismissedToEnd) {
                         deactivateItem(employee)
@@ -348,11 +359,13 @@ fun EmployeeRow(
             .fillMaxWidth()
             .clip(shape = RoundedCornerShape(2.dp))
             .clickable { onEmployeeClick(employee) }
+
             .border(
-                2.dp,
+                1.dp,
                 shape = RoundedCornerShape(2.dp),
                 color = colorScheme.secondaryContainer
             )
+
             .background(colorScheme.background)
             .padding(16.dp)
     ) {
@@ -491,7 +504,9 @@ fun ShiftRow(
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(2.dp))
+            /*
             .border(1.dp, shape = RoundedCornerShape(2.dp), color = colorScheme.secondary)
+             */
             .background(color = colorScheme.secondaryContainer)
             .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween
@@ -520,8 +535,8 @@ fun FilterDialogue(
     isFilterExpanded: Boolean,
     filterState: (Boolean) -> Unit,
     filterSelection: (String) -> Unit,
+    currentSelected: String,
 ) {
-    var currentSelected by remember { mutableStateOf("All Employees") }
     DropdownMenu(expanded = isFilterExpanded, onDismissRequest = { filterState(false) }
     ) {
         var selections =
@@ -539,7 +554,7 @@ fun FilterDialogue(
                 onClick = {
                     filterSelection(item)
                     filterState(false)
-                    currentSelected = item
+                    filterSelection(item)
                 },
                 trailingIcon = {
                     val isSelected = currentSelected == item

@@ -36,6 +36,8 @@ class EmployeeListViewModel @Inject constructor(
     var employeeToToggle: Employee? by mutableStateOf(null)
         private set
 
+    var selection by mutableStateOf("All Employees");
+
     fun toggleEmployeeActive(employee: Employee, value: Boolean) {
         viewModelScope.launch {
             val active: Int = if (value) 0 else 1

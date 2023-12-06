@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
+import com.example.f23hopper.data.schedule.Shift
 
 import kotlinx.coroutines.flow.Flow
 import java.sql.Date
@@ -36,4 +37,7 @@ interface TimeOffDao {
                 "AND employeeId = :id"
     )
     fun countOfTimeOff(id: Long, start: Date, end: Date): Int
+
+    @Query("SELECT * FROM timeoff WHERE dateTo>=:currentDate")
+    fun timeOffFromDate(currentDate:Date): Flow<List<TimeOff>>
 }
