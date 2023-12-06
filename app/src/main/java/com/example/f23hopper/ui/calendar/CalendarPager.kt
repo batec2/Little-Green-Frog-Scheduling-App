@@ -297,20 +297,16 @@ fun ShiftViewEmployeeList(
             colors = CardDefaults.cardColors(
                 containerColor = colorScheme.background,
             )
-        )
-        {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Row(
-                    modifier = Modifier.weight(0.9f),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (employeeList.any { it.active }) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
                 ) {
                     LazyColumn(
                         modifier = Modifier
-                            .fillMaxWidth(.95f),
+                            .fillMaxWidth(0.95f)
+                            .weight(0.9f),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         items(employeeList.filter { it.active }) { item ->
@@ -326,10 +322,7 @@ fun ShiftViewEmployeeList(
                                         else
                                             Color.Transparent
                                     )
-                                    .clickable
-                                    {
-                                        selected(item)
-                                    },
+                                    .clickable { selected(item) },
                                 horizontalArrangement = Arrangement.Center,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -349,16 +342,29 @@ fun ShiftViewEmployeeList(
                                     )
                                 }
                             }
-
                         }
                     }
+                    Button(
+                        onClick = { onDismissRequest() },
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .padding(top = 16.dp)
+                    ) {
+                        Text(text = "Close")
+                    }
                 }
-                Row(
-                    modifier = Modifier.weight(0.1f),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
+            } else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center,
+                    modifier = Modifier.padding(16.dp)
                 ) {
-
+                    Text(
+                        text = "There are no employees to display",
+                        color = Color.Black,
+                        fontSize = 16.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
                     Button(
                         onClick = { onDismissRequest() }
                     ) {
