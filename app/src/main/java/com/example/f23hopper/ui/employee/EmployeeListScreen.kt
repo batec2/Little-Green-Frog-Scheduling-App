@@ -160,7 +160,12 @@ fun EmployeeListTopBar(
             FilterDialogue(
                 isFilterExpanded = isExpanded,
                 filterState = { isExpanded = it },
-            ) { filter -> sharedViewModel.filterEmployee(filter) }
+                filterSelection = {
+                    sharedViewModel.selection=it
+                    sharedViewModel.filterEmployee(it)
+              },
+                currentSelected = sharedViewModel.selection,
+            )
         },
         modifier = Modifier.height(50.dp),
     )
@@ -530,8 +535,8 @@ fun FilterDialogue(
     isFilterExpanded: Boolean,
     filterState: (Boolean) -> Unit,
     filterSelection: (String) -> Unit,
+    currentSelected: String,
 ) {
-    var currentSelected by remember { mutableStateOf("All Employees") }
     DropdownMenu(expanded = isFilterExpanded, onDismissRequest = { filterState(false) }
     ) {
         var selections =
@@ -549,7 +554,7 @@ fun FilterDialogue(
                 onClick = {
                     filterSelection(item)
                     filterState(false)
-                    currentSelected = item
+                    filterSelection(item)
                 },
                 trailingIcon = {
                     val isSelected = currentSelected == item

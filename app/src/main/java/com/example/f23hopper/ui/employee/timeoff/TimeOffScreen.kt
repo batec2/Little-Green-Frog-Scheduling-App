@@ -157,10 +157,18 @@ fun TimeOffListTopBar(
                         .clickable { isExpanded = true },
                 )
             }
+            /*
             FilterDialogue(
                 isFilterExpanded = isExpanded,
                 filterState = { isExpanded = it },
-            ) { }
+                filterSelection = {
+                    currentSelected=it
+                    sharedViewModel.filterEmployee(it)
+                },
+                currentSelected = currentSelected,
+            )
+
+             */
         },
         modifier = Modifier.height(50.dp),
     )
