@@ -82,7 +82,6 @@ fun TimeOffBody(
         initialDisplayMode = DisplayMode.Input,
         yearRange = (calendar[Calendar.YEAR]..(calendar[Calendar.YEAR] + 1))
     )
-    val isButtonValid = sharedViewModel.timeOffUiState.isTimeOffValid
     val start = state.selectedStartDateMillis
     val end = state.selectedStartDateMillis
 
@@ -139,7 +138,6 @@ fun TimeOffBody(
                 showEmpPicker = showEmpPicker.value,
                 empPickerState = { showEmpPicker.value = it },
                 onEmployeeSelect = {
-                    println(isButtonValid)
                     sharedViewModel.timeOffUiState.employee = it
                 }
             )
@@ -147,13 +145,17 @@ fun TimeOffBody(
             DateBox(
                 date = state.selectedStartDateMillis,
                 placeholder = "Start Date",
-                onDateClick = { showTimeOffPicker.value = true }
+                onDateClick = { showTimeOffPicker.value = true },
+                isError = sharedViewModel.checkIfValid(),
+                errorMessage = "",
             )
             Spacer(modifier = Modifier.size(10.dp))
             DateBox(
                 date = state.selectedEndDateMillis,
                 placeholder = "End Date",
-                onDateClick = { showTimeOffPicker.value = true }
+                onDateClick = { showTimeOffPicker.value = true },
+                isError = sharedViewModel.checkIfValid(),
+                errorMessage = "",
             )
             if (showTimeOffPicker.value) {
                 TimeOffPicker(
@@ -172,7 +174,9 @@ fun TimeOffBody(
 fun DateBox(
     date: Long?,
     placeholder: String,
-    onDateClick: () -> Unit
+    onDateClick: () -> Unit,
+    isError:Boolean,
+    errorMessage:String,
 ) {
     OutlinedTextField(
         value =
@@ -195,6 +199,13 @@ fun DateBox(
             disabledLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
             disabledTrailingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
         ),
+        isError = isError,
+        supportingText =
+        {
+            if(isError){
+                Text(text = errorMessage)
+            }
+        },
         modifier = Modifier.clickable { onDateClick() },
     )
 }
