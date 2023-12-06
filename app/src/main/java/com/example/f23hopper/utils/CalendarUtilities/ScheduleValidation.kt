@@ -374,10 +374,10 @@ fun ShowEmployeeAbsenceDialog(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
                     Button(onClick = { onGenerationClick(); onDismiss() }) {
-                        Text("Fix")
+                        Text("Generate")
                     }
                     Button(onClick = onDismiss) {
-                        Text("Close")
+                        Text("  Close  ")
                     }
                 }
             }
