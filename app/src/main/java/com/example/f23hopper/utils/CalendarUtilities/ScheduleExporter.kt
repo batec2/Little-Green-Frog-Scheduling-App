@@ -58,15 +58,29 @@ class ScheduleExporter {
         return rows
     }
 
-    private fun shareFile(filename: String, content: String) {
+    private fun shareFile(filename: String, content: String): String {
+
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-        val file = File(downloadsDir, filename)
+        var file = File(downloadsDir, filename)
+
+        Log.d("content", content)
+        var count = 1
+        while (file.exists()) {
+
+            val base      = filename.substring(0, filename.lastIndexOf("."))
+            val extension = filename.substring(filename.lastIndexOf(".") + 1)
+
+            // Make a copy of the file if it already exists.
+            val newFilename = "${base}($count).${extension}"
+            file = File(downloadsDir, newFilename)
+            count++
+        }
 
         file.writeText(content)
+        return file.name
     }
-
 
     private fun shareFile(file: File) {
 
@@ -87,7 +101,6 @@ class ScheduleExporter {
         month: YearMonth,
     ) {
         try {
-            // TODO Add user choice if they want to download text or pdf
             val pdf = generatePdfCalendar(
                 context = context,
                 filename = "$filename.pdf",
