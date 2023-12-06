@@ -3,7 +3,6 @@ package com.example.f23hopper.data.timeoff
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Update
-import com.example.f23hopper.data.schedule.Shift
 import kotlinx.coroutines.flow.Flow
 import java.sql.Date
 
@@ -31,7 +30,11 @@ class TimeOffRepository(private val timeOffDao: TimeOffDao) {
         return timeOffDao.getTimeOffNonState()
     }
 
-    fun getTimeOffFromDate(currentDate:Date):Flow<List<TimeOff>>{
-        return timeOffDao.timeOffFromDate(currentDate)
+    fun getTimeOffByDate(date: Date): Flow<List<TimeOff>> {
+        return timeOffDao.getTimeOffByDate(date)
+    }
+
+    fun countOfTimeOff(employeeId: Long, startDate: Date, endDate: Date): Int {
+        return timeOffDao.countOfTimeOff(employeeId, startDate, endDate)
     }
 }

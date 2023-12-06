@@ -28,10 +28,14 @@ interface TimeOffDao {
     @Query("SELECT * FROM timeoff")
     fun getTimeOffNonState(): List<TimeOff>
 
+    @Query("SELECT * FROM timeoff WHERE dateFrom <= :date AND dateTo >= :date")
+    fun getTimeOffByDate(date: Date): Flow<List<TimeOff>>
 
-    @Query("SELECT COUNT(id) as count FROM timeoff " +
-            "WHERE (dateFrom>= :start AND dateFrom<= :end) OR (dateTo>= :start AND dateTo<= :end)" +
-            "AND employeeId = :id")
+    @Query(
+        "SELECT COUNT(id) as count FROM timeoff " +
+                "WHERE (dateFrom>= :start AND dateFrom<= :end) OR (dateTo>= :start AND dateTo<= :end)" +
+                "AND employeeId = :id"
+    )
     fun countOfTimeOff(id: Long, start: Date, end: Date): Int
 
     @Query("SELECT * FROM timeoff WHERE dateTo>=:currentDate")
