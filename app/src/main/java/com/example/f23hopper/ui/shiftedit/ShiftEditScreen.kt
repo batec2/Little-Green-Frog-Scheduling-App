@@ -417,7 +417,7 @@ fun EmployeeList(
                     modifier = Modifier
                         .weight(1.7f)
                         .wrapContentWidth(Alignment.CenterHorizontally),
-                    color = if(isMaxedOut) Color(0xFFF79B46) else Color.White,
+                    color = if(isMaxedOut) Color(0xFFAF5504) else Color.Unspecified,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -442,8 +442,8 @@ fun EmployeeList(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
                         modifier = Modifier.size(24.dp),
-                        tint = if (!isMaxedOut) Color.Unspecified
-                        else Color.Transparent
+                        tint = if (isMaxedOut) Color.Transparent
+                               else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
                 }
             }
