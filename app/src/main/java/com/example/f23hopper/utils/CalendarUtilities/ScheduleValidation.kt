@@ -373,8 +373,11 @@ fun ShowEmployeeAbsenceDialog(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ) {
-                    Button(onClick = { onGenerationClick(); onDismiss() }) {
-                        Text("Generate")
+                    // Only show generate if the employees don't show up in days past the current date
+                    if (absentEmployees.keys.any { it >= LocalDate.now() }) {
+                        Button(onClick = { onGenerationClick(); onDismiss() }) {
+                            Text("Generate")
+                        }
                     }
                     Button(onClick = onDismiss) {
                         Text("  Close  ")
