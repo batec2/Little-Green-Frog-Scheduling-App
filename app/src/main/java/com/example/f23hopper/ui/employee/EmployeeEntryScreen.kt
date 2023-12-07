@@ -382,7 +382,7 @@ fun ValidatedOutlinedTextField(
         },
         maxLines = 1,
         keyboardOptions = if (field.isNumber) {
-            KeyboardOptions(keyboardType = KeyboardType.Number)
+            KeyboardOptions(keyboardType = KeyboardType.Number, autoCorrect = false)
         } else {
             KeyboardOptions(keyboardType = KeyboardType.Email, autoCorrect = false)
         },
