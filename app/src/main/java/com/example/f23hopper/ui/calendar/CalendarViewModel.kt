@@ -146,10 +146,14 @@ class CalendarViewModel @Inject constructor(
                 .mapValues { (_, value) -> value.toMutableList() }
                 .toMutableMap()
 
+            val currentDate = LocalDate.now() // get current date so past days aren't generated
+
             // check each day in the month
             for (day in month.atDay(1).datesUntil(month.atEndOfMonth().plusDays(1))) {
                 try {
 
+                    // Do not generate days in the past
+                    if (day.isBefore(currentDate)) continue
                     // check if current day is a special day
                     val isSpecialDay = specialDaysForMonth.any { it.date.toJavaLocalDate() == day }
 
