@@ -18,7 +18,7 @@ class ScheduleExporter(
 ) {
 
     private var basename = "${curMonth.year}_${curMonth.month.value}_schedule"
-    private var count = 0
+    private var count = 1
     private val content = formatSchedule()
 
     private fun formatSchedule(): String {
