@@ -417,7 +417,7 @@ fun EmployeeList(
                     modifier = Modifier
                         .weight(1.7f)
                         .wrapContentWidth(Alignment.CenterHorizontally),
-                    color = if(isMaxedOut) Color(0xFFF79B46) else Color.White,
+                    color = if(isMaxedOut) Color(0xFFAF5504) else Color.Unspecified,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -427,23 +427,33 @@ fun EmployeeList(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.weight(1f)
                 ) {
-                    if (employee.canOpen && shiftType != ShiftType.NIGHT) {
-                        CanOpenIcon()
-                    } else {
-                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                    if (shiftType == ShiftType.FULL) {
+                        if (employee.canOpen) {
+                            CanOpenIcon()
+                        } else {
+                            Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                        }
+                        if (employee.canClose) {
+                            CanCloseIcon()
+                        } else {
+                            Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                        }
                     }
-                    if (employee.canClose && shiftType != ShiftType.DAY) {
-                        CanCloseIcon()
-                    } else {
-                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                    else {
+                        if (employee.canOpen && shiftType != ShiftType.NIGHT) {
+                            CanOpenIcon()
+                        }
+                        else if (employee.canClose && shiftType != ShiftType.DAY) {
+                            CanCloseIcon()
+                        }
                     }
 
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = "Add",
                         modifier = Modifier.size(24.dp),
-                        tint = if (!isMaxedOut) Color.Unspecified
-                        else Color.Transparent
+                        tint = if (isMaxedOut) Color.Transparent
+                               else MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f)
                     )
                 }
             }
