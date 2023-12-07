@@ -427,15 +427,25 @@ fun EmployeeList(
                     horizontalArrangement = Arrangement.End,
                     modifier = Modifier.weight(1f)
                 ) {
-                    if (employee.canOpen && shiftType != ShiftType.NIGHT) {
-                        CanOpenIcon()
-                    } else {
-                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                    if (shiftType == ShiftType.FULL) {
+                        if (employee.canOpen) {
+                            CanOpenIcon()
+                        } else {
+                            Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                        }
+                        if (employee.canClose) {
+                            CanCloseIcon()
+                        } else {
+                            Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                        }
                     }
-                    if (employee.canClose && shiftType != ShiftType.DAY) {
-                        CanCloseIcon()
-                    } else {
-                        Spacer(modifier = Modifier.size(24.dp)) // placeholder spacer for alignment
+                    else {
+                        if (employee.canOpen && shiftType != ShiftType.NIGHT) {
+                            CanOpenIcon()
+                        }
+                        else if (employee.canClose && shiftType != ShiftType.DAY) {
+                            CanCloseIcon()
+                        }
                     }
 
                     Icon(
