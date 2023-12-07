@@ -161,8 +161,8 @@ private fun drawEmployeeNames(
         val closeSym = "🔒"
         val lockSymbols = when {
             canOpen && canClose && isFullShift -> openSym + closeSym
-            canOpen && isDayShift -> openSym
-            canClose && isNightShift -> closeSym
+            canOpen && (isDayShift || isFullShift) -> openSym
+            canClose && (isNightShift || isFullShift) -> closeSym
             isDayShift || isNightShift -> "        " //space out to even the text
             else -> "      " //space out to even the text on full days
         }
