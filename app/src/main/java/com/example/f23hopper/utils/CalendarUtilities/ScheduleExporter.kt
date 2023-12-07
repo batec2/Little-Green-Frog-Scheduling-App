@@ -10,9 +10,18 @@ import com.example.f23hopper.utils.generatePdfCalendar
 import java.io.File
 import java.time.YearMonth
 
-class ScheduleExporter {
+class ScheduleExporter(
+    private val context: Context,
+    private val shifts: List<Shift>,
+    private val specialDays: List<SpecialDay>,
+    private val curMonth: YearMonth
+) {
 
-    fun formatSchedule(shifts: List<Shift>, curMonth: YearMonth): String {
+    private var basename = "${curMonth.year}_${curMonth.month.value}_schedule"
+    private var count = 1
+    private val content = formatSchedule()
+
+    private fun formatSchedule(): String {
 
         val filteredShifts = shifts.filter { shift ->
             val scheduleDate = shift.schedule.date.toKotlinxLocalDate()
@@ -32,9 +41,9 @@ class ScheduleExporter {
         return formattedSchedule
     }
 
-    private fun formatRows(shifts: List<Shift>): String {
+    private fun formatRows(shiftsOnDate: List<Shift>): String {
 
-        val sortedShifts = shifts.sortedWith(
+        val sortedShifts = shiftsOnDate.sortedWith(
                  compareBy<Shift> { it.schedule.shiftType }
                 .thenByDescending { it.employee.canOpen }
                 .thenBy           { it.employee.canClose }
@@ -58,68 +67,48 @@ class ScheduleExporter {
         return rows
     }
 
-    private fun shareFile(filename: String, content: String): String {
+    private fun updateBasename(extension: String) {
 
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-        var file = File(downloadsDir, filename)
+        var file = File(downloadsDir, "$basename.$extension")
 
-        var count = 1
         while (file.exists()) {
-
-            val base      = filename.substring(0, filename.lastIndexOf("."))
-            val extension = filename.substring(filename.lastIndexOf(".") + 1)
-
-            // Make a copy of the file if it already exists.
-            val newFilename = "${base}($count).${extension}"
-            file = File(downloadsDir, newFilename)
+            file = File(downloadsDir, "${basename}($count).$extension")
             count++
         }
+        basename = file.nameWithoutExtension
 
-        file.writeText(content)
-        return file.name
     }
 
-    private fun shareFile(file: File) {
-
+    private fun shareFile() {
+        updateBasename("txt")
         val downloadsDir =
             Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
 
-        var destinationFile = File(downloadsDir, file.name)
+        val destinationFile = File(downloadsDir, "$basename.txt")
+        destinationFile.writeText(content)
 
-        var count = 1
-        while (destinationFile.exists()) {
-
-            val base      = destinationFile.name.substring(0, destinationFile.name.lastIndexOf("."))
-            val extension = destinationFile.name.substring(destinationFile.name.lastIndexOf(".") + 1)
-
-            // Make a copy of the file if it already exists.
-            val newFilename = "${base}($count).${extension}"
-            destinationFile = File(downloadsDir, newFilename)
-            count++
-        }
-
+    }
+    private fun shareFile(file: File) {
+        updateBasename("pdf")
+        val downloadsDir =
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+        val destinationFile = File(downloadsDir, "$basename.pdf")
         file.copyTo(destinationFile)
     }
 
-    fun export(
-        filename: String,
-        content: String,
-        context: Context,
-        shifts: List<Shift>,
-        specialDays: List<SpecialDay>,
-        month: YearMonth,
-    ) {
+    fun export() {
         try {
             val pdf = generatePdfCalendar(
                 context = context,
-                filename = "$filename.pdf",
-                yearMonth = month,
+                filename = "$basename.pdf",
+                yearMonth = curMonth,
                 shifts = shifts,
                 specialDays = specialDays
             )
-            shareFile("$filename.txt", content)
+            shareFile()
             shareFile(pdf)
         } catch (e: Exception) {
             Log.e("Error", "Error saving or sharing file: ${e.message}")

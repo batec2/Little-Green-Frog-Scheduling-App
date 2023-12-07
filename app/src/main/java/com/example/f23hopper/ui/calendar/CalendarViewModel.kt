@@ -40,8 +40,6 @@ class CalendarViewModel @Inject constructor(
     private val employeeRepository: EmployeeRepository,
     private val specialDayRepo: SpecialDayRepository,
 ) : ViewModel() {
-    // Exporting helper
-    private val exporter: ScheduleExporter = ScheduleExporter()
 
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 
@@ -111,10 +109,10 @@ class CalendarViewModel @Inject constructor(
         context: Context,
         onExportComplete: (String) -> Unit
     ) {
-        val content = exporter.formatSchedule(shifts, curMonth)
-        val filename = "${curMonth.year}_${curMonth.month.value}_schedule"
-        exporter.export(filename, content, context, shifts, specialDays, curMonth)
-        onExportComplete("$filename saved to Downloads folder")
+        // Exporting helper
+        val exporter = ScheduleExporter(context, shifts, specialDays, curMonth)
+        exporter.export()
+        onExportComplete("Schedule saved to Downloads folder.")
     }
 
 
