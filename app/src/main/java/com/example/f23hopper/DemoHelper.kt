@@ -31,11 +31,11 @@ suspend fun activateDemoDatabase(db: HopperDatabase) {
         // Clear existing data
         wipeDatabase(db)
 
-        // Populate Employees
-        val employees = createEmployees()
-
-        // Insert Employees
-        insertEmployees(employees, employeeDao)
+//        // Populate Employees
+//        val employees = createEmployees()
+//
+//        // Insert Employees
+//        insertEmployees(employees, employeeDao)
 
         // Add timeoff
 //        addTimeOffForEmployees(timeOffDao, employees)

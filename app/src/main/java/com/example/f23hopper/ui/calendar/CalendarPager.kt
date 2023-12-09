@@ -361,8 +361,8 @@ fun ShiftViewEmployeeList(
                 ) {
                     Text(
                         text = "There are no employees to display",
-                        color = Color.Black,
-                        fontSize = 16.sp
+                        color = colorScheme.onBackground,
+                        fontSize = 16.sp,
                     )
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(

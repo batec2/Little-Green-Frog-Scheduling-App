@@ -299,7 +299,7 @@ fun validateEmployeesForWeek(
     endDate: LocalDate,
     allEmployees: List<Employee>
 ): Map<LocalDate, List<Employee>> {
-    val absentEmployees = allEmployees.toMutableList()
+    val absentEmployees = allEmployees.filter { e -> e.active }.toMutableList()
 
     // filter shifts by week, then remove employees present in the week, leaving absent employees
     shifts.filter { it.schedule.date.toJavaLocalDate() in startDate..endDate }
