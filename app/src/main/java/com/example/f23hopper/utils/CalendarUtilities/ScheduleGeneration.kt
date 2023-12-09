@@ -193,9 +193,10 @@ private fun canAssignMoreShifts(
     }.values.flatten()
 
     // count the shifts for the employee this week
-    val shiftCountThisWeek = shiftsThisWeek.count { shift ->
-        shift.employee.employeeId == employee.employeeId
-    }
+    val shiftCountThisWeek =
+        context.shiftsForDay.count { shift -> shift.employee.employeeId == employee.employeeId } + shiftsThisWeek.count { shift ->
+            shift.employee.employeeId == employee.employeeId
+        }
 
     // compare against maxShifts
     return shiftCountThisWeek < employee.maxShifts
