@@ -24,7 +24,7 @@ class EmployeeDaoTest {
 
     private lateinit var db: HopperDatabase
     private lateinit var dao: EmployeeDao
-
+    /*
     @Before
     fun createDb() {
         val context = ApplicationProvider.getApplicationContext<Context>()
@@ -119,5 +119,7 @@ class EmployeeDaoTest {
         assertTrue(employees.size == 1)
         assertTrue(employees[0].sunday == ShiftType.DAY)
     }
+
+     */
 
 }

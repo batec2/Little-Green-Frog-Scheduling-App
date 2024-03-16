@@ -49,12 +49,14 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        /*
         GlobalScope.launch {
             // NOTE: This will wipe the DB and then populate it with dummy fields.
             // Remove this in PROD
-            activateDemoDatabase(db)
+            //activateDemoDatabase(db)
         }
+
+         */
         setContent {
             F23HopperTheme {
                 SplashScreenTransition()
